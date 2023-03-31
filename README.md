@@ -6,6 +6,6 @@
 2. workshop this directory stores the entire project
    to start project <python -m workshop>  
 
-##With the assistance 
+## With the assistance 
 - Bondareva Alina 
   https://github.com/BondarevaAlina/BondarevaAlina.github.io
