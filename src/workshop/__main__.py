@@ -1,11 +1,11 @@
 import uvicorn
 from .settings import options
-#from workshop.database import create_db
+from workshop.database import create_db
 
 
 if __name__=='__main__':
     
-    #create_db()
+    create_db()
     
     uvicorn.run(
         'workshop.app:app',
