@@ -5,7 +5,7 @@ from ..models import Operation
 from ..database import get_session
 from ..database import tables
 
-class OperationService:
+'''class OperationService:
     def __init__(self, session: Session = Depends(get_session)):
         self.session = session
 
@@ -21,4 +21,4 @@ class OperationService:
         return operation
     
     def get(self, operation_id: int)-> tables.TableData:
-        return self._get(operation_id)
+        return self._get(operation_id)'''

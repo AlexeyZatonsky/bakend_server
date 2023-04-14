@@ -1,5 +1,5 @@
 from workshop.database.database import engine, Session
-from workshop.database.tables import Base, TableData
+from workshop.database.tables import Base
 
 
 
