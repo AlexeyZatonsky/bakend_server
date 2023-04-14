@@ -59,7 +59,7 @@ class TagCreate(TagBase):
 
 class Tag(TagBase):
     id: int
-    videos: list[Video] = []
+    videos: list(Video) = []
 
     class Config:
         orm_mode = True
@@ -82,7 +82,7 @@ class Video(VideoBase):
     user_id: int
     category_id: int
     channel_id: int
-    comments: list[VideoComment] = []
+    comments: list(VideoComment) = []
     tags: list[Tag] = []
 
     class Config:
@@ -102,7 +102,7 @@ class VideoComment(VideoCommentBase):
     id: int
     user_id: int
     video_id: int
-    votes: list[CommentVote] = []
+    votes: list(CommentVote) = []
 
     class Config:
         orm_mode = True
