@@ -3,8 +3,8 @@ from workshop.database.tables import Base
 
 
 
-def create_db():
-    Base.metadata.create_all(bind=engine)
+'''def create_db():
+    Base.metadata.create_all(bind=engine)'''
 
 def get_session() -> Session:
     session = Session

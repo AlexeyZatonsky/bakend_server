@@ -1,10 +1,12 @@
 from sqlalchemy import create_engine, Column, Integer, String, ForeignKey, Table
+from sqlalchemy import MetaData
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.ext.declarative import declarative_base
 
 
+metadata = MetaData()
 
-Base = declarative_base()
+Base = declarative_base(metadata=metadata)
 
 
 # Связующая таблица между таблицами video и tag
@@ -15,6 +17,7 @@ video_tag_table = Table('video_tag', Base.metadata,
 
 class User(Base):
     __tablename__ = 'user'
+
     id = Column(Integer, primary_key=True)
     username = Column(String(255), nullable=False)
 
@@ -23,6 +26,7 @@ class User(Base):
 
 class Channel(Base):
     __tablename__ = 'channel'
+
     id = Column(Integer, primary_key=True)
     title = Column(String(255), nullable=False)
     user_id = Column(Integer, ForeignKey('user.id'))
@@ -32,11 +36,13 @@ class Channel(Base):
 
 class Category(Base):
     __tablename__ = 'category'
+
     id = Column(Integer, primary_key=True)
     name = Column(String(255), nullable=False)
 
 class Tag(Base):
     __tablename__ = 'tag'
+
     id = Column(Integer, primary_key=True)
     name = Column(String(255), nullable=False)
 
@@ -45,6 +51,7 @@ class Tag(Base):
 
 class Video(Base):
     __tablename__ = 'video'
+
     id = Column(Integer, primary_key=True)
     title = Column(String(255), nullable=False)
     description = Column(String(1000), nullable=False)
@@ -59,6 +66,7 @@ class Video(Base):
 
 class VideoComment(Base):
     __tablename__ = 'video_comment'
+
     id = Column(Integer, primary_key=True)
     text = Column(String(1000), nullable=False)
     upload_date = Column(String(255), nullable=False)
@@ -70,6 +78,7 @@ class VideoComment(Base):
 
 class CommentVote(Base):
     __tablename__ = 'comment_vote'
+
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey('user.id'))
     comment_id = Column(Integer, ForeignKey('video_comment.id'))
