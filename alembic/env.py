@@ -4,11 +4,15 @@ from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 
 from alembic import context
-from workshop.settings.settings import DB_USER, DB_HOST, DB_PORT, DB_NAME, DB_PASS
-from workshop.database.tables import metadata
+import sys, os
 
+sys.path.append(os.path.join(sys.path[0], 'src'))
 
-
+from src.settings.config import DB_USER, DB_HOST, DB_PORT, DB_NAME, DB_PASS
+from src.users.models import users_metadata
+from src.channels.models import channels_metadata
+from src.rating_description.models import comments_metadata
+from src.videos.models import videos_metadata
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -21,7 +25,6 @@ config.set_section_option(section, 'DB_PORT', DB_PORT)
 config.set_section_option(section, 'DB_NAME', DB_NAME)
 config.set_section_option(section, 'DB_PASS', DB_PASS)
 
-
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
 if config.config_file_name is not None:
@@ -31,7 +34,10 @@ if config.config_file_name is not None:
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
-target_metadata = metadata
+target_metadata = [users_metadata,
+                   channels_metadata,
+                   videos_metadata,
+                   comments_metadata]
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:

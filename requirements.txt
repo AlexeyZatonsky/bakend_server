@@ -1,0 +1,6 @@
+alembic
+FastAPI[all]
+sqlalchemy
+python-dotenv
+fastapi-users[sqlalchemy]
+pydantic
