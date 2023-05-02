@@ -1,9 +1,0 @@
-fastapi
-uvicorn
-pydantic
-python-dotenv
-sqlalchemy
-psycopg2
-asyncpg
-alembic
-fastapi-users[sqlalchemy]
