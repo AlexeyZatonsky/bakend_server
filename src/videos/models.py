@@ -1,5 +1,6 @@
-from sqlalchemy import ARRAY, Column, ForeignKey, Integer, MetaData, String, Table
+from sqlalchemy import ARRAY, Column, ForeignKey, Integer, MetaData, String, Table, UUID
 from sqlalchemy.ext.declarative import declarative_base
+import uuid
 
 from ..users.models import User
 
@@ -27,7 +28,7 @@ class Tag(Base):
 class Video(Base):
     __tablename__ = 'video'
 
-    id = Column(Integer, primary_key=True)
+    id = Column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True)
     title = Column(String(255), nullable=False)
     description = Column(String(1000), nullable=False)
     url = Column(String(255), nullable=False)
@@ -35,12 +36,12 @@ class Video(Base):
     views = Column(Integer, nullable=False, default=0)
     likes = Column(Integer, default=0)
     dislikes = Column(Integer, default=0)
-    user_id = Column(Integer, ForeignKey(User.id))
+    user_id = Column(UUID(as_uuid=True), ForeignKey(User.id))
     category_id = Column(Integer, ForeignKey(Category.id))
 
 
 
 user = Table('video_tag', videos_metadata,
-    Column('video_id', Integer, ForeignKey(Video.id)),
+    Column('video_id', UUID(as_uuid=True), ForeignKey(Video.id)),
     Column('tag_id', Integer, ForeignKey(Tag.id)),
 )
