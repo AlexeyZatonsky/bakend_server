@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 5165b329845b
+Revision ID: aac70dd8d7f7
 Revises: 
-Create Date: 2023-05-03 23:33:25.638489
+Create Date: 2023-05-05 19:12:05.757789
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '5165b329845b'
+revision = 'aac70dd8d7f7'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -22,9 +22,8 @@ def upgrade() -> None:
     sa.Column('id', sa.UUID(), nullable=False),
     sa.Column('email', sa.String(), nullable=False),
     sa.Column('username', sa.String(length=255), nullable=False),
-    sa.Column('registrated_at', sa.TIMESTAMP(), nullable=True),
     sa.Column('is_verified', sa.Boolean(), nullable=False),
-    sa.Column('hashed_password', sa.String(), nullable=False),
+    sa.Column('hashed_password', sa.String(length=1024), nullable=False),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('channel',
@@ -49,7 +48,7 @@ def upgrade() -> None:
     sa.Column('title', sa.String(length=255), nullable=False),
     sa.Column('description', sa.String(length=1000), nullable=False),
     sa.Column('url', sa.String(length=255), nullable=False),
-    sa.Column('upload_date', sa.String(length=255), nullable=False),
+    sa.Column('upload_date', sa.TIMESTAMP(), nullable=True),
     sa.Column('views', sa.Integer(), nullable=False),
     sa.Column('likes', sa.Integer(), nullable=True),
     sa.Column('dislikes', sa.Integer(), nullable=True),

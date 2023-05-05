@@ -4,7 +4,7 @@ from sqlalchemy.ext.declarative import declarative_base
 import uuid
 from datetime import datetime
 
-from ..users.models import User
+from ..auth.models import User
 
 
 

@@ -9,7 +9,7 @@ import sys, os
 sys.path.append(os.path.join(sys.path[0], 'src'))
 
 from src.settings.config import DB_USER, DB_HOST, DB_PORT, DB_NAME, DB_PASS
-from src.users.models import users_metadata
+from src.auth.models import users_metadata
 from src.channels.models import channels_metadata
 from src.rating_description.models import comments_metadata
 from src.videos.models import videos_metadata

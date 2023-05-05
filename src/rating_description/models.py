@@ -3,7 +3,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 import uuid
 
-from ..users.models import User
+from ..auth.models import User
 from ..videos.models import Video
 
 

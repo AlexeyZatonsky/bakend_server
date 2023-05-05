@@ -2,8 +2,8 @@ from sqlalchemy import Column, ForeignKey, Integer, MetaData, String, UUID
 from sqlalchemy.ext.declarative import declarative_base
 import uuid
 
-from ..users.models import User
-from ..users.models import users_metadata
+from ..auth.models import User
+from ..auth.models import users_metadata
 
 
 channels_metadata = MetaData()
