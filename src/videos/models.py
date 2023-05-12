@@ -35,7 +35,7 @@ class Video(Base):
     description = Column(String(1000), nullable=False)
     url = Column(String(255), nullable=False)
     upload_date = Column(TIMESTAMP, default=datetime.utcnow)
-    views = Column(Integer, nullable=False, default=0)
+    views = Column(Integer, default=0)
     likes = Column(Integer, default=0)
     dislikes = Column(Integer, default=0)
     user_id = Column(UUID(as_uuid=True), ForeignKey(User.id))
