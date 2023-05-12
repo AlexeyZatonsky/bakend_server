@@ -6,20 +6,20 @@ from datetime import datetime
 
 
 
-class ReadCategory(BaseModel):
+class CategoryRead(BaseModel):
     id: int
     name: str
 
-class CreateCategory(BaseModel):
+class CategoryCreate(BaseModel):
     name: str = Field(max_length=255)
 
 
 
-class ReadTag(BaseModel):
+class TagRead(BaseModel):
     id: int
     name: str
 
-class CreateTag(BaseModel):
+class TagCreate(BaseModel):
     name: str = Field(max_length=255)
 
     
@@ -37,7 +37,7 @@ class BaseVideo(BaseModel):
     category_id: int
 
 
-class UploadVideo(BaseModel):
+class VidoeUpload(BaseModel):
     title: str = Field(max_length=255)
     description: str = Field(max_length=1000)
 
