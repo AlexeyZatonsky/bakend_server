@@ -6,13 +6,20 @@ from datetime import datetime
 
 
 
-class BaseCategory(BaseModel):
+class ReadCategory(BaseModel):
     id: int
+    name: str
+
+class CreateCategory(BaseModel):
     name: str = Field(max_length=255)
 
 
-class BaseTag(BaseModel):
+
+class ReadTag(BaseModel):
     id: int
+    name: str
+
+class CreateTag(BaseModel):
     name: str = Field(max_length=255)
 
     
@@ -28,6 +35,23 @@ class BaseVideo(BaseModel):
     dislikes: int | None = 0
     user_id: UUID
     category_id: int
+
+
+class UploadVideo(BaseModel):
+    title: str = Field(max_length=255)
+    description: str = Field(max_length=1000)
+
+class AboutVideo(BaseModel):
+    id: UUID
+    title: str
+    description: str
+    url: str
+    upload_date: datetime
+    views: int
+    likes: int
+    dislikes: int
+    user_id: UUID
+    category_id: int | None = 0
 
 
 class BaseVideoTag(BaseModel):
