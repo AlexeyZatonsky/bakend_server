@@ -9,9 +9,6 @@ from ..database import get_async_session
 from ..auth.base_config import current_user
 
 
-from .services import OperationsChannels
-
-
 
 
 router = APIRouter(
