@@ -7,7 +7,7 @@ from .auth.models import User
 
 from .auth.schemas import UserRead, UserCreate
 from .auth.base_config import auth_backend, fastapi_users
-from .channels.create_ import router as channel_router
+from .channels.router import router as channel_router
 
 
 
