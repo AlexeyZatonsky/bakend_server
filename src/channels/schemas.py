@@ -1,23 +1,19 @@
 from pydantic import BaseModel, Field
 
-from uuid import UUID, uuid4
+
+from uuid import UUID
 
 
 
-class BaseChannel(BaseModel): 
+class ChannelRead(BaseModel):
     id: UUID
-    title: str
+    title: str = Field(min_length=3, max_length=255)
     user_id: UUID
-
-
-class ChannelRead(BaseChannel):
-
     class Config:
         orm_mode=True
     
 
 
-class ChannelCreat(BaseModel):
-    id: UUID
-    title: str = Field(min_length=3, max_length=255)
-    user_id: UUID
+class ChannelCreate(BaseModel):
+    title: str
+    user_id: UUID = None
