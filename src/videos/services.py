@@ -1,4 +1,6 @@
 from fastapi import Depends
+from fastapi import UploadFile, BackgroundTasks, HTTPException
+
 from sqlalchemy.ext.asyncio import  AsyncSession
 
 from .models import Video, Tag, Category, video_tag
@@ -20,7 +22,9 @@ class OperationsVideo:
         self.session = session
         self.current_user = current_user
     
-    async def video_upload(self, video_data: VidoeUpload) -> Video:
+    async def video_upload(self, 
+                           video_data: VidoeUpload,
+                           video_file: UploadFile) -> Video:
         pass
 
     async def video_read_about(self, video_data: AboutVideo):
@@ -31,7 +35,10 @@ class OperationsVideo:
 
 
     async def category_create(self, category_data: CategoryCreate) -> Category:
-        pass
+        operation = Category(name = category_data.name)
+        self.session.add(operation)
+        await self.session.commit()
+        return operation 
 
     async def category_read(self, category_data: CategoryRead):
         pass
@@ -41,7 +48,10 @@ class OperationsVideo:
 
 
     async def tag_create(self, tag_data: TagCreate) -> Tag:
-        pass  
+        operation = Tag(name = tag_data.name)
+        self.session.add(operation)
+        await self.session.commit()
+        return operation  
 
     async def tag_read(self, tag_data: TagRead):
         pass
