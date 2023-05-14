@@ -33,7 +33,7 @@ class Video(Base):
     id = Column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True)
     title = Column(String(255), nullable=False)
     description = Column(String(1000), nullable=False)
-    url = Column(String(255), nullable=False)
+    path = Column(String, nullable=False)
     upload_date = Column(TIMESTAMP, default=datetime.utcnow)
     views = Column(Integer, default=0)
     likes = Column(Integer, default=0)
