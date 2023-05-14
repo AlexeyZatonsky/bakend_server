@@ -7,9 +7,9 @@ from .auth.models import User
 
 from .auth.schemas import UserRead, UserCreate
 from .auth.base_config import auth_backend, fastapi_users
+
 from .channels.router import router as channel_router
-
-
+from .videos.router import router as video_roter
 
 
 app = FastAPI(
@@ -35,3 +35,4 @@ async def protected_rout(user: User = Depends(User)):
     return f'hellod{user.id}, {user.username}'
 
 app.include_router(channel_router)
+app.include_router(video_roter)
