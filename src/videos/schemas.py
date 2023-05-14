@@ -40,18 +40,22 @@ class BaseVideo(BaseModel):
 class VidoeUpload(BaseModel):
     title: str = Field(max_length=255)
     description: str = Field(max_length=1000)
+    path: str = None
+    user_id: UUID = None
+    category_id: int
+
 
 class AboutVideo(BaseModel):
     id: UUID
     title: str
     description: str
-    url: str
+    path: str
     upload_date: datetime
     views: int
     likes: int
     dislikes: int
     user_id: UUID
-    category_id: int | None = 0
+    category_id: int | None = 1
 
 
 class BaseVideoTag(BaseModel):
