@@ -6,3 +6,4 @@ fastapi-users[sqlalchemy]
 pydantic
 asyncpg
 python-multipart
+aiofiles
