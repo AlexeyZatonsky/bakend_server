@@ -4,3 +4,6 @@ sqlalchemy
 python-dotenv
 fastapi-users[sqlalchemy]
 pydantic
+asyncpg
+python-multipart
+aiofiles

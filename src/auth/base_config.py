@@ -1,4 +1,4 @@
-
+from uuid import UUID
 from fastapi_users import FastAPIUsers
 from fastapi_users.authentication import (AuthenticationBackend,
                                           CookieTransport, JWTStrategy)
@@ -20,7 +20,7 @@ auth_backend = AuthenticationBackend(
     get_strategy=get_jwt_strategy,
 )
 
-fastapi_users = FastAPIUsers[User, int](
+fastapi_users = FastAPIUsers[User, UUID](
     get_user_manager,
     [auth_backend],
 )
