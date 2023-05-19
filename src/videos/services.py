@@ -19,56 +19,60 @@ from ..auth.models import User
 
 
 
-class OperationsVideo:
+class BaseOperationsVideo:
     def __init__(self,
                  session: AsyncSession=(Depends(get_async_session)),
                  current_user: User=Depends(current_user)):
         self.session = session
         self.current_user = current_user
-        self.video_folder='../../media'
+
+        self.video_folder='media'
     
     async def _get_channel(self) -> Channel:
-        operation= self.session.execute
-        (
-            select(Channel)
-            .where(Channel.user_id == self.current_user.id)
+        operation = await self.session.execute(
+        select(Channel)
+        .where(Channel.user_id == self.current_user.id)
         )
+    
+        result = operation.scalar_one_or_none()
         
-        if not operation:
-            raise HTTPException(status_cod=425, detail="you dont have a channel")
-
-        print(type(operation))
-
-        return operation
+        if not result:
+            raise HTTPException(status_code=425, detail="You don't have a channel")
+        
+        return result
 
             
-    async def write_video(title: str , file:UploadFile):
-        async with aiofiles.open(title, "wb") as buffer:
-            data = await file.read()
+    @staticmethod
+    async def write_video(file_path: str, video_file: UploadFile):
+        async with aiofiles.open(file_path, "wb") as buffer:
+            data = await video_file.read()
             await buffer.write(data)
 
     async def video_upload(self, 
     title: str,
     description: str,
     category_id: str,
-    video_file: UploadFile) -> Video:
+    video_file: UploadFile):
         
-        channel_id = await self._get_channel()
+        channel = await self._get_channel()
+        channel_id = channel.id
 
         channel_folder = f'{self.video_folder}/{channel_id}'
 
         if not os.path.lexists(channel_folder):
-            os.mkdir(channel_folder)
+            os.makedirs(channel_folder)
         
-        if os.path.exists(f'{channel_folder}/{title}'):
+        if not os.path.exists(f'{channel_folder}/{title}'):
             file_path = f'{channel_folder}/{title}.mp4'
         else:       
             raise HTTPException(status_code=405, detail="a video with that name exists")
 
-        if video_file.content_type == 'video/mp4':
+        print(video_file.content_type)
+
+        if video_file.content_type.startswith('video'):
             await self.write_video(file_path, video_file)
         else:
-            raise HTTPException(status_code=418, detail="this file is not mp4")
+            raise HTTPException(status_code=418, detail="this file is not video")
 
         operation = Video(title = title,
                           description=description,
