@@ -11,6 +11,7 @@ class CategoryRead(BaseModel):
     name: str
 
 class CategoryCreate(BaseModel):
+    id: int
     name: str = Field(max_length=255)
 
 
@@ -40,9 +41,7 @@ class BaseVideo(BaseModel):
 class VidoeUpload(BaseModel):
     title: str = Field(max_length=255)
     description: str = Field(max_length=1000)
-    path: str = None
-    user_id: UUID = None
-    category_id: int
+    category_id: str = '1'
 
 
 class AboutVideo(BaseModel):
@@ -55,7 +54,7 @@ class AboutVideo(BaseModel):
     likes: int
     dislikes: int
     user_id: UUID
-    category_id: int | None = 1
+    category_id: int
 
 
 class BaseVideoTag(BaseModel):

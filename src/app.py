@@ -1,6 +1,5 @@
 from uuid import UUID
 from fastapi import FastAPI, Depends
-from .auth.manager import get_user_manager
 
 from .auth.models import User
 

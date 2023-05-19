@@ -15,15 +15,23 @@ router = APIRouter(
 
 
 
-@router.post('/category/create', response_model=CategoryCreate, status_code=201)
-async def category_create(category_data: CategoryCreate, service: OperationsVideo=Depends()):
-    pass
+@router.post('/category/create', response_model=CategoryRead, status_code=201)
+async def category_create(
+    category_data: CategoryCreate, 
+    service: OperationsVideo=Depends()
+                          ):
+    return service.category_create(category_data)
+    
 
-@router.post('/upload/', response_model=VidoeUpload, status_code=210)
+   
+
+@router.post('/upload/', response_model=AboutVideo, status_code=210)
 async def video_upload(
-    video_data: VidoeUpload, 
+    title: str,
+    description: str,
+    category_id: str, 
     video_file: UploadFile, 
     service: OperationsVideo = Depends()
 ):
-    return service.video_upload(video_data, video_file)
+    return await service.video_upload(title, description, category_id, video_file)
 
