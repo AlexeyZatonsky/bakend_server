@@ -10,6 +10,9 @@ class CategoryRead(BaseModel):
     id: int
     name: str
 
+    class Config:
+        orm_mode = True
+
 class CategoryCreate(BaseModel):
     id: int
     name: str = Field(max_length=255)
@@ -55,6 +58,9 @@ class AboutVideo(BaseModel):
     dislikes: int
     user_id: UUID
     category_id: int
+
+    class Config:
+        orm_mode = True
 
 
 class BaseVideoTag(BaseModel):
