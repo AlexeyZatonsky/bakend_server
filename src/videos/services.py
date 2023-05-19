@@ -55,38 +55,33 @@ class BaseOperationsVideo:
     video_file: UploadFile):
         
         channel = await self._get_channel()
-        channel_id = channel.id
 
-        channel_folder = f'{self.video_folder}/{channel_id}'
-
+        channel_folder = f'{self.video_folder}/{channel.id}'
         if not os.path.lexists(channel_folder):
             os.makedirs(channel_folder)
         
-        if not os.path.exists(f'{channel_folder}/{title}'):
-            file_path = f'{channel_folder}/{title}.mp4'
-        else:       
-            raise HTTPException(status_code=405, detail="a video with that name exists")
+        file_path = f'{channel_folder}/{title}.mp4'
+        if os.path.exists(f'{channel_folder}/{title}'):
+            raise HTTPException(status_code=405, detail="A video with that name already exists")
 
-        print(video_file.content_type)
-
-        if video_file.content_type.startswith('video'):
-            await self.write_video(file_path, video_file)
-        else:
-            raise HTTPException(status_code=418, detail="this file is not video")
+        if not video_file.content_type.startswith('video'):
+            raise HTTPException(status_code=418, detail="This file is not a video")
+           
+        await self.write_video(file_path, video_file)
 
         operation = Video(title = title,
                           description=description,
                           path = file_path,
                           user_id = self.current_user.id,
-                          category_id = int(category_id))
-
+                          category_id = int(category_id)
+        )
         self.session.add(operation)
         await self.session.commit()
 
         return operation
     
 
-    async def video_read_about(self, video_data: AboutVideo):
+    async def video_read_about(self, video_data: AboutVideo) -> AboutVideo:
         pass
 
     async def video_remove(self): pass
