@@ -14,7 +14,6 @@ class CategoryRead(BaseModel):
         orm_mode = True
 
 class CategoryCreate(BaseModel):
-    id: int
     name: str = Field(max_length=255)
 
 

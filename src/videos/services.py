@@ -19,7 +19,7 @@ from ..auth.models import User
 
 
 
-class BaseOperationsVideo:
+class BaseVideoServices:
     def __init__(self,
                  session: AsyncSession=(Depends(get_async_session)),
                  current_user: User=Depends(current_user)):
@@ -55,52 +55,71 @@ class BaseOperationsVideo:
     video_file: UploadFile):
         
         channel = await self._get_channel()
-        channel_id = channel.id
 
-        channel_folder = f'{self.video_folder}/{channel_id}'
-
+        channel_folder = f'{self.video_folder}/{channel.id}'
         if not os.path.lexists(channel_folder):
             os.makedirs(channel_folder)
         
-        if not os.path.exists(f'{channel_folder}/{title}'):
-            file_path = f'{channel_folder}/{title}.mp4'
-        else:       
-            raise HTTPException(status_code=405, detail="a video with that name exists")
+        file_path = f'{channel_folder}/{title}.mp4'
+        if os.path.exists(f'{channel_folder}/{title}'):
+            raise HTTPException(status_code=405, detail="A video with that name already exists")
 
-        print(video_file.content_type)
-
-        if video_file.content_type.startswith('video'):
-            await self.write_video(file_path, video_file)
-        else:
-            raise HTTPException(status_code=418, detail="this file is not video")
+        if not video_file.content_type.startswith('video'):
+            raise HTTPException(status_code=418, detail="This file is not a video")
+           
+        await self.write_video(file_path, video_file)
 
         operation = Video(title = title,
                           description=description,
                           path = file_path,
                           user_id = self.current_user.id,
-                          category_id = int(category_id))
-
+                          category_id = int(category_id)
+        )
         self.session.add(operation)
         await self.session.commit()
 
         return operation
     
 
-    async def video_read_about(self, video_data: AboutVideo):
+    async def video_read_about(self, video_data: AboutVideo) -> AboutVideo:
         pass
 
-    async def video_remove(self): pass
+    async def video_remove(self, title:str):
+
+        search_video = await self.session.execute(
+            select(Video)
+            .where(Video.title == title)
+        )
+        video = search_video.scalar_one_or_none()
+        
+        if not video:
+            raise HTTPException(status_code=408, detail='a video with that name does not exist')        
+
+        await self.session.delete(video)
+        await self.session.commit()
+
+        file_path = video.path
+
+        if os.path.exists(file_path):
+            os.remove(file_path)
+
+        return {'message': 'Video removed successfully'}
 
 
 
     async def category_create(self, category_data: CategoryCreate) -> CategoryRead:
-        operation = Category(name = category_data.name, id=category_data.id)
+        operation = Category(name = category_data.name)
         self.session.add(operation)
         await self.session.commit()
         return operation 
 
-    async def category_read(self, category_data: CategoryRead):
-        pass
+    async def category_read(self) -> list[Category]:
+        operation = await self.session.execute(
+            select(Category)
+        )
+        result = operation.scalars()
+        
+        return result
 
     async def category_remove(self): pass
 
