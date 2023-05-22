@@ -19,7 +19,7 @@ from ..auth.models import User
 
 
 
-class BaseOperationsVideo:
+class BaseVideoServices:
     def __init__(self,
                  session: AsyncSession=(Depends(get_async_session)),
                  current_user: User=Depends(current_user)):
@@ -84,18 +84,42 @@ class BaseOperationsVideo:
     async def video_read_about(self, video_data: AboutVideo) -> AboutVideo:
         pass
 
-    async def video_remove(self): pass
+    async def video_remove(self, title:str):
+
+        search_video = await self.session.execute(
+            select(Video)
+            .where(Video.title == title)
+        )
+        video = search_video.scalar_one_or_none()
+        
+        if not video:
+            raise HTTPException(status_code=408, detail='a video with that name does not exist')        
+
+        await self.session.delete(video)
+        await self.session.commit()
+
+        file_path = video.path
+
+        if os.path.exists(file_path):
+            os.remove(file_path)
+
+        return {'message': 'Video removed successfully'}
 
 
 
     async def category_create(self, category_data: CategoryCreate) -> CategoryRead:
-        operation = Category(name = category_data.name, id=category_data.id)
+        operation = Category(name = category_data.name)
         self.session.add(operation)
         await self.session.commit()
         return operation 
 
-    async def category_read(self, category_data: CategoryRead):
-        pass
+    async def category_read(self) -> list[Category]:
+        operation = await self.session.execute(
+            select(Category)
+        )
+        result = operation.scalars()
+        
+        return result
 
     async def category_remove(self): pass
 
