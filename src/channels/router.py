@@ -18,7 +18,7 @@ router = APIRouter(
 
 
 
-@router.post('/create/', response_model= ChannelCreate, status_code=201)
+@router.post('/', response_model= ChannelCreate, status_code=201)
 async def create_channel(
     schema: ChannelCreate,
     session: AsyncSession = Depends(get_async_session),

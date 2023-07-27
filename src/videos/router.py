@@ -14,7 +14,7 @@ router = APIRouter(
 
 
 
-@router.post('/category/create', response_model=CategoryRead, status_code=201)
+@router.post('/category/', response_model=CategoryRead, status_code=201)
 async def category_create(
     category_data: CategoryCreate, 
     service: BaseVideoServices=Depends()
@@ -24,7 +24,7 @@ async def category_create(
 
    
 
-@router.post('/upload/', response_model=AboutVideo, status_code=210)
+@router.post('/', response_model=AboutVideo, status_code=210)
 async def video_upload(
     title: str,
     description: str,
@@ -34,11 +34,11 @@ async def video_upload(
 ):
     return await service.video_upload(title, description, category_id, video_file)
 
-@router.delete('/delete', response_model=None, status_code=200)
+@router.delete('/', response_model=None, status_code=200)
 async def video_delete(title: str, service: BaseVideoServices = Depends()):
     return await service.video_remove(title)
 
 
-@router.get('/category/read', response_model=list[CategoryRead], status_code=200)
+@router.get('/category/', response_model=list[CategoryRead], status_code=200)
 async def category_read(service: BaseVideoServices = Depends()):
     return await service.category_read()
