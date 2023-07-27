@@ -15,7 +15,6 @@ app = FastAPI(
     title = "vidoses"
 )
 
-current_user = fastapi_users.current_user()
 
 app.include_router(
     fastapi_users.get_auth_router(auth_backend),
@@ -29,9 +28,6 @@ app.include_router(
     tags=["Auth"],
 )
 
-@app.get('/protected-rout')
-async def protected_rout(user: User = Depends(User)):
-    return f'hellod{user.id}, {user.username}'
 
 app.include_router(channel_router)
 app.include_router(video_roter)
