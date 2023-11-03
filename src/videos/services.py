@@ -27,6 +27,9 @@ class BaseVideoServices:
         self.current_user = current_user
 
         self.video_folder='media'
+
+    def __len__(): pass
+    def __str__(): pass 
     
     async def _get_channel(self) -> Channel:
         operation = await self.session.execute(
@@ -52,7 +55,7 @@ class BaseVideoServices:
     title: str,
     description: str,
     category_id: str,
-    video_file: UploadFile):
+    video_file: UploadFile) -> VidoeUpload:
         
         channel = await self._get_channel()
 
@@ -69,7 +72,7 @@ class BaseVideoServices:
            
         await self.write_video(file_path, video_file)
 
-        operation = Video(title = title,
+        operation = Video(title = title, 
                           description=description,
                           path = file_path,
                           user_id = self.current_user.id,
