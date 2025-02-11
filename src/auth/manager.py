@@ -1,14 +1,10 @@
 from typing import Optional
 
 from fastapi import Depends, Request
-from fastapi_users import BaseUserManager, UUIDIDMixin
-import uuid
-from typing import Optional
-
-from fastapi import Depends, Request
 from fastapi_users import BaseUserManager, UUIDIDMixin, exceptions, models, schemas
+import uuid
 
-from .models import User
+from .models import Users
 from .utils import get_user_db
 from ..settings.config import SECRET_AUTH
 
@@ -16,11 +12,12 @@ from ..settings.config import SECRET_AUTH
 
 
 
-class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
+
+class UserManager(UUIDIDMixin, BaseUserManager[Users, uuid.UUID]):
     reset_password_token_secret = SECRET_AUTH
     verification_token_secret = SECRET_AUTH
 
-    async def on_after_register(self, user: User, request: Optional[Request] = None):
+    async def on_after_register(self, user: Users, request: Optional[Request] = None):
         print(f"User {user.id} has registered.")
 
     async def create(

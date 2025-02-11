@@ -1,17 +1,13 @@
 from sqlalchemy import Column, MetaData, String, Boolean, UUID
 from sqlalchemy.ext.declarative import declarative_base
 from fastapi_users_db_sqlalchemy import SQLAlchemyBaseUserTableUUID
-
 import uuid
 
+# Импортируем Base из database.py
+from ..database import Base
 
-users_metadata = MetaData()
-
-Base = declarative_base(metadata=users_metadata)
-
-
-class User(SQLAlchemyBaseUserTableUUID, Base):
-    __tablename__ = 'user'
+class Users(SQLAlchemyBaseUserTableUUID, Base):
+    __tablename__ = 'users'
 
     id = Column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True)
     email = Column(String, nullable=False)

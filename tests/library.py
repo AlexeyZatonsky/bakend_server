@@ -12,5 +12,5 @@ class Base(DeclarativeBase):
     pass
 
 
-class User(SQLAlchemyBaseUserTableUUID, Base):
+class Users(SQLAlchemyBaseUserTableUUID, Base):
     pass

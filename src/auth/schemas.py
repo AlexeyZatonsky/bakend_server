@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr, Field, ConfigDict
 
 from uuid import UUID, uuid4
 
@@ -15,9 +15,18 @@ class UserRead(schemas.BaseUser[UUID]):
     is_verified: bool | None = False
     is_active: bool = True
     
-
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(
+        from_attributes=True,
+        json_schema_extra = {
+            "example": {
+                "id": "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
+                "email": "user@example.com",
+                "username": "johndoe",
+                "is_active": True,
+                "is_verified": False,
+            }
+        }
+    )
 
 class UserCreate(schemas.BaseUserCreate):
     id: UUID | None = None
@@ -27,3 +36,14 @@ class UserCreate(schemas.BaseUserCreate):
     is_active: bool | None = True
     is_superuser: bool | None = False
     is_verified: bool | None = False
+
+    model_config = ConfigDict(
+        from_attributes=True,
+        json_schema_extra = {
+            "example": {
+                "email": "user@example.com",
+                "username": "johndoe",
+                "password": "strongpassword123"
+            }
+        }
+    )

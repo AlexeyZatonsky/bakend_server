@@ -14,7 +14,7 @@ TagRead, TagCreate, VidoeUpload, AboutVideo, BaseVideoTag
 from ..database import get_async_session
 
 from ..auth.base_config import current_user
-from ..auth.models import User
+from ..auth.models import Users
 
 
 
@@ -22,7 +22,7 @@ from ..auth.models import User
 class BaseVideoServices:
     def __init__(self,
                  session: AsyncSession=(Depends(get_async_session)),
-                 current_user: User=Depends(current_user)):
+                 current_user: Users=Depends(current_user)):
         self.session = session
         self.current_user = current_user
 

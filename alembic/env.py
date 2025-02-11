@@ -9,10 +9,11 @@ import sys, os
 sys.path.append(os.path.join(sys.path[0], 'src'))
 
 from src.settings.config import DB_USER, DB_HOST, DB_PORT, DB_NAME, DB_PASS
-from src.auth.models import users_metadata
-from src.channels.models import channels_metadata
-from src.rating_description.models import comments_metadata
-from src.videos.models import videos_metadata
+from src.database import Base
+from src.auth.models import Users
+from src.videos.models import Video, Category, Tag
+from src.channels.models import Channel
+from src.rating_description.models import VideoComment, CommentVote
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -34,10 +35,7 @@ if config.config_file_name is not None:
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
-target_metadata = [users_metadata,
-                   channels_metadata,
-                   videos_metadata,
-                   comments_metadata]
+target_metadata = Base.metadata
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:

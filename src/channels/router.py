@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
-from ..auth.models import User
+from ..auth.models import Users
 from .models import Channel
 from .schemas import ChannelCreate
 from ..database import get_async_session
@@ -22,7 +22,7 @@ router = APIRouter(
 async def create_channel(
     schema: ChannelCreate,
     session: AsyncSession = Depends(get_async_session),
-    current_user: User = Depends(current_user)
+    current_user: Users = Depends(current_user)
 ):
 
     operation = Channel(title=schema.title, user_id=current_user.id)
