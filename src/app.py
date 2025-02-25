@@ -8,7 +8,7 @@ from .auth.router import router as auth_router
 from .auth.dependencies import get_current_user
 
 from .channels.router import router as channel_router
-from .videos.router import router as video_router
+# from .videos.router import router as video_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
