@@ -26,7 +26,7 @@ app = FastAPI(
 # Регистрируем роутеры
 app.include_router(auth_router)
 app.include_router(channel_router)
-app.include_router(video_router)
+# app.include_router(video_router)
 
 @app.get('/protected-route')
 async def protected_route(current_user: Users = Depends(get_current_user)):

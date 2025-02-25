@@ -1,17 +1,17 @@
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import BaseModel, Field
 from uuid import UUID
+from typing import Optional
 
+class ChannelBase(BaseModel):
+    unique_name: str = Field(min_length=1, max_length=255)
+    avatar: Optional[str] = None
+    subscribers_count: int = Field(default=0)
 
+class ChannelCreate(ChannelBase):
+    pass
 
-class ChannelRead(BaseModel):
-    id: UUID
-    title: str = Field(min_length=3, max_length=255)
-    user_id: UUID
+class ChannelRead(ChannelBase):
+    owner_id: UUID
 
-    model_config = ConfigDict(from_attributes=True)
-    
-
-
-class ChannelCreate(BaseModel):
-    title: str
-    user_id: UUID = None
+    class Config:
+        from_attributes = True
