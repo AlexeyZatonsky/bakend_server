@@ -1,3 +1,4 @@
+#basic dependency
 alembic>=1.13.1
 FastAPI[all]
 sqlalchemy>=2.0.25
@@ -11,4 +12,6 @@ passlib[bcrypt]==1.7.4
 bcrypt==4.0.1
 python-jose[cryptography]>=3.3.0
 
-
+#tests dependency
+pytest>=7.0.0
+httpx>=0.23.0
