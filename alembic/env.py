@@ -11,9 +11,12 @@ sys.path.append(os.path.join(sys.path[0], 'src'))
 from src.settings.config import DB_USER, DB_HOST, DB_PORT, DB_NAME, DB_PASS
 from src.database import Base
 from src.auth.models import Users
-from src.videos.models import Video, Category, Tag
-from src.channels.models import Channel
+from src.channels.models import Channels
+from src.courses.models import Corses, CoursesStructure
+from src.permissions.models import UsersPermission
+from src.videos.models import Video, VideoMetadatas, Category, Tag
 from src.rating_description.models import VideoComment, CommentVote
+
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

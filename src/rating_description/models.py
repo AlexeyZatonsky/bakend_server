@@ -10,14 +10,14 @@ class VideoComment(Base):
     id = Column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True)
     text = Column(String(1000), nullable=False)
     upload_date = Column(String(255), nullable=False)
-    user_id = Column(UUID(as_uuid=True), ForeignKey(Users.id))
+    user_id = Column(UUID(as_uuid=True), ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
     video_id = Column(UUID(as_uuid=True), ForeignKey(Video.id))
 
 
 class CommentVote(Base):
     __tablename__ = 'comment_vote'
     id = Column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True)
-    user_id = Column(UUID(as_uuid=True), ForeignKey(Users.id))
-    comment_id = Column(UUID(as_uuid=True), ForeignKey(VideoComment.id))
+    user_id = Column(UUID(as_uuid=True), ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
+    comment_id = Column(UUID(as_uuid=True), ForeignKey('video_comment.id', ondelete='CASCADE'), nullable=False)
     value = Column(Integer, nullable=False, default=0)
 

@@ -8,10 +8,10 @@ from ..database import Base
 
 channels_metadata = MetaData()
 
-class Channel(Base):
-    __tablename__ = 'channel'
+class Channels(Base):
+    __tablename__ = 'channels'
 
-    id = Column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True)
-    title = Column(String(255), nullable=False)
-    user_id = Column(UUID(as_uuid=True), ForeignKey(Users.id))
- 
+    unique_name = Column(String(255), unique=True, primary_key=True)
+    owner_id = Column(UUID(as_uuid=True), ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
+    avatar = Column(String(1000), nullable=True)
+    subscribers_count = Column(Integer, default=0, nullable=False)
