@@ -5,13 +5,14 @@ from typing import Optional
 class ChannelBase(BaseModel):
     unique_name: str = Field(min_length=1, max_length=255)
     avatar: Optional[str] = None
-    subscribers_count: int = Field(default=0)
+    
 
 class ChannelCreate(ChannelBase):
     pass
 
 class ChannelRead(ChannelBase):
     owner_id: UUID
+    subscribers_count: int = Field(default=0)
 
     class Config:
         from_attributes = True
