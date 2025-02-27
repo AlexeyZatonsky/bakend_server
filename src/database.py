@@ -3,9 +3,10 @@ from sqlalchemy import MetaData
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import DeclarativeBase, sessionmaker
 
-from .settings.config import DB_HOST, DB_NAME, DB_PASS, DB_PORT, DB_USER
+from .settings.config import settings
 
-DATABASE_URL = f"postgresql+asyncpg://{DB_USER}:{DB_PASS}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+# Один URL будет использовать правильные настройки в зависимости от TESTING
+DATABASE_URL = settings.database_url
 
 class Base(DeclarativeBase):
     metadata = MetaData()

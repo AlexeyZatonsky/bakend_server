@@ -10,7 +10,7 @@ import sys
 
 from .models import Users, SecretInfo
 from .schemas import UserCreate
-from ..settings.config import SECRET_AUTH
+from ..settings.config import settings
 
 # Настраиваем логирование
 logger = logging.getLogger(__name__)
@@ -37,7 +37,7 @@ class AuthService:
         to_encode = data.copy()
         expire = datetime.utcnow() + timedelta(minutes=30)
         to_encode.update({"exp": expire})
-        encoded_jwt = jwt.encode(to_encode, SECRET_AUTH, algorithm="HS256")
+        encoded_jwt = jwt.encode(to_encode, settings.SECRET_AUTH, algorithm="HS256")
         logger.info(f"Created access token for user ID: {data.get('sub')}")
         return encoded_jwt
 

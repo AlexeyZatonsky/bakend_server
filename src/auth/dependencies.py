@@ -5,8 +5,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from .models import Users
 from .router import oauth2_scheme
-from ..database import get_async_session
-from ..settings.config import SECRET_AUTH
+from ..database import  get_async_session
+from ..settings.config import settings
 
 async def get_current_user(
     request: Request,
@@ -30,7 +30,11 @@ async def get_current_user(
         raise credentials_exception
 
     try:
-        payload = jwt.decode(token, SECRET_AUTH, algorithms=["HS256"])
+        payload = jwt.decode(
+            token, 
+            settings.SECRET_AUTH,
+            algorithms=["HS256"]
+            )
         user_id: str = payload.get("sub")
         if user_id is None:
             raise credentials_exception

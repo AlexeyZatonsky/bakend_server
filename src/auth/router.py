@@ -7,6 +7,7 @@ import logging
 from .schemas import UserLogin, UserCreate, UserRead
 from .service import AuthService
 from ..database import get_async_session
+from ..settings.config import settings
 
 logger = logging.getLogger(__name__)
 
@@ -59,6 +60,7 @@ async def logout(response: Response):
         key="access_token",
         httponly=True,
         samesite="lax",
-        secure=False  # В продакшене с HTTPS установите True
+        secure=False  
+        # secure = !TESTING
     )
     return {"detail": "Successfully logged out"} 

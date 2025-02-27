@@ -4,36 +4,31 @@ from fastapi import UploadFile, BackgroundTasks, HTTPException
 
 from sqlalchemy.ext.asyncio import  AsyncSession
 from sqlalchemy import select
+from uuid import UUID
 
 from .models import Video, Tag, Category, video_tag
-from ..channels.models import Channel
+from ..channels.models import Channels
 from ..channels.schemas import  ChannelRead
 from .schemas import CategoryRead, CategoryCreate, \
 TagRead, TagCreate, VidoeUpload, AboutVideo, BaseVideoTag
 
 from ..database import get_async_session
 
-from ..auth.base_config import current_user
 from ..auth.models import Users
 
 
 
 
 class BaseVideoServices:
-    def __init__(self,
-                 session: AsyncSession=(Depends(get_async_session)),
-                 current_user: Users=Depends(current_user)):
+    def __init__(self, session: AsyncSession):
         self.session = session
-        self.current_user = current_user
+        self.video_folder = 'media'
 
-        self.video_folder='media'
-    
-    async def _get_channel(self) -> Channel:
+    async def _get_channel(self) -> Channels:
         operation = await self.session.execute(
-        select(Channel)
-        .where(Channel.user_id == self.current_user.id)
+            select(Channels)
+            .where(Channels.owner_id == self.current_user.id)
         )
-    
         result = operation.scalar_one_or_none()
         
         if not result:
@@ -49,11 +44,12 @@ class BaseVideoServices:
             await buffer.write(data)
 
     async def video_upload(self, 
-    title: str,
-    description: str,
-    category_id: str,
-    video_file: UploadFile):
-        
+        title: str,
+        description: str,
+        category_id: str,
+        video_file: UploadFile,
+        user: Users
+    ):
         channel = await self._get_channel()
 
         channel_folder = f'{self.video_folder}/{channel.id}'
@@ -69,11 +65,12 @@ class BaseVideoServices:
            
         await self.write_video(file_path, video_file)
 
-        operation = Video(title = title,
-                          description=description,
-                          path = file_path,
-                          user_id = self.current_user.id,
-                          category_id = int(category_id)
+        operation = Video(
+            title=title,
+            description=description,
+            path=file_path,
+            user_id=user.id,
+            category_id=int(category_id)
         )
         self.session.add(operation)
         await self.session.commit()
