@@ -18,7 +18,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
 async def get_auth_service(session: AsyncSession = Depends(get_async_session)):
     return AuthService(session)
 
-@router.post("/register", response_model=UserRead)
+@router.post("/register", response_model=UserRead, status_code=201)
 async def register(
     user_data: UserCreate,
     auth_service: AuthService = Depends(get_auth_service)
