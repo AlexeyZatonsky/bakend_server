@@ -32,6 +32,11 @@ class ChannelService:
         self.session.add(channel)
         await self.session.commit()
         return channel
+    
+    async def get_channels(self) -> list[Channels]:
+        query = select(Channels).limit(20)
+        result = await self.session.execute(query)
+        return result.scalars().all()
 
     async def get_channel(self, channel_name: str) -> Channels:
         query = select(Channels).where(Channels.unique_name == channel_name)

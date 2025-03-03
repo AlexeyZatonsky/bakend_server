@@ -45,6 +45,11 @@ async def get_user_channels(
 ):
     return await channel_service.get_user_channels(owner_id)
 
+@router.get("/get", response_model=list[ChannelRead], status_code=200)
+async def get_channels(channel_service: ChannelService = Depends(get_channel_service)):
+    return await channel_service.get_channels()
+
+
 @router.delete("/{unique_name}")
 async def delete_channel(
     unique_name: str,
