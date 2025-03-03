@@ -9,7 +9,7 @@ from sqlalchemy.orm import DeclarativeBase
 from typing import Type, List, AsyncGenerator
 
 
-@pytest.fixture
+@pytest.fixture()
 def user_data_model() -> UserCreate:
     return UserCreate(
         email="test@example.com",
@@ -17,25 +17,10 @@ def user_data_model() -> UserCreate:
         password="testpassword123"
     )
 
-@pytest.fixture(scope="session")
-async def ac() -> AsyncGenerator[AsyncClient, None]:
-    async with AsyncClient(
-        transport=ASGITransport(app=app),
-        base_url="http://test"
-    ) as ac:
-        yield ac
         
-async def is_table_empty(session: AsyncSession, table: Type[DeclarativeBase]) -> bool:
-    result = await session.execute(select(table))
-    return len(result.scalars().all()) == 0
-
-async def delete_from_table(session: AsyncSession, tables: List[Type[DeclarativeBase]]) -> None:
-    for table in tables:
-        await session.execute(delete(table))
-    await session.commit()
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio(loop_scope="session")
 async def test_register_new_user(
     user_data_model: UserCreate, 
     session: AsyncSession,
@@ -62,7 +47,7 @@ async def test_register_new_user(
     await session.execute(delete(Users))
     await session.commit()
         
-@pytest.mark.asyncio
+@pytest.mark.asyncio(loop_scope="session")
 async def test_duplicate_email_register(
     user_data_model: UserCreate, 
     session: AsyncSession,
@@ -84,11 +69,10 @@ async def test_duplicate_email_register(
     }
     
     # Проверяем количество записей в БД
-    assert not await is_table_empty(session, Users)
     assert len((await session.execute(select(Users))).scalars().all()) == 1
     assert len((await session.execute(select(SecretInfo))).scalars().all()) == 1
     
-    # Очищаем таблицы после теста
-    await delete_from_table(session, [SecretInfo, Users])
+    await session.execute(delete(Users))
+    await session.commit()
 
 

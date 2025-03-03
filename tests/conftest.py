@@ -6,40 +6,35 @@ from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from src.database import get_async_session
 from src.app import app
 from typing import AsyncGenerator
-import asyncio
+
 from httpx import AsyncClient, ASGITransport
+
+from src.settings.config import settings
+
 
 sys.path.append(str(Path(__file__).parent.parent))
 
 @pytest.fixture(scope="session", autouse=True)
-def faker_session_locale():
-    return ["ru_RU"]
+def verify_test_environment():
+    if settings.MODE != "TEST":
+        pytest.skip("Skipping tests for non-test environment")
 
-@pytest.fixture(scope="session")
-def event_loop():
-    """Create an instance of the default event loop for each test case."""
-    loop = asyncio.get_event_loop_policy().new_event_loop()
-    yield loop
-    loop.close()
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="function")
 async def ac() -> AsyncGenerator[AsyncClient, None]:
-    """
-    Создает асинхронный клиент для тестов
-    """
+
     async with AsyncClient(
         transport=ASGITransport(app=app),
         base_url="http://test"
     ) as client:
         yield client
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="function")
 async def session() -> AsyncGenerator[AsyncSession, None]:
-    """
-    Создает сессию для тестов
-    """
     async for session in get_async_session():
         yield session
+        await session.close()
+        
 
 def pytest_addoption(parser):
     parser.addoption(
