@@ -1,6 +1,6 @@
 from passlib.context import CryptContext
 from jose import JWTError, jwt
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 from typing import Optional
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -35,7 +35,7 @@ class AuthService:
 
     def create_access_token(self, data: dict) -> str:
         to_encode = data.copy()
-        expire = datetime.utcnow() + timedelta(minutes=30)
+        expire = datetime.now(UTC) + timedelta(minutes=30)
         to_encode.update({"exp": expire})
         encoded_jwt = jwt.encode(to_encode, settings.SECRET_AUTH, algorithm="HS256")
         logger.info(f"Created access token for user ID: {data.get('sub')}")
