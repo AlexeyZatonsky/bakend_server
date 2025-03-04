@@ -3,52 +3,13 @@ import pytest_asyncio
 from httpx import AsyncClient
 from sqlalchemy import select, delete
 from sqlalchemy.ext.asyncio import AsyncSession
-
-
+from conftest import UserTestData
 
 from src.auth.schemas import UserCreate, UserRead, UserLogin
 from src.auth.models import Users, SecretInfo
 
 
-TEST_EMAIL = "test@example.com"
-TEST_USERNAME = "testuser"
-TEST_PASSWORD = "testpassword123"
-WRONG_PASSWORD = "wrongpassword"
-NONEXISTENT_EMAIL = "nonexistent@example.com"
 
-
-
-
-
-@pytest_asyncio.fixture(autouse=True)
-async def clean_tables(session: AsyncSession):    
-    """
-    Автоматически очищает таблицы до и после каждого теста.
-    Использует каскадное удаление: удаление из Users автоматически удалит записи из SecretInfo.
-    """
-    yield
-
-    await session.execute(delete(Users))
-    await session.execute(delete(SecretInfo))
-    await session.commit()
-
-@pytest.fixture(scope="session")
-def user_data_model() -> UserCreate:
-    """Создает тестовые данные для регистрации пользователя."""
-    return UserCreate(
-        email=TEST_EMAIL,
-        username=TEST_USERNAME,
-        password=TEST_PASSWORD
-    )
-
-@pytest.fixture(scope="session")
-def user_login_data(user_data_model: UserCreate) -> UserLogin:
-    """Создает тестовые данные для входа пользователя на основе данных регистрации."""
-    return UserLogin(
-        email=user_data_model.email,
-        password=user_data_model.password
-    )
-        
 
 
 @pytest.mark.asyncio(loop_scope="session")
@@ -148,6 +109,7 @@ async def test_successful_login(
 @pytest.mark.asyncio(loop_scope="session")
 async def test_login_wrong_password(
     user_data_model: UserCreate,
+    test_user_data: UserTestData,
     ac: AsyncClient
 ):
     """
@@ -159,8 +121,8 @@ async def test_login_wrong_password(
     await ac.post("/auth/register", json=user_data_model.model_dump())
     
     login_form_data = {
-        "username": user_data_model.email,
-        "password": WRONG_PASSWORD
+        "username": test_user_data.email,
+        "password": test_user_data.wrong_password
     }
     response = await ac.post("/auth/login", data=login_form_data)
     
@@ -170,6 +132,7 @@ async def test_login_wrong_password(
 
 @pytest.mark.asyncio(loop_scope="session")
 async def test_login_nonexistent_email(
+    test_user_data: UserTestData,
     user_login_data: UserLogin,
     ac: AsyncClient
 ):
@@ -178,7 +141,7 @@ async def test_login_nonexistent_email(
     Проверяет корректную обработку ошибки.
     """
     login_form_data = {
-        "username": NONEXISTENT_EMAIL,
+        "username": test_user_data.nonexistent_email,
         "password": user_login_data.password
     }
     response = await ac.post("/auth/login", data=login_form_data)
