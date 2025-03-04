@@ -1,15 +1,14 @@
 import pytest 
 import pytest_asyncio
-from httpx import AsyncClient
-from src.database import Base, engine
-from src.app import app
+
+from sqlalchemy import delete
+from sqlalchemy.ext.asyncio import AsyncSession
+from pydantic import BaseModel, EmailStr
+
 from src.auth.models import Users, SecretInfo
 from src.auth.schemas import UserCreate, UserLogin
 
-from sqlalchemy import select, delete
-from sqlalchemy.ext.asyncio import AsyncSession
-from pydantic import BaseModel, EmailStr
-from typing import AsyncGenerator
+
 
 
 TEST_EMAIL = "test@example.com"
