@@ -32,6 +32,14 @@ async def login(
     auth_service: AuthService = Depends(get_auth_service),
     response: Response = None
 ):
+    """
+    Login endpoint that accepts email and password.
+    
+    - **username**: User's email address (despite the field name being 'username')
+    - **password**: User's password
+    
+    Returns access token which is also set as an HTTP-only cookie.
+    """
     logger.info(f"Received login request for username: {form_data.username}")
     user = await auth_service.authenticate_user(form_data.username, form_data.password)
     if not user:
