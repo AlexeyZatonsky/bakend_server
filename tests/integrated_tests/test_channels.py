@@ -112,17 +112,4 @@ async def test_create_duplicate_channel(
     assert response.json()["detail"] == "Channel with this name already exists"
 
 
-@pytest_asyncio.fixture(autouse=True)
-async def clean_channels(session: AsyncSession):
-    """
-    Автоматически очищает таблицу каналов до и после каждого теста.
-    Использует каскадное удаление для связанных записей.
-    """
-    await session.execute(delete(Channels))
-    await session.commit()
-    yield
-    await session.execute(delete(Channels))
-    await session.commit()
-
-
 
