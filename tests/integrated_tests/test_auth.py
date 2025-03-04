@@ -120,8 +120,8 @@ async def test_login_wrong_password(
     await ac.post("/auth/register", json=user_data_model.model_dump())
     
     login_form_data = {
-        "username": test_user_data.email,
-        "password": test_user_data.wrong_password
+        "username": test_user_data.test_user_email,
+        "password": test_user_data.test_wrong_password
     }
     response = await ac.post("/auth/login", data=login_form_data)
     
@@ -140,7 +140,7 @@ async def test_login_nonexistent_email(
     Проверяет корректную обработку ошибки.
     """
     login_form_data = {
-        "username": test_user_data.nonexistent_email,
+        "username": test_user_data.test_nonexistent_email,
         "password": user_login_data.password
     }
     response = await ac.post("/auth/login", data=login_form_data)
