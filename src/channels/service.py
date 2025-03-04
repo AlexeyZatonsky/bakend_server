@@ -13,21 +13,36 @@ class ChannelService:
         self.session = session
 
     async def _unique_channel_name_check(self, channel_name: str) -> bool:
+        """
+        Проверяет, существует ли канал с таким именем
+        Returns:
+            bool: True если канал существует, False если не существует
+        """
         query = select(Channels).where(Channels.unique_name == channel_name)
         result = await self.session.execute(query)
-        return result.scalar_one_or_none() is None
+        return result.scalar_one_or_none() is not None
 
     async def create_channel(self, channel_data: ChannelCreate, user: Users) -> Channels:
-
+        """
+        Создает новый канал
+        Args:
+            channel_data: Данные для создания канала
+            user: Пользователь, который создает канал
+        Raises:
+            HTTPException: 409 если канал с таким именем уже существует
+        Returns:
+            Channels: Созданный канал
+        """
         if await self._unique_channel_name_check(channel_data.unique_name):
             raise HTTPException(
                 status_code=409,
-                detail="There is a channel with that name. Please enter a new channel name."
+                detail="Channel with this name already exists"
             )
 
         channel = Channels(
             unique_name=channel_data.unique_name,
-            owner_id=user.id
+            owner_id=user.id,
+            avatar=channel_data.avatar
         )
         self.session.add(channel)
         await self.session.commit()
