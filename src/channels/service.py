@@ -49,21 +49,48 @@ class ChannelService:
         return channel
     
     async def get_channels(self) -> list[Channels]:
+        """
+        Получает все каналы
+        Returns:
+            list[Channels]: Список всех каналов
+        """
         query = select(Channels).limit(20)
         result = await self.session.execute(query)
         return result.scalars().all()
 
     async def get_channel(self, channel_name: str) -> Channels:
+        """
+        Получает канал по его имени
+        Args:
+            channel_name: Имя канала
+        Returns:
+            Channels: Канал
+        """
         query = select(Channels).where(Channels.unique_name == channel_name)
         result = await self.session.execute(query)
         return result.scalar_one_or_none()
 
     async def get_user_channels(self, owner_id: UUID) -> list[Channels]:
+        """
+        Получает все каналы пользователя по его ID
+        Args:
+            owner_id: ID пользователя
+        Returns:
+            list[Channels]: Список всех каналов пользователя
+        """
         query = select(Channels).where(Channels.owner_id == owner_id)
         result = await self.session.execute(query)
         return result.scalars().all()
 
     async def delete_channel(self, unique_name: str, user: Users) -> bool:
+        """
+        Удаляет канал по его имени
+        Args:
+            unique_name: Имя канала
+            user: Пользователь
+        Returns:
+            bool: True если канал удален, False если не удален
+        """
         channel = await self.get_channel(unique_name)
         if not channel:
             return False
