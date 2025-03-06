@@ -16,6 +16,11 @@ class Settings(BaseSettings):
     SECRET_AUTH: str
     SERVER_HOST: str
     SERVER_PORT: int
+
+    S3_BUCKET_NAME: str
+    S3_URL: str
+    S3_ACCESS_KEY: str
+    S3_SECRET_KEY: str
     
     @property
     def database_url(self) -> str:
