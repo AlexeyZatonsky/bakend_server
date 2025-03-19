@@ -1,23 +1,48 @@
-from sqlalchemy import Column, ForeignKey, Integer, String, UUID
 import uuid
+from datetime import datetime, UTC
 
-from ..auth.models import Users
+from sqlalchemy import Column, ForeignKey, Integer, String, DateTime
+from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import Mapped, mapped_column
+
+from ..auth.models import UsersORM
 from ..videos.models import Video
-from ..database import Base  # Используем единый Base
+from ..database import Base
 
-class VideoComment(Base):
+from ..auth.models import UsersORM
+from ..courses.models import CoursesORM
+
+
+
+
+#TODO: Добавление таблиц для дальнейшей проверки уникальности лайков и комментариев
+
+
+#Составной ключ для комментария - пользователь может только создать и изсенить комментарий
+class VideoCommentORM(Base):
     __tablename__ = 'video_comment'
-    id = Column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True)
-    text = Column(String(1000), nullable=False)
-    upload_date = Column(String(255), nullable=False)
-    user_id = Column(UUID(as_uuid=True), ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
-    video_id = Column(UUID(as_uuid=True), ForeignKey(Video.id))
+
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey(UsersORM.id, ondelete='CASCADE'), nullable=False
+    )
+    video_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey(Video.id, ondelete='CASCADE'), nullable=False
+    )
+
+    text: Mapped[str] = mapped_column(String(2000), nullable=False)
+    upload_date: Mapped[datetime] = mapped_column(DateTime, default=datetime.now(UTC), nullable=False)
+    
 
 
-class CommentVote(Base):
-    __tablename__ = 'comment_vote'
-    id = Column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True)
-    user_id = Column(UUID(as_uuid=True), ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
-    comment_id = Column(UUID(as_uuid=True), ForeignKey('video_comment.id', ondelete='CASCADE'), nullable=False)
-    value = Column(Integer, nullable=False, default=0)
+class CoursesCommentsORM(Base):
+    __tablename__ = 'courses_comment'
 
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey(UsersORM.id, ondelete='CASCADE'), nullable=False
+    )
+    course_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey(CoursesORM.id, ondelete='CASCADE'), nullable=False
+    )
+
+    text: Mapped[str] = mapped_column(String(2000), nullable=False)
+    upload_date: Mapped[datetime] = mapped_column(DateTime, default=datetime.now(UTC), nullable=False)

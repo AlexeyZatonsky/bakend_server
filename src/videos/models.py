@@ -1,47 +1,74 @@
-from sqlalchemy import Column, ForeignKey, Integer, String, Table, UUID, TIMESTAMP, Boolean
 import uuid
-from datetime import datetime
+from datetime import datetime, UTC
 
-from ..auth.models import Users
+from sqlalchemy import ForeignKey, Integer, String, Table,  DateTime, Boolean
+from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.dialects.postgresql import UUID
+
 from ..database import Base
 
+from ..auth.models import UsersORM
+from ..courses.models import CoursesORM
+from ..channels.models import ChannelsORM
 
-class Category(Base):
+
+
+class CategoryORM(Base):
     __tablename__ = 'category'
-    id = Column(Integer, primary_key=True)
-    name = Column(String(255), nullable=False)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True) 
+    name: Mapped[str] = mapped_column(String(255), nullable=False) 
 
-class Tag(Base):
+class TagORM(Base):
     __tablename__ = 'tag'
-    id = Column(Integer, primary_key=True)
-    name = Column(String(255), nullable=False)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True) 
+    name: Mapped[str] = mapped_column(String(255), nullable=False) 
 
-class Video(Base):
+class VideoORM(Base):
     __tablename__ = 'video'
     
-    id = Column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True)
-    preview = Column(String(1000), nullable=False)
-    title = Column(String(255), nullable=False)
-    description = Column(String(1000), nullable=False)
-    url = Column(String, nullable=False)
-    is_free = Column(Boolean, default=True)
-    is_public = Column(Boolean, default=True)
-    course_id = Column(UUID(as_uuid=True), ForeignKey('courses.id', ondelete='CASCADE'), nullable=True)
-    channel_name = Column(String(255), ForeignKey('channels.unique_name', ondelete='CASCADE'), nullable=False)
-    timeline = Column(Integer, default=0)
-    upload_date = Column(TIMESTAMP, default=datetime.utcnow)
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), default=uuid.uuid4, primary_key=True
+    )
 
-class VideoMetadatas(Base):
+    course_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey(CoursesORM.id, ondelete='CASCADE'), nullable=True
+    )
+    channel_name: Mapped[str] = mapped_column(
+        String(255), ForeignKey(ChannelsORM.unique_name, ondelete='CASCADE'), nullable=False
+    ) 
+
+
+    preview: Mapped[str] = mapped_column(String(1000), nullable=False) 
+    title: Mapped[str] = mapped_column(String(255), nullable=False) 
+    description: Mapped[str] = mapped_column(String(1000), nullable=False) 
+    url: Mapped[str] = mapped_column(String, nullable=False) 
+    is_free: Mapped[bool] = mapped_column(Boolean, default=True) 
+    is_public: Mapped[bool] = mapped_column(Boolean, default=True) 
+    timeline: Mapped[int] = mapped_column(Integer, default=0) 
+    upload_date: Mapped[datetime] = mapped_column(DateTime, default=datetime.now(UTC)) 
+
+class VideoMetadatasORM(Base):
     __tablename__ = 'video_metadatas'
 
-    id = Column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True)
-    video_id = Column(UUID(as_uuid=True), ForeignKey('video.id', ondelete='CASCADE'), nullable=False)
-    views = Column(Integer, default=0)
-    likes = Column(Integer, default=0)
-    dislikes = Column(Integer, default=0)
-    updated_at = Column(TIMESTAMP, default=datetime.utcnow)
+    video_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey(VideoORM.id, ondelete='CASCADE'), primary_key=True
+    ) 
 
-video_tag = Table('video_tag', Base.metadata,
-    Column('video_id', UUID(as_uuid=True), ForeignKey('video.id', ondelete='CASCADE')),
-    Column('tag_id', Integer, ForeignKey('tag.id', ondelete='CASCADE'))
-)
+    views: Mapped[int] = mapped_column(Integer, default=0) 
+    likes: Mapped[int] = mapped_column(Integer, default=0) 
+    dislikes: Mapped[int] = mapped_column(Integer, default=0) 
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now(UTC)) 
+
+
+
+class VideoTagOrm(Base):
+    __tablename__ = "video_tag"
+
+    video_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey(VideoORM.id, ondelete='CASCADE'), primary_key=True
+    )
+    tag_id: Mapped[Integer] = mapped_column(
+        Integer, ForeignKey(TagORM.id, ondelete='CASCADE'), primary_key=True
+    )
+
+
