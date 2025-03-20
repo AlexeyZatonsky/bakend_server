@@ -20,4 +20,4 @@ class ChannelsORM(Base):
     )
     
     avatar : Mapped[str | None] = mapped_column(String(1000), nullable=True)
-    subscribers_count : Mapped[str] = mapped_column(Integer, default=0, nullable=False)
+    subscribers_count : Mapped[int] = mapped_column(Integer, default=0, nullable=False)
