@@ -10,7 +10,7 @@ class Settings(BaseSettings):
     
     DB_USER: str
     DB_HOST: str
-    DB_PORT: int
+    DB_PORT: str
     DB_NAME: str
     DB_PASS: str
     SECRET_AUTH: str
