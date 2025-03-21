@@ -8,7 +8,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 from ..database import Base
 
 from ..channels.models import ChannelsORM
-from ..courses.models import CoursesORM
+
 
 class CoursesORM(Base):
     __tablename__ = "courses"

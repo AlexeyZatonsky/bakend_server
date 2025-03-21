@@ -8,14 +8,14 @@ import sys, os
 
 sys.path.append(os.path.join(sys.path[0], 'src'))
 
-from src.settings.config import DB_USER, DB_HOST, DB_PORT, DB_NAME, DB_PASS
+from src.settings.config import settings
 from src.database import Base
-from src.auth.models import Users
-from src.channels.models import Channels
-from src.courses.models import Corses, CoursesStructure
-from src.permissions.models import UsersPermission
-from src.videos.models import Video, VideoMetadatas, Category, Tag
-from src.rating_description.models import VideoComment, CommentVote
+from src.auth.models import UsersORM, SecretInfoORM
+from src.channels.models import ChannelsORM
+from src.courses.models import CoursesORM, CoursesStructureORM
+from src.permissions.models import UsersPermissionsORM
+from src.videos.models import VideoORM, VideoMetadatasORM, CategoryORM, TagORM
+from src.rating_description.models import VideoCommentsORM, CoursesCommentsORM
 
 
 # this is the Alembic Config object, which provides
@@ -23,11 +23,11 @@ from src.rating_description.models import VideoComment, CommentVote
 config = context.config
 
 section = config.config_ini_section
-config.set_section_option(section, 'DB_USER', DB_USER)
-config.set_section_option(section, 'DB_HOST', DB_HOST)
-config.set_section_option(section, 'DB_PORT', DB_PORT)
-config.set_section_option(section, 'DB_NAME', DB_NAME)
-config.set_section_option(section, 'DB_PASS', DB_PASS)
+config.set_section_option(section, 'DB_USER', settings.DB_USER)
+config.set_section_option(section, 'DB_HOST', settings.DB_HOST)
+config.set_section_option(section, 'DB_PORT', settings.DB_PORT)
+config.set_section_option(section, 'DB_NAME', settings.DB_NAME)
+config.set_section_option(section, 'DB_PASS', settings.DB_PASS)
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
