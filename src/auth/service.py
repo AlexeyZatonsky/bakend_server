@@ -9,7 +9,7 @@ import logging
 import sys
 import random
 
-from .schemas import UserCreateSchema, UserReadSchema, TokenDataSchema
+from .schemas import UserCreateSchema, UserReadSchema
 from ..settings.config import settings
 from .repository import AuthRepository
 

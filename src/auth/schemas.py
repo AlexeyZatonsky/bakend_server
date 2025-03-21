@@ -4,7 +4,7 @@ from uuid import UUID
 from typing import Optional
 
 # Добавляем схему для логина
-class UserLogin(BaseModel):
+class UserLoginSchema(BaseModel):
     email: EmailStr
     password: str
 
