@@ -13,7 +13,10 @@ class Settings(BaseSettings):
     DB_PORT: str
     DB_NAME: str
     DB_PASS: str
+    
     SECRET_AUTH: str
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+    
     SERVER_HOST: str
     SERVER_PORT: int
 
