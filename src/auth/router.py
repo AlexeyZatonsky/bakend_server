@@ -1,15 +1,14 @@
-from typing import Optional, Dict, Any
-from fastapi import APIRouter, Depends, HTTPException, Request, Response, status, Form, Cookie
+from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
 import logging
 from datetime import timedelta
 
-from .schemas import UserCreateSchema, UserReadSchema, TokenSchema, UserUpdateSchema, UserLogin
+from .schemas import UserCreateSchema, UserReadSchema, TokenSchema, UserUpdateSchema
 from .service import AuthService
 from ..database import get_async_session
-from .dependencies import get_current_user, get_auth_service, oauth2_scheme
-from ..settings.config import settings
+from .dependencies import get_current_user, get_auth_service
+
 
 logger = logging.getLogger(__name__)
 
