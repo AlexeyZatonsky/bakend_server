@@ -10,6 +10,16 @@ from .auth.router import router as auth_router
 from .channels.router import router as channel_router
 # from .videos.router import router as video_router
 
+
+# TODO: Auth
+# Добавить CSRF-защиту
+# Реализовать механизм блокировки после нескольких неудачных попыток
+# Добавить систему refresh-токенов
+# Настроить более безопасное логирование
+# Включить HTTPS в продакшне и установить secure=True для cookies
+
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup
