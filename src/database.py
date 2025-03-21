@@ -1,11 +1,13 @@
 from typing import AsyncGenerator
 from sqlalchemy import MetaData
+
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import DeclarativeBase, sessionmaker
 
 from .settings.config import settings
 
-# Один URL будет использовать правильные настройки в зависимости от TESTING
+
+
 DATABASE_URL = settings.database_url
 
 class Base(DeclarativeBase):
