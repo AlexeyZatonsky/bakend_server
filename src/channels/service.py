@@ -1,88 +1,103 @@
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
 from uuid import UUID
 
-from fastapi import HTTPException
+from fastapi import HTTPException, status
 
-from .models import Channels
-from .schemas import ChannelCreate, ChannelRead
-from ..auth.models import Users
+from .repository import ChannelRepository
+from .models import ChannelsORM
+from .schemas import ChannelCreateSchema, ChannelReadSchema
+
+from ..auth.schemas import UserReadSchema
 
 class ChannelService:
-    def __init__(self, session: AsyncSession):
-        self.session = session
+    def __init__(self, repository: ChannelRepository):
+        self.repository = repository
 
-    async def _unique_channel_name_check(self, channel_name: str) -> bool:
-        """
-        Проверяет, существует ли канал с таким именем
-        Returns:
-            bool: True если канал существует, False если не существует
-        """
-        query = select(Channels).where(Channels.unique_name == channel_name)
-        result = await self.session.execute(query)
-        return result.scalar_one_or_none() is not None
 
-    async def create_channel(self, channel_data: ChannelCreate, user: Users) -> Channels:
+    async def create_channel(self, channel_data: ChannelCreateSchema, user: UserReadSchema) -> ChannelReadSchema | HTTPException:
         """
-        Создает новый канал
-        Args:
-            channel_data: Данные для создания канала
-            user: Пользователь, который создает канал
-        Raises:
-            HTTPException: 409 если канал с таким именем уже существует
-        Returns:
-            Channels: Созданный канал
+            Создает новый канал
+            Args:
+                channel_data: Данные для создания канала
+                user: Пользователь, который создает канал
+            Raises:
+                HTTPException: 409 если канал с таким именем уже существует
+            Returns:
+                ChannelReadSchema: Созданный канал
         """
-        if await self._unique_channel_name_check(channel_data.unique_name):
+        
+        if await self.repository.get_by_name(channel_data.unique_name) is not None:
             raise HTTPException(
-                status_code=409,
+                status_code=status.HTTP_409_CONFLICT,
                 detail="Channel with this name already exists"
             )
 
-        channel = Channels(
-            unique_name=channel_data.unique_name,
-            owner_id=user.id,
-            avatar=channel_data.avatar
-        )
-        self.session.add(channel)
-        await self.session.commit()
-        return channel
+        new_channel = ChannelsORM(**channel_data.model_dump(), owner_id=user.id)
+        
+        # Сохраняем канал в базу данных
+        saved_channel = await self.repository.create_channel(new_channel)
+        
+        return ChannelReadSchema.model_validate(saved_channel)
     
-    async def get_channels(self) -> list[Channels]:
+
+    async def get_channels(self, limit: int = 20) -> list[ChannelReadSchema]:
         """
         Получает все каналы
         Returns:
-            list[Channels]: Список всех каналов
+            list[ChannelReadSchema]: Список всех каналов
         """
-        query = select(Channels).limit(20)
-        result = await self.session.execute(query)
-        return result.scalars().all()
+        channels = await self.repository.get_all(limit)
+        return [ChannelReadSchema.model_validate(channel) for channel in channels]
 
-    async def get_channel(self, channel_name: str) -> Channels:
+    async def get_channel_by_name(self, channel_name: str) -> ChannelReadSchema:
         """
         Получает канал по его имени
         Args:
             channel_name: Имя канала
         Returns:
-            Channels: Канал
+            ChannelReadSchema: Канал
         """
-        query = select(Channels).where(Channels.unique_name == channel_name)
-        result = await self.session.execute(query)
-        return result.scalar_one_or_none()
+        channel = await self.repository.get_by_name(channel_name)
+        if not channel:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Channel not found"
+            )
+        return ChannelReadSchema.model_validate(channel)
 
-    async def get_user_channels(self, owner_id: UUID) -> list[Channels]:
+    async def get_user_channels(self, owner_id: UUID) -> list[ChannelReadSchema]:
         """
         Получает все каналы пользователя по его ID
         Args:
             owner_id: ID пользователя
         Returns:
-            list[Channels]: Список всех каналов пользователя
+            list[ChannelReadSchema]: Список всех каналов пользователя
         """
-        query = select(Channels).where(Channels.owner_id == owner_id)
-        result = await self.session.execute(query)
-        return result.scalars().all()
-
-    async def delete_channel(self, unique_name: str, user: Users) -> bool:
+        channels = await self.repository.get_by_owner(owner_id)
+        if not channels:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Channels not found"
+            )
+        return [ChannelReadSchema.model_validate(channel) for channel in channels]
+    
+    async def get_my_channels(self, user: UserReadSchema) -> list[ChannelReadSchema]:
+        """
+        Получает все каналы текущего пользователя
+        Args:
+            user: Текущий пользователь
+        Returns:
+            list[ChannelReadSchema]: Список всех каналов пользователя
+        """
+        channels = await self.repository.get_by_owner(UUID(user.id))
+        if not channels:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="You don't have any channels"
+            )
+        return [ChannelReadSchema.model_validate(channel) for channel in channels]
+    
+    
+    async def delete_channel(self, unique_name: str, user: UserReadSchema) -> bool:
         """
         Удаляет канал по его имени
         Args:
@@ -91,12 +106,17 @@ class ChannelService:
         Returns:
             bool: True если канал удален, False если не удален
         """
-        channel = await self.get_channel(unique_name)
+        channel = await self.repository.get_by_name(unique_name)
         if not channel:
-            return False
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail = "Channel not found"
+            )
         if channel.owner_id != user.id:
-            return False
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You are not the owner of this channel"
+            )
             
-        await self.session.delete(channel)
-        await self.session.commit()
+        await self.repository.delete(channel)
         return True 
