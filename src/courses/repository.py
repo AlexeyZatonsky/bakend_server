@@ -1,45 +1,38 @@
 from uuid import UUID
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from typing import List, Optional
 
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from ..core.AbstractRepository import AbstractRepository
 from .models import CoursesORM, CoursesStructureORM
 
 
 
-class CourseRepository:
+
+class CourseRepository(AbstractRepository[CoursesORM]):
     def __init__(self, session: AsyncSession):
-        self.session = session
+        super().__init__(session, CoursesORM)
+
+    async def get_by_id(self, entity_id: UUID) -> Optional[CoursesORM]:
+        """Получение курса по его UUID"""
+        return await super().get_by_id(entity_id)
+
+    async def get_all(self, limit: int = 20) -> List[CoursesORM]:
+        """Получение списка всех курсов с заданным лимитом"""
+        return await super().get_all(limit)
+
+    async def create(self, entity: CoursesORM) -> CoursesORM:
+        """Создание нового курса"""
+        return await super().create(entity)
+
+    async def delete(self, entity: CoursesORM) -> None:
+        """Удаление существующего курса"""
+        await super().delete(entity)
 
 
 
-
-    async def get_by_id(self, course_id: UUID) -> CoursesORM | None:
-        query = select(CoursesORM).where(CoursesORM.id == course_id)
-        result = await self.session.execute(query)
-        return result.scalar_one_or_none()
-    
-    async def get_structure_by_id(self, course_id: UUID) -> CoursesStructureORM:
-        pass
-    
-
-    async def create_course(self, course: CoursesORM) -> CoursesORM:    
-        self.session.add(course)
-        await self.session.commit()
-        await self.session.refresh(course)
-        return course
-
-
-    async def get_all(self, limit: int = 20) -> list[CoursesORM]:
-        query = select(CoursesORM).limit(limit)
-        result = await self.session.execute(query)
-        return result.scalars().all()
-
-    async def get_by_channel_name(self, channel_unique_name: str) -> list[CoursesORM]:
-        query = select(CoursesORM).where(CoursesORM.channel_name == channel_unique_name)
-        result = await self.session.execute(query)
-        return result.scalars().all()
-
-    async def delete(self, course: CoursesORM) -> None:
-        await self.session.delete(course)
-        await self.session.commit()
+class CourseStructureRepository(AbstractRepository[CoursesStructureORM]):
+    def __init__(self, session: AsyncSession):
+        super().__init__(session, CoursesStructureORM)
 
