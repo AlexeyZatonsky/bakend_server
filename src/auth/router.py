@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
 import logging
 from datetime import timedelta
@@ -14,26 +14,63 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
-async def get_auth_service(session: AsyncSession = Depends(get_async_session)):
-    return AuthService(session)
-
-@router.post("/register", response_model=UserReadSchema, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/register", 
+    response_model=UserReadSchema, 
+    status_code=status.HTTP_201_CREATED,
+    summary="Регистрация нового пользователя",
+    description="Создает нового пользователя с указанным email и паролем."
+)
 async def register_user(
     user_data: UserCreateSchema,
     auth_service: AuthService = Depends(get_auth_service)
 ):
-    """Регистрация нового пользователя"""
+    """
+    Регистрация нового пользователя
+    
+    Args:
+        user_data: Данные для создания пользователя (email и пароль)
+        auth_service: Сервис аутентификации
+        
+    Returns:
+        UserReadSchema: Данные созданного пользователя
+        
+    Raises:
+        HTTPException: 409 Conflict, если пользователь с таким email уже существует
+    """
+    logger.info(f"Registering new user with email: {user_data.email}")
     return await auth_service.create_user(user_data)
 
-@router.post("/login", response_model=TokenSchema)
+@router.post(
+    "/login", 
+    response_model=TokenSchema,
+    summary="Аутентификация пользователя",
+    description="Проверяет учетные данные пользователя и возвращает токен доступа."
+)
 async def login(
     response: Response,
     form_data: OAuth2PasswordRequestForm = Depends(),
     auth_service: AuthService = Depends(get_auth_service)
 ):
-    """Аутентификация пользователя и получение токена"""
+    """
+    Аутентификация пользователя и получение токена
+    
+    Args:
+        response: Объект ответа FastAPI
+        form_data: Форма с данными для входа (username = email, password)
+        auth_service: Сервис аутентификации
+        
+    Returns:
+        TokenSchema: Токен доступа и его тип
+        
+    Raises:
+        HTTPException: 401 Unauthorized, если учетные данные неверны
+    """
+    logger.info(f"Login attempt for user: {form_data.username}")
+    
     user = await auth_service.authenticate_user(form_data.username, form_data.password)
     if not user:
+        logger.warning(f"Failed login attempt for: {form_data.username}")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect email or password",
@@ -44,7 +81,7 @@ async def login(
     access_token = auth_service.create_access_token(
         data={"sub": user.email}, expires_delta=access_token_expires
     )
-    logger.info(f"Generated token for user {user.username}")
+    logger.info(f"Generated token for user: {user.username}")
     
     # Устанавливаем cookie
     response.set_cookie(
@@ -60,43 +97,89 @@ async def login(
     
     return {"access_token": access_token, "token_type": "bearer"}
 
-@router.post("/logout")
+@router.post(
+    "/logout",
+    summary="Выход пользователя",
+    description="Удаляет cookie с токеном доступа."
+)
 async def logout(response: Response):
-    """Выход пользователя"""
+    """
+    Выход пользователя
+    
+    Args:
+        response: Объект ответа FastAPI
+        
+    Returns:
+        dict: Сообщение об успешном выходе
+    """
+    logger.info("User logout")
     response.delete_cookie(key="access_token")
     return {"message": "Successfully logged out"}
 
-@router.get("/me", response_model=UserReadSchema)
+@router.get(
+    "/me", 
+    response_model=UserReadSchema,
+    summary="Информация о текущем пользователе",
+    description="Возвращает информацию о текущем аутентифицированном пользователе."
+)
 async def read_users_me(
-    request: Request,
     current_user: UserReadSchema = Depends(get_current_user)
 ):
-    """Получение информации о текущем пользователе"""
-    # Логируем все заголовки для отладки
-    logger.info("Request headers:")
-    for header, value in request.headers.items():
-        logger.info(f"{header}: {value}")
+    """
+    Получение информации о текущем пользователе
     
-    logger.info(f"Cookies: {request.cookies}")
-    logger.info(f"Current user: {current_user.username}")
+    Args:
+        current_user: Текущий пользователь (получен из зависимости)
+        
+    Returns:
+        UserReadSchema: Данные текущего пользователя
+    """
+    logger.info(f"Get user info for: {current_user.username}")
     return current_user
 
-@router.put("/me", response_model=UserReadSchema)
+@router.put(
+    "/me", 
+    response_model=UserReadSchema,
+    summary="Обновление данных пользователя",
+    description="Обновляет данные текущего пользователя."
+)
 async def update_user_me(
     user_data: UserUpdateSchema,
     current_user: UserReadSchema = Depends(get_current_user),
-    session: AsyncSession = Depends(get_async_session)
+    auth_service: AuthService = Depends(get_auth_service)
 ):
-    """Обновление информации о текущем пользователе"""
-    auth_service = AuthService(session)
-    return await auth_service.update_user(str(current_user.id), user_data.model_dump(exclude_unset=True))
+    """
+    Обновление данных текущего пользователя
+    
+    Args:
+        user_data: Новые данные пользователя
+        current_user: Текущий пользователь (получен из зависимости)
+        auth_service: Сервис аутентификации
+        
+    Returns:
+        UserReadSchema: Обновленные данные пользователя
+    """
+    logger.info(f"Update user data for: {current_user.username}")
+    return await auth_service.update_user(current_user.id, user_data.model_dump(exclude_unset=True))
 
-@router.delete("/me", status_code=status.HTTP_204_NO_CONTENT)
+
+@router.delete(
+    "/me", 
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Удаление пользователя",
+    description="Удаляет текущего пользователя."
+)
 async def delete_user_me(
     current_user: UserReadSchema = Depends(get_current_user),
-    session: AsyncSession = Depends(get_async_session)
+    auth_service: AuthService = Depends(get_auth_service)
 ):
-    """Удаление текущего пользователя"""
-    auth_service = AuthService(session)
-    await auth_service.delete_user(str(current_user.id))
+    """
+    Удаление текущего пользователя
+    
+    Args:
+        current_user: Текущий пользователь (получен из зависимости)
+        auth_service: Сервис аутентификации
+    """
+    logger.info(f"Delete user: {current_user.username}")
+    await auth_service.delete_user(current_user.id)
     return None 
