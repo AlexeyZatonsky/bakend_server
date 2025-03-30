@@ -1,7 +1,8 @@
+from uuid import UUID
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
-from .models import CoursesORM
+from .models import CoursesORM, CoursesStructureORM
 
 
 
@@ -12,10 +13,13 @@ class CourseRepository:
 
 
 
-    async def get_by_id(self, course_id: int) -> CoursesORM | None:
+    async def get_by_id(self, course_id: UUID) -> CoursesORM | None:
         query = select(CoursesORM).where(CoursesORM.id == course_id)
         result = await self.session.execute(query)
         return result.scalar_one_or_none()
+    
+    async def get_structure_by_id(self, course_id: UUID) -> CoursesStructureORM:
+        pass
     
 
     async def create_course(self, course: CoursesORM) -> CoursesORM:    
@@ -30,8 +34,8 @@ class CourseRepository:
         result = await self.session.execute(query)
         return result.scalars().all()
 
-    async def get_by_channel_id(self, channel_id: int) -> list[CoursesORM]:
-        query = select(CoursesORM).where(CoursesORM.channel_id == channel_id)
+    async def get_by_channel_name(self, channel_unique_name: str) -> list[CoursesORM]:
+        query = select(CoursesORM).where(CoursesORM.channel_name == channel_unique_name)
         result = await self.session.execute(query)
         return result.scalars().all()
 
