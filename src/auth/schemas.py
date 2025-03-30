@@ -3,6 +3,8 @@ from pydantic import BaseModel, EmailStr, Field, ConfigDict, validator
 from uuid import UUID
 from typing import Optional
 
+from .models import UsersORM, SecretInfoORM
+
 # Добавляем схему для логина
 class UserLoginSchema(BaseModel):
     email: EmailStr
@@ -19,10 +21,10 @@ class UserReadSchema(BaseModel):
     """Схема для чтения данных пользователя"""
     id: UUID
     username: str
-    avatar: str | None = None
+    avatar: Optional[str] = None
     is_verified: bool = False
     is_active: bool = True
-    email: str  # Добавляем email для создания токена
+    email: str
     created_at: datetime
     updated_at: datetime
 
@@ -31,6 +33,20 @@ class UserReadSchema(BaseModel):
         json_encoders = {
             UUID: str
         }
+
+    @staticmethod
+    def from_orm(user: UsersORM, secret_info: SecretInfoORM) -> 'UserReadSchema':
+        """Создаёт схему из ORM моделей пользователя и секретной информации."""
+        return UserReadSchema(
+            id=user.id,
+            username=user.username,
+            avatar=user.avatar,
+            is_verified=user.is_verified,
+            is_active=user.is_active,
+            email=secret_info.email,
+            created_at=user.created_at,
+            updated_at=user.updated_at
+        )
 
 class UserCreateSchema(BaseModel):
     """Схема для создания пользователя"""
