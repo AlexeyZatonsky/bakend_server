@@ -11,6 +11,14 @@ s3_url = settings.S3_URL
 s3_bucket_name = settings.S3_BUCKET_NAME
 
 
+#TODO: Нужнос создать метод, который прокидывает пути в бакеты.
+# само видео должно храниться в виде:
+# bucket
+# - videos
+# - - channel_name
+# - - - Video_name
+# - courses
+
 class S3Client:
     def __init__(
         self,
