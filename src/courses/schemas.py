@@ -19,7 +19,7 @@ class CourseBaseSchema(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
 
-class CourseReadSchema(CourseBaseSchema): pass
+class CourseCreateSchema(CourseBaseSchema): pass
 class CourseUpdateSchema(CourseBaseSchema): pass
 class CourseReadSchema(CourseBaseSchema): pass
 
