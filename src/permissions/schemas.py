@@ -13,4 +13,4 @@ class UsersPermissionsCreate(UsersPermissionsBase):
     pass
 
 class UsersPermissionsRead(UsersPermissionsBase):
-    model_config = ConfigDict(from_attributes=True)
+    model_config = ConfigDict(from_attributes=True, use_enum_values=True)
