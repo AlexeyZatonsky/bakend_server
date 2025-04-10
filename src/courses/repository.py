@@ -30,6 +30,9 @@ class CourseRepository(AbstractRepository[CoursesORM]):
         """Удаление существующего курса"""
         await super().delete(entity)
 
+    async def get_by_channel_id(channel_id: str):
+        """Получение всех кусов определённого канала"""
+        pass
 
 
 class CourseStructureRepository(AbstractRepository[CoursesStructureORM]):
