@@ -50,15 +50,15 @@ class StructureLessonReadSchema(StructureLessonBaseSchema): pass
 
 
 
-class CourseSubModuleBaseSchema(BaseModel):
+class StructureSubModuleBaseSchema(BaseModel):
     """Схема подмодуля, содержащего список уроков."""
 
     name: str = Field(..., min_length=1, max_length=100, description="Название подмодуля")
     lessons: List[StructureLessonReadSchema] = Field(..., description="Список уроков в подмодуле")
 
-class CourseSubModuleCreateSchema(CourseSubModuleBaseSchema): pass
-class CourseSubModuleUpdateSchema(CourseSubModuleBaseSchema): pass
-class CourseSubModuleReadSchema(CourseSubModuleBaseSchema): pass
+class StructureSubModuleCreateSchema(StructureSubModuleBaseSchema): pass
+class StructureSubModuleUpdateSchema(StructureSubModuleBaseSchema): pass
+class StructureSubModuleReadSchema(StructureSubModuleBaseSchema): pass
 
 
 
@@ -67,7 +67,7 @@ class StructureModuleBaseSchema(BaseModel):
 
     name: str = Field(..., min_length=1, max_length=100, description="Название модуля")
     is_active: bool = Field(True, description="Активность модуля (доступность для студентов)")
-    submodules: Optional[List["CourseSubModuleReadSchema"]] = Field(None, description="Подмодули данного модуля")
+    submodules: Optional[List["StructureSubModuleReadSchema"]] = Field(None, description="Подмодули данного модуля")
     lessons: Optional[List[StructureLessonReadSchema]] = Field(None, description="Уроки непосредственно в модуле")
 
 class StructureModuleCreateSchema(StructureModuleBaseSchema): pass
