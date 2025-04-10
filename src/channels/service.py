@@ -34,7 +34,7 @@ class ChannelService:
         new_channel = ChannelsORM(**channel_data.model_dump(), owner_id=user.id)
         
         # Сохраняем канал в базу данных
-        saved_channel = await self.repository.create_channel(new_channel)
+        saved_channel = await self.repository.create(new_channel)
         
         return ChannelReadSchema.model_validate(saved_channel)
     
