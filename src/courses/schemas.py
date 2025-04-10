@@ -17,11 +17,12 @@ class CourseBaseSchema(BaseModel):
     created_at: datetime = Field(..., description="Дата и время создания курса")
     updated_at: datetime = Field(..., description="Дата и время последнего обновления курса")
 
-    model_config = ConfigDict(from_attributes=True)
+    
 
 class CourseCreateSchema(CourseBaseSchema): pass
 class CourseUpdateSchema(CourseBaseSchema): pass
-class CourseReadSchema(CourseBaseSchema): pass
+class CourseReadSchema(CourseBaseSchema): 
+    model_config = ConfigDict(from_attributes=True)
 
 
 # Работа со структурой курсов
@@ -33,7 +34,8 @@ class LessonHWBaseSchema(BaseModel):
 
 class LessonHWCreateSchema(LessonHWBaseSchema): pass
 class LessonHWUpdateSchema(LessonHWBaseSchema): pass
-class LessonHWReadSchema(LessonHWBaseSchema): pass
+class LessonHWReadSchema(LessonHWBaseSchema): 
+    model_config = ConfigDict(from_attributes=True)
 
 
 
@@ -46,7 +48,8 @@ class StructureLessonBaseSchema(BaseModel):
 
 class StructureLessonCreateSchema(StructureLessonBaseSchema): pass
 class StructureLessonUpdateSchema(StructureLessonBaseSchema): pass
-class StructureLessonReadSchema(StructureLessonBaseSchema): pass
+class StructureLessonReadSchema(StructureLessonBaseSchema): 
+    model_config = ConfigDict(from_attributes=True)
 
 
 
@@ -58,7 +61,8 @@ class StructureSubModuleBaseSchema(BaseModel):
 
 class StructureSubModuleCreateSchema(StructureSubModuleBaseSchema): pass
 class StructureSubModuleUpdateSchema(StructureSubModuleBaseSchema): pass
-class StructureSubModuleReadSchema(StructureSubModuleBaseSchema): pass
+class StructureSubModuleReadSchema(StructureSubModuleBaseSchema): 
+    model_config = ConfigDict(from_attributes=True)
 
 
 
@@ -72,7 +76,8 @@ class StructureModuleBaseSchema(BaseModel):
 
 class StructureModuleCreateSchema(StructureModuleBaseSchema): pass
 class StructureModuleUpdateSchema(StructureModuleBaseSchema): pass
-class StructureModuleReadSchema(StructureModuleBaseSchema): pass
+class StructureModuleReadSchema(StructureModuleBaseSchema): 
+    model_config = ConfigDict(from_attributes=True)
 
 
 
@@ -82,7 +87,8 @@ class FullStructureBaseSchema(BaseModel):
 
 class FullStructureCreateSchema(FullStructureBaseSchema):pass
 class FullStructureUpdateSchema(FullStructureBaseSchema):pass
-class FullStructureReadSchema(FullStructureBaseSchema):pass
+class FullStructureReadSchema(FullStructureBaseSchema):
+    model_config = ConfigDict(from_attributes=True)
 
 
 
@@ -93,4 +99,5 @@ class StructureBaseSchema(BaseModel):
 
 class StructureCreateSchema(StructureBaseSchema): pass
 class StructureUpdateSchema(StructureBaseSchema): pass
-class StructureReadSchema(StructureBaseSchema): pass
+class StructureReadSchema(StructureBaseSchema): 
+    model_config = ConfigDict(from_attributes=True)
