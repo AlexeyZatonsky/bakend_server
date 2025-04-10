@@ -15,7 +15,7 @@ s3_bucket_name = settings.S3_BUCKET_NAME
 # само видео должно храниться в виде:
 # bucket
 # - videos
-# - - channel_name
+# - - channel_id
 # - - - Video_name
 # - courses
 
