@@ -3,7 +3,7 @@ from uuid import UUID
 from typing import Optional
 
 class ChannelBaseSchema(BaseModel):
-    unique_name: str = Field(min_length=1, max_length=255)
+    id: str = Field(min_length=1, max_length=255)
     avatar: Optional[str] = None
     
 

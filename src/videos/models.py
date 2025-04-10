@@ -33,8 +33,8 @@ class VideoORM(Base):
     course_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True), ForeignKey(CoursesORM.id, ondelete='CASCADE'), nullable=True
     )
-    channel_name: Mapped[str] = mapped_column(
-        String(255), ForeignKey(ChannelsORM.unique_name, ondelete='CASCADE'), nullable=False
+    channel_id: Mapped[str] = mapped_column(
+        String(255), ForeignKey(ChannelsORM.id, ondelete='CASCADE'), nullable=False
     ) 
 
 

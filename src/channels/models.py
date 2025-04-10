@@ -13,7 +13,7 @@ from ..auth.models import UsersORM
 class ChannelsORM(Base):
     __tablename__ = 'channels'
 
-    unique_name : Mapped[str] = mapped_column(String(255), unique=True, primary_key=True)
+    id : Mapped[str] = mapped_column(String(255), unique=True, primary_key=True)
     
     owner_id : Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey(UsersORM.id, ondelete='CASCADE'), nullable=False

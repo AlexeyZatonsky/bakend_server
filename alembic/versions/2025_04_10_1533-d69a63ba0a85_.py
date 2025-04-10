@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 598f98aee72e
+Revision ID: d69a63ba0a85
 Revises: 
-Create Date: 2025-03-21 16:38:55.173403
+Create Date: 2025-04-10 15:33:09.322051
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
-revision = '598f98aee72e'
+revision = 'd69a63ba0a85'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -40,13 +40,13 @@ def upgrade() -> None:
     sa.UniqueConstraint('username')
     )
     op.create_table('channels',
-    sa.Column('unique_name', sa.String(length=255), nullable=False),
+    sa.Column('id', sa.String(length=255), nullable=False),
     sa.Column('owner_id', sa.UUID(), nullable=False),
     sa.Column('avatar', sa.String(length=1000), nullable=True),
     sa.Column('subscribers_count', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['owner_id'], ['users.id'], ondelete='CASCADE'),
-    sa.PrimaryKeyConstraint('unique_name'),
-    sa.UniqueConstraint('unique_name')
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('id')
     )
     op.create_table('secret_info',
     sa.Column('user_id', sa.UUID(), nullable=False),
@@ -63,13 +63,13 @@ def upgrade() -> None:
     )
     op.create_table('courses',
     sa.Column('id', sa.UUID(), nullable=False),
-    sa.Column('channel_name', sa.String(), nullable=False),
+    sa.Column('channel_id', sa.String(), nullable=False),
     sa.Column('name', sa.String(length=255), nullable=False),
     sa.Column('student_count', sa.Integer(), nullable=False),
     sa.Column('preview', sa.String(length=1000), nullable=True),
     sa.Column('created_at', sa.DateTime(), nullable=False),
     sa.Column('updated_at', sa.DateTime(), nullable=False),
-    sa.ForeignKeyConstraint(['channel_name'], ['channels.unique_name'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['channel_id'], ['channels.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('courses_comments',
@@ -83,7 +83,7 @@ def upgrade() -> None:
     )
     op.create_table('courses_structure',
     sa.Column('course_id', sa.UUID(), nullable=False),
-    sa.Column('structutre', sa.JSON(), nullable=False),
+    sa.Column('structure', postgresql.JSONB(astext_type=sa.Text()), nullable=False),
     sa.ForeignKeyConstraint(['course_id'], ['courses.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('course_id')
     )
@@ -99,7 +99,7 @@ def upgrade() -> None:
     op.create_table('video',
     sa.Column('id', sa.UUID(), nullable=False),
     sa.Column('course_id', sa.UUID(), nullable=True),
-    sa.Column('channel_name', sa.String(length=255), nullable=False),
+    sa.Column('channel_id', sa.String(length=255), nullable=False),
     sa.Column('preview', sa.String(length=1000), nullable=False),
     sa.Column('title', sa.String(length=255), nullable=False),
     sa.Column('description', sa.String(length=1000), nullable=False),
@@ -108,7 +108,7 @@ def upgrade() -> None:
     sa.Column('is_public', sa.Boolean(), nullable=False),
     sa.Column('timeline', sa.Integer(), nullable=False),
     sa.Column('upload_date', sa.DateTime(), nullable=False),
-    sa.ForeignKeyConstraint(['channel_name'], ['channels.unique_name'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['channel_id'], ['channels.id'], ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['course_id'], ['courses.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )

@@ -1,42 +1,37 @@
+from typing import List, Optional
 from uuid import UUID
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
+from ..core.AbstractRepository import AbstractRepository
+
 from .models import ChannelsORM
 
 
 
-class ChannelRepository:
+class ChannelRepository(AbstractRepository[ChannelsORM]):
     def __init__(self, session: AsyncSession):
-        self.session = session
+        super().__init__(session, ChannelsORM)
 
 
-    async def get_by_name(self, channel_name: str) -> ChannelsORM | None:
-        query = select(ChannelsORM).where(ChannelsORM.unique_name == channel_name)
-        result = await self.session.execute(query)
-        return result.scalar_one_or_none()
-    
+    async def get_by_id(self, entity_id: UUID) -> Optional[ChannelsORM]:
+        """Получение секретной информации по UUID пользователя"""
+        return await super().get_by_id(entity_id)
 
-    async def create_channel(self, channel: ChannelsORM) -> ChannelsORM:
-        self.session.add(channel)
-        await self.session.commit()
-        await self.session.refresh(channel)
-        return channel
+    async def get_all(self, limit: int = 20) -> List[ChannelsORM]:
+        """Получение списка секретных данных пользователей с лимитом"""
+        return await super().get_all(limit)
 
+    async def create(self, entity: ChannelsORM) -> ChannelsORM:
+        """Создание секретной информации"""
+        return await super().create(entity)
+
+    async def delete(self, entity: ChannelsORM) -> None:
+        """Удаление секретной информации"""
+        await super().delete(entity)
 
     async def get_by_owner(self, owner_id: UUID) -> list[ChannelsORM]:
         query = select(ChannelsORM).where(ChannelsORM.owner_id == owner_id)
         result = await self.session.execute(query)
         return result.scalars().all()
-    
-
-    async def get_all(self, limit: int = 20) -> list[ChannelsORM]:
-        query = select(ChannelsORM).limit(limit)
-        result = await self.session.execute(query)
-        return result.scalars().all()
-
-
-    async def delete(self, channel: ChannelsORM) -> None:
-        await self.session.delete(channel)
-        await self.session.commit()

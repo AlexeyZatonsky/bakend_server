@@ -49,6 +49,7 @@ async def get_my_channels(
     """Получает все каналы текущего пользователя"""
     return await channel_service.get_my_channels(current_user)
 
+
 @router.get("/user/{owner_id}", response_model=list[ChannelReadSchema])
 async def get_user_channels(
     owner_id: UUID,
@@ -56,6 +57,7 @@ async def get_user_channels(
 ):
     """Получает все каналы указанного пользователя"""
     return await channel_service.get_user_channels(owner_id)
+
 
 # Общий маршрут для получения канала по имени должен идти после специфичных маршрутов
 @router.get("/{unique_name}", response_model=ChannelReadSchema)
@@ -65,6 +67,7 @@ async def get_channel(
 ):
     """Получает канал по его уникальному имени"""
     return await channel_service.get_channel_by_name(unique_name)
+
 
 @router.delete("/{unique_name}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_channel(
