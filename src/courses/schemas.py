@@ -4,78 +4,93 @@ from typing import Optional, List
 from pydantic import BaseModel, Field, ConfigDict
 
 
+
+# Работа с непосредственно самими курсами
 class CourseBaseSchema(BaseModel):
-    """Базовая схема курса, содержащая основные атрибуты."""
+    """Схема для чтения и вывода информации о курсе."""
 
-    name: str = Field(..., min_length=1, max_length=255, description="Название курса")
+    id: UUID = Field(..., description="Уникальный идентификатор курса")
+    channel_id: str = Field(..., description="Идентификатор канала, к которому привязан курс")
+    name: str = Field(..., min_length=1, max_length=100, description="Название курса")
+    student_count: int = Field(default=0, ge=0, description="Количество студентов, записанных на курс")
     preview: Optional[str] = Field(None, max_length=1000, description="Ссылка на превью курса")
+    created_at: datetime = Field(..., description="Дата и время создания курса")
+    updated_at: datetime = Field(..., description="Дата и время последнего обновления курса")
+
+    model_config = ConfigDict(from_attributes=True)
+
+class CourseReadSchema(CourseBaseSchema): pass
+class CourseUpdateSchema(CourseBaseSchema): pass
+class CourseReadSchema(CourseBaseSchema): pass
 
 
-class LessonHWSchema(BaseModel):
+# Работа со структурой курсов
+class LessonHWBaseSchema(BaseModel):
     """Схема домашнего задания для урока."""
 
     description: Optional[str] = Field(None, description="Описание домашнего задания")
     files: Optional[List[str]] = Field(None, description="Файлы, прикрепленные к заданию")
 
+class LessonHWCreateSchema(LessonHWBaseSchema): pass
+class LessonHWUpdateSchema(LessonHWBaseSchema): pass
+class LessonHWReadSchema(LessonHWBaseSchema): pass
 
-class CourseLessonSchema(BaseModel):
+
+
+class StructureLessonBaseSchema(BaseModel):
     """Схема отдельного урока в курсе."""
 
     name: str = Field(..., min_length=1, max_length=100, description="Название урока")
-    homework: Optional[LessonHWSchema] = Field(None, description="Домашнее задание урока")
+    homework: Optional[LessonHWReadSchema] = Field(None, description="Домашнее задание урока")
     content: Optional[List[str]] = Field(None, description="Контент урока (ссылки на видео, PDF и т.д.)")
 
+class StructureLessonCreateSchema(StructureLessonBaseSchema): pass
+class StructureLessonUpdateSchema(StructureLessonBaseSchema): pass
+class StructureLessonReadSchema(StructureLessonBaseSchema): pass
 
-class CourseSubModuleSchema(BaseModel):
+
+
+class CourseSubModuleBaseSchema(BaseModel):
     """Схема подмодуля, содержащего список уроков."""
 
     name: str = Field(..., min_length=1, max_length=100, description="Название подмодуля")
-    lessons: List[CourseLessonSchema] = Field(..., description="Список уроков в подмодуле")
+    lessons: List[StructureLessonReadSchema] = Field(..., description="Список уроков в подмодуле")
+
+class CourseSubModuleCreateSchema(CourseSubModuleBaseSchema): pass
+class CourseSubModuleUpdateSchema(CourseSubModuleBaseSchema): pass
+class CourseSubModuleReadSchema(CourseSubModuleBaseSchema): pass
 
 
-class CourseModuleSchema(BaseModel):
+
+class StructureModuleBaseSchema(BaseModel):
     """Схема модуля курса, который может включать подмодули и уроки."""
 
     name: str = Field(..., min_length=1, max_length=100, description="Название модуля")
     is_active: bool = Field(True, description="Активность модуля (доступность для студентов)")
-    submodules: Optional[List["CourseSubModuleSchema"]] = Field(None, description="Подмодули данного модуля")
-    lessons: Optional[List[CourseLessonSchema]] = Field(None, description="Уроки непосредственно в модуле")
+    submodules: Optional[List["CourseSubModuleReadSchema"]] = Field(None, description="Подмодули данного модуля")
+    lessons: Optional[List[StructureLessonReadSchema]] = Field(None, description="Уроки непосредственно в модуле")
+
+class StructureModuleCreateSchema(StructureModuleBaseSchema): pass
+class StructureModuleUpdateSchema(StructureModuleBaseSchema): pass
+class StructureModuleReadSchema(StructureModuleBaseSchema): pass
 
 
-CourseModuleSchema.model_rebuild()
 
-
-class FullCourseStructureSchema(BaseModel):
+class FullStructureBaseSchema(BaseModel):
     """Полная схема структуры курса, состоящая из модулей."""
+    modules: List[StructureModuleReadSchema] = Field(..., description="Список модулей в курсе")
 
-    modules: List[CourseModuleSchema] = Field(..., description="Список модулей в курсе")
+class FullStructureCreateSchema(FullStructureBaseSchema):pass
+class FullStructureUpdateSchema(FullStructureBaseSchema):pass
+class FullStructureReadSchema(FullStructureBaseSchema):pass
 
 
-class CourseCreateSchema(CourseBaseSchema):
+
+class StructureBaseSchema(BaseModel):
     """Схема создания нового курса."""
-
     channel_id: str = Field(..., description="Идентификатор канала, к которому привязан курс")
-    structure: FullCourseStructureSchema = Field(..., description="Полная структура курса")
+    structure: FullStructureReadSchema = Field(..., description="Полная структура курса")
 
-
-class CourseReadSchema(CourseBaseSchema):
-    """Схема для чтения и вывода информации о курсе."""
-
-    id: UUID = Field(..., description="Уникальный идентификатор курса")
-    channel_id: str = Field(..., description="Идентификатор канала, к которому привязан курс")
-    student_count: int = Field(default=0, ge=0, description="Количество студентов, записанных на курс")
-    created_at: datetime = Field(..., description="Дата и время создания курса")
-    updated_at: datetime = Field(..., description="Дата и время последнего обновления курса")
-    structure: FullCourseStructureSchema = Field(..., description="Полная структура курса")
-
-    model_config = ConfigDict(from_attributes=True)
-
-
-class CourseUpdateSchema(BaseModel):
-    """Схема обновления данных о курсе."""
-
-    name: Optional[str] = Field(None, min_length=1, max_length=255, description="Название курса")
-    preview: Optional[str] = Field(None, max_length=1000, description="Ссылка на превью курса")
-    structure: Optional[FullCourseStructureSchema] = Field(None, description="Обновлённая структура курса")
-
-    model_config = ConfigDict(from_attributes=True)
+class StructureCreateSchema(StructureBaseSchema): pass
+class StructureUpdateSchema(StructureBaseSchema): pass
+class StructureReadSchema(StructureBaseSchema): pass
