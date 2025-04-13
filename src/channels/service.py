@@ -1,6 +1,10 @@
 from uuid import UUID
 
+import logging
 from fastapi import HTTPException, status
+
+from ..core.log import configure_logging
+
 
 from .repository import ChannelRepository
 from .models import ChannelsORM
@@ -8,10 +12,37 @@ from .schemas import ChannelCreateSchema, ChannelReadSchema
 
 from ..auth.schemas import UserReadSchema
 
+
+logger = logging.getLogger(__name__)
+configure_logging()
+
+
 class ChannelService:
     def __init__(self, repository: ChannelRepository):
         self.repository = repository
+        
+    async def validate_owner(self, channel_id: str, user_id: UUID) -> ChannelReadSchema:
+        channel = await self.repository.get_by_id(channel_id)
 
+        if not channel:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Channel not found"
+            )
+
+        channel_data = ChannelReadSchema.model_validate(channel)
+
+        logger.warning(f"Channel owner: {channel_data.owner_id}, dtype = {type(channel_data.owner_id)}")
+        logger.warning(f"Current user: {user_id}, dtype = {type(user_id)}")
+
+        if channel_data.owner_id != user_id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You are not the owner of this channel"
+            )
+        
+
+        return channel_data
 
     async def create_channel(self, channel_data: ChannelCreateSchema, user: UserReadSchema) -> ChannelReadSchema | HTTPException:
         """
@@ -46,6 +77,7 @@ class ChannelService:
             list[ChannelReadSchema]: Список всех каналов
         """
         channels = await self.repository.get_all(limit)
+        print("called")
         return [ChannelReadSchema.model_validate(channel) for channel in channels]
 
     async def get_channel_by_name(self, channel_id: str) -> ChannelReadSchema:
@@ -62,6 +94,7 @@ class ChannelService:
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Channel not found"
             )
+        
         return ChannelReadSchema.model_validate(channel)
 
     async def get_user_channels(self, owner_id: UUID) -> list[ChannelReadSchema]:
@@ -78,6 +111,7 @@ class ChannelService:
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Channels not found"
             )
+        
         return [ChannelReadSchema.model_validate(channel) for channel in channels]
     
     async def get_my_channels(self, user: UserReadSchema) -> list[ChannelReadSchema]:
@@ -94,6 +128,7 @@ class ChannelService:
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="You don't have any channels"
             )
+        
         return [ChannelReadSchema.model_validate(channel) for channel in channels]
     
     
