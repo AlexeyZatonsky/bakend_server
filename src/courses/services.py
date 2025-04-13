@@ -22,12 +22,15 @@ from .schemas import (
 class CourseService:
     def __init__(self, repository: CourseRepository):
         self.repository = repository
+   
 
     async def create(
             self, 
             course_data: CourseCreateSchema, 
-            channel_data: ChannelReadSchema
+            channel_data: ChannelReadSchema,
+            user_data: UserReadSchema,
         ) -> CourseReadSchema | HTTPException:
+
 
         if await self.repository.get_by_name_and_channel_id(channel_data.id, course_data.name) is not None:
             raise HTTPException(

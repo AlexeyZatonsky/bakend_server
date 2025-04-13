@@ -26,28 +26,26 @@ router = APIRouter(
 )
 
 def get_course_service(session: AsyncSession = Depends(get_async_session)) -> CourseService:
-    return CourseService(CourseRepository(session), CourseStructureRepository(session))
+    repository = CourseRepository(session)
+    return CourseService(repository)
+
+def get_course_structure_service(session: AsyncSession = Depends(get_async_session)) -> CourseStructureService:
+    repository = CourseStructureRepository(session)
+    return CourseStructureService(repository)
 
 
 def get_channel_service(session: AsyncSession = Depends(get_async_session)) -> ChannelService:
-    return ChannelService(ChannelRepository(session))
+    repository = ChannelRepository(session)
+    return ChannelService(repository)
 
 
-@router.post("", response_model=CourseReadSchema, status_code=201)
+@router.post("", response_model=CourseReadSchema, status_code=status.HTTP_201_CREATED)
 async def create_course(
     channel_id: str,
     course_data: CourseCreateSchema,
-    user: UserReadSchema = Depends(get_current_user),
+    user_data: UserReadSchema = Depends(get_current_user),
     course_service: CourseService = Depends(get_course_service),
-    channel_service: ChannelService = Depends(get_channel_service)
+    channel_service: ChannelService = Depends(get_channel_service),
 ):
-    # Получаем канал и валидируем владельца
-    channel: ChannelReadSchema = await channel_service.get_by_id(channel_id)
-    if not channel:
-        raise HTTPException(status_code=404, detail="Channel not found")
-
-    if channel.owner_id != user.id:
-        raise HTTPException(status_code=403, detail="You are not the owner of this channel")
-
-    # Создание курса
-    return await course_service.create(course_data, channel)
+    channel_data = await channel_service.validate_owner(channel_id, user_data.id)
+    return await course_service.create(course_data, channel_data, user_data)
