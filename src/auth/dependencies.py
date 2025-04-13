@@ -1,13 +1,20 @@
 from fastapi import Depends, HTTPException, status, Request, Cookie
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Optional
+
 import logging
+
+from ..core.log import configure_logging
+
 
 from .service import AuthService
 from .schemas import UserReadSchema
 from ..database import get_async_session
 
 logger = logging.getLogger(__name__)
+configure_logging()
+
+
 
 async def get_auth_service(session: AsyncSession = Depends(get_async_session)) -> AuthService:
     """
