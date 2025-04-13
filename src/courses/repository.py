@@ -1,7 +1,7 @@
 from uuid import UUID
 from typing import List, Optional
 
-from sqlalchemy import update
+from sqlalchemy import update,select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..core.AbstractRepository import AbstractRepository
@@ -30,9 +30,20 @@ class CourseRepository(AbstractRepository[CoursesORM]):
         """Удаление существующего курса"""
         await super().delete(entity)
 
-    async def get_by_channel_id(channel_id: str):
+    async def get_by_channel_id(self, channel_id: str) -> Optional[CoursesORM]:
         """Получение всех кусов определённого канала"""
-        pass
+        query = select(CoursesORM).where(CoursesORM.channel_id == channel_id)
+        result = await self.session.execute(query)
+        return result.scalars().all()
+    
+    async def get_by_name_and_channel_id(self, channel_id: str, course_name: str) -> Optional[CoursesORM]:
+        query = select(CoursesORM).where(
+            (CoursesORM.channel_id == channel_id) 
+            & 
+            (CoursesORM.name == course_name)
+        )
+        result = await self.session.execute(query)
+        return result.scalar_one_or_none()
 
 
 class CourseStructureRepository(AbstractRepository[CoursesStructureORM]):
@@ -51,7 +62,7 @@ class CourseStructureRepository(AbstractRepository[CoursesStructureORM]):
         """Создание новой структуры курса"""
         return await super().create(entity)
 
-    async def delete(self, entity: CoursesStructureORM) -> None:
+    async def delete(self, entity: CoursesStructureORM) -> Optional[CoursesStructureORM]:
         """Удаление существующей структуры курса"""
         await super().delete(entity)
 
@@ -67,5 +78,6 @@ class CourseStructureRepository(AbstractRepository[CoursesStructureORM]):
             .returning(self.model)
         )
         result = await self.session.execute(query)
+
         await self.session.commit()
         return result.scalar_one_or_none()
