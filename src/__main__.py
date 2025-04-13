@@ -1,15 +1,15 @@
-import uvicorn
 import logging
-
+import uvicorn
 from .settings.config import settings
-                          
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+from .core.log import configure_logging
 
-)
+logger = logging.getLogger("src.main")
+configure_logging()
 
 if __name__ == '__main__':
+    configure_logging()
+    
+    logger.debug("Запуск приложения")
 
     uvicorn.run(
         'src.app:app',
