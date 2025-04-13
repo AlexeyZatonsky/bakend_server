@@ -19,8 +19,8 @@ class CoursesORM(Base):
     is_public: Mapped[bool] = mapped_column(Boolean, default=True)
     student_count: Mapped[int] = mapped_column(Integer, default=0)
     preview: Mapped[str | None] = mapped_column(String(1000), nullable=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now(UTC))
-    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now(UTC), onupdate=datetime.now(UTC))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.now(UTC))
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.now(UTC), onupdate=datetime.now(UTC))
 
     structure: Mapped["CoursesStructureORM"] = relationship(
         "CoursesStructureORM",
