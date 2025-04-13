@@ -35,7 +35,7 @@ class UserBaseSchema(BaseModel):
 
 class UserReadSchema(BaseModel):
     """Схема для чтения данных пользователя"""
-    id: Union[UUID, str] = Field(..., description="Уникальный идентификатор пользователя")
+    id: UUID = Field(..., description="Уникальный идентификатор пользователя")
     username: str = Field(..., description="Имя пользователя")
     avatar: Optional[str] = Field(None, description="URL аватара пользователя")
     is_verified: bool = Field(default=False, description="Статус верификации пользователя")
