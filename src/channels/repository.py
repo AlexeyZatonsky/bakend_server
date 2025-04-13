@@ -15,7 +15,7 @@ class ChannelRepository(AbstractRepository[ChannelsORM]):
         super().__init__(session, ChannelsORM)
 
 
-    async def get_by_id(self, entity_id: UUID) -> Optional[ChannelsORM]:
+    async def get_by_id(self, entity_id: str) -> Optional[ChannelsORM]:
         """Получение секретной информации по UUID пользователя"""
         return await super().get_by_id(entity_id)
 
