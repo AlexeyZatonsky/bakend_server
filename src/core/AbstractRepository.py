@@ -14,7 +14,7 @@ class AbstractRepository(ABC, Generic[ModelType]):
         self.model = model
 
     # Базовая реализация метода получения по id
-    async def get_by_id(self, entity_id: UUID) -> Optional[ModelType]:
+    async def get_by_id(self, entity_id: UUID | str) -> Optional[ModelType]:
         query = select(self.model).where(self.model.id == entity_id)
         result = await self.session.execute(query)
         return result.scalar_one_or_none()
