@@ -49,3 +49,14 @@ async def create_course(
 ):
     channel_data = await channel_service.validate_owner(channel_id, user_data.id)
     return await course_service.create(course_data, channel_data, user_data)
+
+@router.delete("/{course_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_course(
+    channel_id: str,
+    course_id: UUID,
+    user: UserReadSchema = Depends(get_current_user),
+    course_service: CourseService = Depends(get_course_service),
+    channel_service: ChannelService = Depends(get_channel_service),
+):
+    channel_data = await channel_service.validate_owner(channel_id, user.id)
+    await course_service.delete_course(user, channel_data, course_id)
