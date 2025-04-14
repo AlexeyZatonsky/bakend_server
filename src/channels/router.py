@@ -7,7 +7,7 @@ from ..auth.dependencies import get_current_user
 from ..auth.schemas import UserReadSchema
 
 from .schemas import ChannelCreateSchema, ChannelReadSchema
-
+from .repository import ChannelRepository
 from .service import ChannelService
 
 router = APIRouter(
@@ -16,7 +16,6 @@ router = APIRouter(
 )
 
 async def get_channel_service(session: AsyncSession = Depends(get_async_session)):
-    from .repository import ChannelRepository
     repository = ChannelRepository(session)
     return ChannelService(repository)
 
