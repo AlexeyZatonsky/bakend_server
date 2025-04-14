@@ -21,7 +21,7 @@ class ChannelService:
     def __init__(self, repository: ChannelRepository):
         self.repository = repository
         
-    async def validate_owner(self, channel_id: str, user_id: UUID) -> ChannelReadSchema:
+    async def validate_owner(self, channel_id: str, user_data: UserReadSchema) -> ChannelReadSchema:
         channel = await self.repository.get_by_id(channel_id)
 
         if not channel:
@@ -33,9 +33,9 @@ class ChannelService:
         channel_data = ChannelReadSchema.model_validate(channel)
 
         logger.warning(f"Channel owner: {channel_data.owner_id}, dtype = {type(channel_data.owner_id)}")
-        logger.warning(f"Current user: {user_id}, dtype = {type(user_id)}")
+        logger.warning(f"Current user: {user_data.id}, dtype = {type(user_data.id)}")
 
-        if channel_data.owner_id != user_id:
+        if channel_data.owner_id != user_data.id:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="You are not the owner of this channel"
@@ -44,7 +44,7 @@ class ChannelService:
 
         return channel_data
 
-    async def create_channel(self, channel_data: ChannelCreateSchema, user: UserReadSchema) -> ChannelReadSchema | HTTPException:
+    async def create_channel(self, channel_data: ChannelCreateSchema, user_data: UserReadSchema) -> ChannelReadSchema | HTTPException:
         """
             Создает новый канал
             Args:
@@ -62,7 +62,7 @@ class ChannelService:
                 detail="Channel with this name already exists"
             )
 
-        new_channel = ChannelsORM(**channel_data.model_dump(), owner_id=user.id)
+        new_channel = ChannelsORM(**channel_data.model_dump(), owner_id=user_data.id)
         
         # Сохраняем канал в базу данных
         saved_channel = await self.repository.create(new_channel)
@@ -122,7 +122,7 @@ class ChannelService:
         Returns:
             list[ChannelReadSchema]: Список всех каналов пользователя
         """
-        channels = await self.repository.get_by_owner(UUID(user.id))
+        channels = await self.repository.get_by_owner(user.id)
         if not channels:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
@@ -132,7 +132,7 @@ class ChannelService:
         return [ChannelReadSchema.model_validate(channel) for channel in channels]
     
     
-    async def delete_channel(self, id: str, user: UserReadSchema) -> bool:
+    async def delete_channel(self, id: str, user_data: UserReadSchema) -> bool:
         """
         Удаляет канал по его имени
         Args:
@@ -147,7 +147,7 @@ class ChannelService:
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail = "Channel not found"
             )
-        if channel.owner_id != user.id:
+        if channel.owner_id != user_data.id:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="You are not the owner of this channel"
