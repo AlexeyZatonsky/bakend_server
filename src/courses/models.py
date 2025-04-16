@@ -8,7 +8,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from ..database import Base
 
 from ..channels.models import ChannelsORM
-
+from ..courses_structure.models import CoursesStructureORM
 
 class CoursesORM(Base):
     __tablename__ = "courses"
@@ -27,15 +27,4 @@ class CoursesORM(Base):
         back_populates="course",
         cascade="all, delete-orphan",
         uselist=False
-    )
-
-class CoursesStructureORM(Base):
-    __tablename__ = "courses_structure"
-
-    course_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey(CoursesORM.id, ondelete="CASCADE"), primary_key=True)
-    structure: Mapped[dict] = mapped_column(JSONB, nullable=False)
-
-    course: Mapped["CoursesORM"] = relationship(
-        "CoursesORM",
-        back_populates="structure"
     )
