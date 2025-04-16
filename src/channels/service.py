@@ -21,28 +21,6 @@ class ChannelService:
     def __init__(self, repository: ChannelRepository):
         self.repository = repository
         
-    async def validate_owner(self, channel_id: str, user_data: UserReadSchema) -> ChannelReadSchema:
-        channel = await self.repository.get_by_id(channel_id)
-
-        if not channel:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Channel not found"
-            )
-
-        channel_data = ChannelReadSchema.model_validate(channel)
-
-        logger.warning(f"Channel owner: {channel_data.owner_id}, dtype = {type(channel_data.owner_id)}")
-        logger.warning(f"Current user: {user_data.id}, dtype = {type(user_data.id)}")
-
-        if channel_data.owner_id != user_data.id:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="You are not the owner of this channel"
-            )
-        
-
-        return channel_data
 
     async def create_channel(self, channel_data: ChannelCreateSchema, user_data: UserReadSchema) -> ChannelReadSchema | HTTPException:
         """
@@ -77,7 +55,6 @@ class ChannelService:
             list[ChannelReadSchema]: Список всех каналов
         """
         channels = await self.repository.get_all(limit)
-        print("called")
         return [ChannelReadSchema.model_validate(channel) for channel in channels]
 
     async def get_channel_by_name(self, channel_id: str) -> ChannelReadSchema:
@@ -132,26 +109,12 @@ class ChannelService:
         return [ChannelReadSchema.model_validate(channel) for channel in channels]
     
     
-    async def delete_channel(self, id: str, user_data: UserReadSchema) -> bool:
+    async def delete_channel(self, channel_data: ChannelReadSchema) -> None:
         """
-        Удаляет канал по его имени
-        Args:
-            id: Имя канала
-            user: Пользователь
-        Returns:
-            bool: True если канал удален, False если не удален
+        Удаляет канал. Предполагается, что права уже проверены.
         """
-        channel = await self.repository.get_by_id(id)
+        channel = await self.repository.get_by_id(channel_data.id)
         if not channel:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail = "Channel not found"
-            )
-        if channel.owner_id != user_data.id:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="You are not the owner of this channel"
-            )
-            
+            raise HTTPException(status_code=404, detail="Channel not found")
+
         await self.repository.delete(channel)
-        return True 
