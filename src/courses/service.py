@@ -16,7 +16,10 @@ from .schemas import CourseCreateSchema, CourseUpdateSchema, CourseReadSchema
 
 
 
-#TODO: Метод, для просмотра курсов, на которых пользователь обучается
+#TODO_orm: Занести в БД таблицу, которая содержит в себе информацию о том обучается ли пользователь на курсе
+#TODO_redis: Сохранять в кэше данные о курсах, если данные меняются каллбэкать запись
+#TODO_service: Метод, для просмотра курсов, на которых пользователь обучается
+#TODO_Вынести ошибки в отдельный класс
 
 class CourseService:
     def __init__(self, repository: CourseRepository):
@@ -63,3 +66,13 @@ class CourseService:
     async def get_courses_by_channel(self, channel: ChannelReadSchema) -> List[CourseReadSchema]:
         courses = await self.repository.get_by_channel_id(channel.id)
         return [CourseReadSchema.model_validate(course) for course in courses]
+    
+    async def get_courses_by_id(self, course_id:UUID) -> CourseReadSchema:
+        #Проверка на то, обучается ли пользователь на курсе
+        #TODO_service: Внести проверку на is_public поле для курса
+
+        course_orm = self.repository.get_by_id(course_id)
+        if course_orm is None: 
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Course is not found")
+        
+        return CourseReadSchema.model_validate(course_orm)
