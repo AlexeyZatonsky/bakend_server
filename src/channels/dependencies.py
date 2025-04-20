@@ -15,7 +15,8 @@ from .exeptions import ChannelsHTTPExeptions
 
 async def get_channel_service(session: AsyncSession = Depends(get_async_session)):
     repository = ChannelRepository(session)
-    return ChannelService(repository)
+    http_exeptions = ChannelsHTTPExeptions()
+    return ChannelService(repository, http_exeptions)
 
 async def get_channel_exeptions() -> ChannelsHTTPExeptions:
     channels_http_exeptions = ChannelsHTTPExeptions()
@@ -26,15 +27,14 @@ async def get_current_channel(
     channel_id: str,
     user: UserReadSchema = Depends(get_current_user),
     service: ChannelService = Depends(get_channel_service),
-    channels_http_exeptions: ChannelsHTTPExeptions =  Depends(get_channel_exeptions)
 ) -> ChannelReadSchema:
     channel = await service.repository.get_by_id(channel_id)
     if not channel:
-        raise channels_http_exeptions.not_found_404()
+        raise service.http_exeptions.not_found_404()
 
     channel_data = ChannelReadSchema.model_validate(channel)
 
     if channel_data.owner_id != user.id:
-        raise channels_http_exeptions.forbidden_403()
+        raise service.http_exeptions.forbidden_403()
 
     return channel_data
