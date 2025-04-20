@@ -1,34 +1,27 @@
+from typing import List, Optional
+from uuid import UUID
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+
+
+from ..core.AbstractRepository import AbstractRepository
 
 from .models import AccessLevelEnum, UsersPermissionsORM
 
 
 
-class PermissionRepository:
+class PermissionRepository(AbstractRepository[UsersPermissionsORM]):
     def __init__(self, session: AsyncSession):
         self.session = session
 
+    async def get_by_id(self, entity_id: UUID) -> Optional[UsersPermissionsORM]:
+        return await super().get_by_id(entity_id)
 
-    async def get_by_user_id_and_course_id(self, user_id: int, course_id: int) -> UsersPermissionsORM | None:
-        query = select(UsersPermissionsORM).where(UsersPermissionsORM.user_id == user_id, UsersPermissionsORM.course_id == course_id)
-        result = await self.session.execute(query)
-        return result.scalar_one_or_none()
-    
+    async def get_all(self, limit: int = 20) -> List[UsersPermissionsORM]:
+        return await super().get_all(limit)
 
-    async def create_permission(self, permission: UsersPermissionsORM) -> UsersPermissionsORM:
-        self.session.add(permission)
-        await self.session.commit()
-        await self.session.refresh(permission)
-        return permission
-    
+    async def create(self, entity: UsersPermissionsORM) -> UsersPermissionsORM:
+        return await super().create(entity)
 
-    async def get_all(self, limit: int = 20) -> list[UsersPermissionsORM]:
-        query = select(UsersPermissionsORM).limit(limit)
-        result = await self.session.execute(query)
-        return result.scalars().all()
-    
-
-    async def delete(self, permission: UsersPermissionsORM) -> None:
-        await self.session.delete(permission)
-        await self.session.commit() 
+    async def delete(self, entity: UsersPermissionsORM) -> None:
+        await super().delete(entity)
