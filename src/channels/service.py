@@ -19,7 +19,7 @@ configure_logging()
 
 
 class ChannelService:
-    def __init__(self, repository: ChannelRepository):
+    def __init__(self, repository: ChannelRepository, http_exeptions: ChannelsHTTPExeptions):
         self.repository = repository
         self.http_exeptions = ChannelsHTTPExeptions()
         
