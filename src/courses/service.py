@@ -13,6 +13,7 @@ from ..channels.service import ChannelService
 from .models import CoursesORM
 from .repository import CourseRepository
 from .schemas import CourseCreateSchema, CourseUpdateSchema, CourseReadSchema
+from .exeptions import CoursesHTTPExeptions
 
 
 
@@ -22,15 +23,13 @@ from .schemas import CourseCreateSchema, CourseUpdateSchema, CourseReadSchema
 #TODO_Вынести ошибки в отдельный класс
 
 class CourseService:
-    def __init__(self, repository: CourseRepository):
+    def __init__(self, repository: CourseRepository, exeptions: CoursesHTTPExeptions):
         self.repository = repository
+        self.exeptions = exeptions
 
     async def create(self, course_data: CourseCreateSchema, channel: ChannelReadSchema) -> CourseReadSchema:
         if await self.repository.get_by_name_and_channel_id(channel.id, course_data.name):
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail="There's already a course with that name on your channel."
-            )
+            raise self.exeptions.not_found_404()
 
         new_course = CoursesORM(**course_data.model_dump(), channel_id=channel.id)
         saved_course = await self.repository.create(new_course)
@@ -73,6 +72,6 @@ class CourseService:
 
         course_orm = self.repository.get_by_id(course_id)
         if course_orm is None: 
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Course is not found")
+            raise self.exeptions.not_found_404()
         
         return CourseReadSchema.model_validate(course_orm)
