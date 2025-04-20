@@ -1,9 +1,9 @@
 from fastapi import HTTPException, status
 
-from ..core.AbsractHTTPExeptions import AbstractHTTPExeptions
+from ..core.AbsractHTTPExceptions import AbstractHTTPExceptions
 
 
-class ChannelsHTTPExeptions(AbstractHTTPExeptions):
+class ChannelsHTTPExceptions(AbstractHTTPExceptions):
     
     def not_found_404(self, detail: str = "Channels not found") -> HTTPException:
         return HTTPException(

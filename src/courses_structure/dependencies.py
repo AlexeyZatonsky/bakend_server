@@ -21,4 +21,7 @@ async def get_course_structure_service(session: AsyncSession = Depends(get_async
     return CourseStructureService(repository)
 
 
+#TODO: get_permissions
+
+
 

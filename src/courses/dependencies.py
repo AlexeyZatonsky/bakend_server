@@ -11,15 +11,15 @@ from ..channels.schemas import ChannelReadSchema
 from .repository import CourseRepository
 from .service import CourseService
 from .schemas import CourseReadSchema
-from .exeptions import CoursesHTTPExeptions
+from .exceptions import CoursesHTTPExceptions
 
 
 
 
 async def get_course_service(session: AsyncSession = Depends(get_async_session)) -> CourseService:
     repository = CourseRepository(session)
-    http_exeptions = CoursesHTTPExeptions()
-    return CourseService(repository, http_exeptions)
+    http_exceptions = CoursesHTTPExceptions()
+    return CourseService(repository, http_exceptions)
 
 
 async def get_current_course(
@@ -29,9 +29,9 @@ async def get_current_course(
 ) -> CourseReadSchema:
     course = await course_service.repository.get_by_id(course_id)
     if not course:
-        raise course_service.exeptions.not_found_404()
+        raise course_service.exceptions.not_found_404()
 
     if course.channel_id != channel.id:
-        raise course_service.exeptions.forbidden_403()
+        raise course_service.exceptions.forbidden_403()
 
     return CourseReadSchema.model_validate(course)

@@ -9,7 +9,7 @@ from ..core.log import configure_logging
 from .repository import ChannelRepository
 from .models import ChannelsORM
 from .schemas import ChannelCreateSchema, ChannelReadSchema
-from .exeptions import ChannelsHTTPExeptions
+from .exceptions import ChannelsHTTPExceptions
 
 from ..auth.schemas import UserReadSchema
 
@@ -19,9 +19,9 @@ configure_logging()
 
 
 class ChannelService:
-    def __init__(self, repository: ChannelRepository, http_exeptions: ChannelsHTTPExeptions):
+    def __init__(self, repository: ChannelRepository, http_exceptions: ChannelsHTTPExceptions):
         self.repository = repository
-        self.http_exeptions = ChannelsHTTPExeptions()
+        self.http_exceptions = ChannelsHTTPExceptions()
         
 
     async def create_channel(self, channel_data: ChannelCreateSchema, user_data: UserReadSchema) -> ChannelReadSchema | HTTPException:
@@ -37,7 +37,7 @@ class ChannelService:
         """
         
         if await self.repository.get_by_id(channel_data.id) is not None:
-            raise self.http_exeptions.conflict_409()
+            raise self.http_exceptions.conflict_409()
 
         new_channel = ChannelsORM(**channel_data.model_dump(), owner_id=user_data.id)
         
@@ -66,7 +66,7 @@ class ChannelService:
         """
         channel = await self.repository.get_by_id(channel_id)
         if not channel:
-            raise self.http_exeptions.not_found_404()
+            raise self.http_exceptions.not_found_404()
         
         return ChannelReadSchema.model_validate(channel)
 
@@ -80,7 +80,7 @@ class ChannelService:
         """
         channels = await self.repository.get_by_owner(owner_id)
         if not channels:
-            raise self.http_exeptions.not_found_404()
+            raise self.http_exceptions.not_found_404()
         
         return [ChannelReadSchema.model_validate(channel) for channel in channels]
     
@@ -94,7 +94,7 @@ class ChannelService:
         """
         channels = await self.repository.get_by_owner(user.id)
         if not channels:
-            raise self.http_exeptions.not_found_404()
+            raise self.http_exceptions.not_found_404()
         
         return [ChannelReadSchema.model_validate(channel) for channel in channels]
     
@@ -105,6 +105,6 @@ class ChannelService:
         """
         channel = await self.repository.get_by_id(channel_data.id)
         if not channel:
-            raise self.http_exeptions.not_found_404()
+            raise self.http_exceptions.not_found_404()
 
         await self.repository.delete(channel)

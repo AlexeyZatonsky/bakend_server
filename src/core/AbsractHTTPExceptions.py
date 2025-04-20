@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from fastapi import HTTPException, status
 
 
-class AbstractHTTPExeptions(ABC):
+class AbstractHTTPExceptions(ABC):
     @abstractmethod
     def not_found_404(self, detail: str) -> HTTPException: ...
     

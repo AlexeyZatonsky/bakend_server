@@ -13,23 +13,20 @@ from ..channels.service import ChannelService
 from .models import CoursesORM
 from .repository import CourseRepository
 from .schemas import CourseCreateSchema, CourseUpdateSchema, CourseReadSchema
-from .exeptions import CoursesHTTPExeptions
+from .exceptions import CoursesHTTPExceptions
 
 
 
-#TODO_orm: Занести в БД таблицу, которая содержит в себе информацию о том обучается ли пользователь на курсе
+
 #TODO_redis: Сохранять в кэше данные о курсах, если данные меняются каллбэкать запись
-#TODO_service: Метод, для просмотра курсов, на которых пользователь обучается
-#TODO_Вынести ошибки в отдельный класс
-
 class CourseService:
-    def __init__(self, repository: CourseRepository, exeptions: CoursesHTTPExeptions):
+    def __init__(self, repository: CourseRepository, exceptions: CoursesHTTPExceptions):
         self.repository = repository
-        self.exeptions = exeptions
+        self.exceptions = exceptions
 
     async def create(self, course_data: CourseCreateSchema, channel: ChannelReadSchema) -> CourseReadSchema:
         if await self.repository.get_by_name_and_channel_id(channel.id, course_data.name):
-            raise self.exeptions.not_found_404()
+            raise self.exceptions.not_found_404()
 
         new_course = CoursesORM(**course_data.model_dump(), channel_id=channel.id)
         saved_course = await self.repository.create(new_course)
@@ -72,6 +69,6 @@ class CourseService:
 
         course_orm = self.repository.get_by_id(course_id)
         if course_orm is None: 
-            raise self.exeptions.not_found_404()
+            raise self.exceptions.not_found_404()
         
         return CourseReadSchema.model_validate(course_orm)

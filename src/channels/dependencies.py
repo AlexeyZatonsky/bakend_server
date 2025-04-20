@@ -1,4 +1,4 @@
-from fastapi import Depends, HTTPException
+from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..database import get_async_session
@@ -9,18 +9,18 @@ from ..auth.schemas import UserReadSchema
 from .service import ChannelService
 from .schemas import ChannelReadSchema
 from .repository import ChannelRepository
-from .exeptions import ChannelsHTTPExeptions
+from .exceptions import ChannelsHTTPExceptions
 
 
 
 async def get_channel_service(session: AsyncSession = Depends(get_async_session)):
     repository = ChannelRepository(session)
-    http_exeptions = ChannelsHTTPExeptions()
-    return ChannelService(repository, http_exeptions)
+    http_exceptions = ChannelsHTTPExceptions()
+    return ChannelService(repository, http_exceptions)
 
-async def get_channel_exeptions() -> ChannelsHTTPExeptions:
-    channels_http_exeptions = ChannelsHTTPExeptions()
-    return channels_http_exeptions
+async def get_channel_exceptions() -> ChannelsHTTPExceptions:
+    channels_http_exceptions = ChannelsHTTPExceptions()
+    return channels_http_exceptions
 
 
 async def get_current_channel(
@@ -30,11 +30,11 @@ async def get_current_channel(
 ) -> ChannelReadSchema:
     channel = await service.repository.get_by_id(channel_id)
     if not channel:
-        raise service.http_exeptions.not_found_404()
+        raise service.http_exceptions.not_found_404()
 
     channel_data = ChannelReadSchema.model_validate(channel)
 
     if channel_data.owner_id != user.id:
-        raise service.http_exeptions.forbidden_403()
+        raise service.http_exceptions.forbidden_403()
 
     return channel_data
