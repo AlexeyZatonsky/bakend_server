@@ -1,5 +1,6 @@
 from uuid import UUID
 from typing import List, Optional
+from enum import Enum
 
 from sqlalchemy import update,select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -7,6 +8,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from ..core.AbstractRepository import AbstractRepository
 from .models import CoursesORM
 
+from ..permissions.permissionsEnum import PermissionsEnum
+from ..permissions.models import PermissionsORM
 
 
 
@@ -23,8 +26,22 @@ class CourseRepository(AbstractRepository[CoursesORM]):
         return await super().get_all(limit)
 
     async def create(self, entity: CoursesORM) -> CoursesORM:
-        """Создание нового курса"""
-        return await super().create(entity)
+        """Создание нового курса + добавление нового пользователя как owner в permissions orm"""
+        
+        self.session.add(entity)
+        await self.session.flush() 
+
+        permission = PermissionsORM(
+            user_id = entity.owner_id,
+            course_id = entity.id,
+            access_level = PermissionsEnum.OWNER,
+            expiration_date = None
+        )
+        self.session.add(permission)
+
+        await self.session.commit()
+        await self.session.refresh(entity)
+        return entity
 
     async def delete(self, entity: CoursesORM) -> None:
         """Удаление существующего курса"""
