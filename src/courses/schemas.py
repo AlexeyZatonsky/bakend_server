@@ -18,6 +18,7 @@ class CourseUpdateSchema(CourseBaseSchema): pass
 class CourseReadSchema(CourseBaseSchema):
     id: UUID = Field(..., description="Уникальный идентификатор курса")
     channel_id: str = Field(..., description="Идентификатор канала, к которому привязан курс")
+    owner_id: UUID = Field(description="ID владельца курса")
     name: str = Field(..., min_length=1, max_length=100, description="Название курса")
     is_public: bool = Field(default=True, description="Является ли курс общедоступным")
     student_count: int = Field(default=0, ge=0, description="Количество студентов, записанных на курс")

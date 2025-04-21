@@ -29,9 +29,9 @@ async def get_current_course(
 ) -> CourseReadSchema:
     course = await course_service.repository.get_by_id(course_id)
     if not course:
-        raise course_service.exceptions.not_found_404()
+        raise course_service.http_exceptions.not_found_404()
 
     if course.channel_id != channel.id:
-        raise course_service.exceptions.forbidden_403()
+        raise course_service.http_exceptions.forbidden_403()
 
     return CourseReadSchema.model_validate(course)

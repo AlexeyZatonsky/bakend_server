@@ -20,15 +20,15 @@ from .exceptions import CoursesHTTPExceptions
 
 #TODO_redis: Сохранять в кэше данные о курсах, если данные меняются каллбэкать запись
 class CourseService:
-    def __init__(self, repository: CourseRepository, exceptions: CoursesHTTPExceptions):
+    def __init__(self, repository: CourseRepository, http_exceptions: CoursesHTTPExceptions):
         self.repository = repository
-        self.exceptions = exceptions
+        self.http_exceptions = http_exceptions
 
     async def create(self, course_data: CourseCreateSchema, channel: ChannelReadSchema) -> CourseReadSchema:
         if await self.repository.get_by_name_and_channel_id(channel.id, course_data.name):
-            raise self.exceptions.not_found_404()
+            raise self.http_exceptions.not_found_404()
 
-        new_course = CoursesORM(**course_data.model_dump(), channel_id=channel.id)
+        new_course = CoursesORM(**course_data.model_dump(), owner_id=channel.owner_id, channel_id=channel.id)
         saved_course = await self.repository.create(new_course)
         return CourseReadSchema.model_validate(saved_course)
 
@@ -69,6 +69,6 @@ class CourseService:
 
         course_orm = self.repository.get_by_id(course_id)
         if course_orm is None: 
-            raise self.exceptions.not_found_404()
+            raise self.http_exceptions.not_found_404()
         
         return CourseReadSchema.model_validate(course_orm)
