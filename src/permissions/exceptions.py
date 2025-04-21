@@ -3,7 +3,7 @@ from fastapi import HTTPException, status
 from ..core.AbsractHTTPExceptions import AbstractHTTPExceptions
 
 
-class UsersPermissionsHTTPExceptions(AbstractHTTPExceptions):
+class PermissionsHTTPExceptions(AbstractHTTPExceptions):
     
     def not_found_404(self, detail: str = "") -> HTTPException:
         return HTTPException(
@@ -19,7 +19,7 @@ class UsersPermissionsHTTPExceptions(AbstractHTTPExceptions):
         )
     
     
-    def forbidden_403(self, detail: str = "") -> HTTPException:
+    def forbidden_403(self, detail: str = "You have no permissions on this course") -> HTTPException:
         return HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail=detail

@@ -13,7 +13,7 @@ from src.database import Base
 from src.auth.models import UsersORM, SecretInfoORM
 from src.channels.models import ChannelsORM
 from src.courses.models import CoursesORM, CoursesStructureORM
-from src.permissions.models import UsersPermissionsORM
+from src.permissions.models import PermissionsORM
 from src.videos.models import VideoORM, VideoMetadatasORM, CategoryORM, TagORM
 from src.rating_description.models import VideoCommentsORM, CoursesCommentsORM
 

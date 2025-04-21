@@ -6,22 +6,22 @@ from sqlalchemy import select
 
 from ..core.AbstractRepository import AbstractRepository
 
-from .models import AccessLevelEnum, UsersPermissionsORM
+from .models import PermissionsEnum, PermissionsORM
 
 
 
-class PermissionRepository(AbstractRepository[UsersPermissionsORM]):
+class PermissionRepository(AbstractRepository[PermissionsORM]):
     def __init__(self, session: AsyncSession):
         self.session = session
 
-    async def get_by_id(self, entity_id: UUID) -> Optional[UsersPermissionsORM]:
-        return await super().get_by_id(entity_id)
+    async def get_by_id(self, user_id: UUID, course_id: UUID) -> Optional[PermissionsORM]:
+        return await super().get_by_id(user_id + course_id)
 
-    async def get_all(self, limit: int = 20) -> List[UsersPermissionsORM]:
+    async def get_all(self, limit: int = 20) -> List[PermissionsORM]:
         return await super().get_all(limit)
 
-    async def create(self, entity: UsersPermissionsORM) -> UsersPermissionsORM:
+    async def create(self, entity: PermissionsORM) -> PermissionsORM:
         return await super().create(entity)
 
-    async def delete(self, entity: UsersPermissionsORM) -> None:
+    async def delete(self, entity: PermissionsORM) -> None:
         await super().delete(entity)
