@@ -11,16 +11,12 @@ from ..database import Base
 from ..auth.models import UsersORM
 from ..courses.models import CoursesORM
 
+from .permissionsEnum import AccessLevelEnum
 
-
-class AccessLevelEnum(Enum):
-    HIGH_MODERATOR = "HIGH_MODERATOR"
-    MODERATOR = "MODERATOR"
-    STUDENT = "STUDENT"
 
 
 class UsersPermissionsORM(Base):
-    __tablename__ = "users_permissions"
+    __tablename__ = "permissions"
 
     user_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),
