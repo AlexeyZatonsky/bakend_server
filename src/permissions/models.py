@@ -11,11 +11,11 @@ from ..database import Base
 from ..auth.models import UsersORM
 from ..courses.models import CoursesORM
 
-from .permissionsEnum import AccessLevelEnum
+from .permissionsEnum import PermissionsEnum
 
 
 
-class UsersPermissionsORM(Base):
+class PermissionsORM(Base):
     __tablename__ = "permissions"
 
     user_id: Mapped[uuid.UUID] = mapped_column(
@@ -29,15 +29,15 @@ class UsersPermissionsORM(Base):
         primary_key=True
     )
 
-    access_level: Mapped[AccessLevelEnum] = mapped_column(
+    access_level: Mapped[PermissionsEnum] = mapped_column(
         PgEnum(
-            AccessLevelEnum,
+            PermissionsEnum,
             name="access_level_enum",
             create_type=False,
             values_callable=lambda e: [f.value for f in e],
         ),
         nullable=False,
-        default=AccessLevelEnum.STUDENT
+        default=PermissionsEnum.STUDENT
     )
 
     granted_at: Mapped[datetime] = mapped_column(
