@@ -26,7 +26,7 @@ class CourseService:
 
     async def create(self, course_data: CourseCreateSchema, channel: ChannelReadSchema) -> CourseReadSchema:
         if await self.repository.get_by_name_and_channel_id(channel.id, course_data.name):
-            raise self.http_exceptions.not_found_404()
+            raise self.http_exceptions.conflict_409()
 
         new_course = CoursesORM(**course_data.model_dump(), owner_id=channel.owner_id, channel_id=channel.id)
         saved_course = await self.repository.create(new_course)
