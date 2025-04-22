@@ -9,6 +9,7 @@ from .auth.schemas import UserReadSchema
 from .auth.router import router as auth_router
 from .channels.router import router as channel_router
 from .courses.router import router as courses_router
+from .permissions.router import router as permissions_router
 # from .videos.router import router as video_router
 
 
@@ -45,6 +46,7 @@ app.add_middleware(
 app.include_router(auth_router)
 app.include_router(channel_router)
 app.include_router(courses_router)
+app.include_router(permissions_router)
 # app.include_router(video_router)
 
 @app.get('/protected-route')
