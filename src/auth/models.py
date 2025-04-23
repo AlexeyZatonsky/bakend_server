@@ -50,7 +50,7 @@ class SecretInfoORM(Base):
     """Модель секретной информации пользователя"""
     __tablename__ = 'secret_info'
     
-    user_id: Mapped[uuid.UUID] = mapped_column(
+    id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), 
         ForeignKey(UsersORM.id, ondelete='CASCADE'), 
         primary_key=True
