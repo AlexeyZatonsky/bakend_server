@@ -6,10 +6,11 @@ import logging
 
 from ..core.log import configure_logging
 
-
+from .exceptions import AuthHTTPExceptions
 from .service import AuthService
 from .schemas import UserReadSchema
 from ..database import get_async_session
+
 
 logger = logging.getLogger(__name__)
 configure_logging()
@@ -26,7 +27,10 @@ async def get_auth_service(session: AsyncSession = Depends(get_async_session)) -
     Returns:
         AuthService: Экземпляр сервиса аутентификации
     """
-    return AuthService(session)
+    http_exceptions = AuthHTTPExceptions()
+    
+
+    return AuthService(session, http_exceptions)
 
 async def get_token_from_cookie(
     request: Request,
@@ -82,11 +86,7 @@ async def get_current_user(
     
     if not token:
         logger.warning("No token provided for authentication")
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Not authenticated",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
+        raise auth_service.http_exceptions.unauthorized_401()
     
     try:
         user = await auth_service.get_current_user(token)
@@ -94,8 +94,5 @@ async def get_current_user(
         return user
     except Exception as e:
         logger.warning(f"Authentication failed: {str(e)}")
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid authentication credentials",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
+        raise auth_service.http_exceptions.unauthorized_401("Invalid authentication credentials")
+

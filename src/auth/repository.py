@@ -88,7 +88,7 @@ class AuthRepository:
         await self.session.flush()  # flush чтобы получить user.id до commit'а
 
         secret_info = SecretInfoORM(
-            user_id=user.id,
+            id=user.id,
             email=user_data.email,
             hashed_password=hashed_password
         )
@@ -107,7 +107,7 @@ class AuthRepository:
         if not secret_info:
             return None
 
-        user = await self.user_repo.get_by_id(secret_info.user_id)
+        user = await self.user_repo.get_by_id(secret_info.id)
         if not user:
             return None
 
@@ -170,3 +170,9 @@ class AuthRepository:
 
         await self.user_repo.delete(user)
         return True
+    
+    async def get_user_by_id(self, user_id: UUID):
+        user_entity = await self.user_repo.get_by_id(user_id)
+        secret_info_entity = await self.secret_repo.get_by_id(user_id)
+
+        return user_entity + secret_info_entity

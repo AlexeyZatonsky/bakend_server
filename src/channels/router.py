@@ -30,7 +30,7 @@ async def get_channels(channel_service: ChannelService = Depends(get_channel_ser
     """
     Получает список всех каналов.
     Returns:
-        list[ChannelRead]: Список всех каналов
+        list[ChannelReadSchema]: Список всех каналов
     """
     return await channel_service.get_channels()
 
