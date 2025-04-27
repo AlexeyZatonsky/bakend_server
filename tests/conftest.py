@@ -1,40 +1,81 @@
 import pytest
+import pytest_asyncio
 import sys
+import asyncio
 from pathlib import Path
 import time
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
+from sqlalchemy import delete
+from httpx import AsyncClient, ASGITransport
+from pydantic import BaseModel, EmailStr
+
 from src.database import get_async_session
 from src.app import app
 from typing import AsyncGenerator
-
-from httpx import AsyncClient, ASGITransport
-
 from src.settings.config import settings
 
+from src.auth.models import UsersORM, SecretInfoORM
+from src.auth.schemas import UserCreateSchema, UserLoginSchema, UserReadSchema
 
+# Добавляем путь к родительской директории для импорта из src
 sys.path.append(str(Path(__file__).parent.parent))
 
-@pytest.fixture(scope="session", autouse=True)
+if sys.platform.startswith("win"):
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+
+pytestmark = pytest.mark.asyncio(loop_scope="session")
+
+# ---------- единственный loop на все тесты ----------
+@pytest.fixture(scope="session")
+def event_loop():
+    """Глобальный event-loop, общий для всех тестов."""
+    loop = asyncio.new_event_loop()
+    yield loop
+    loop.close()
+
+
+
+@pytest.fixture( autouse=True)
 def verify_test_environment():
     if settings.MODE != "TEST":
         pytest.skip("Skipping tests for non-test environment")
 
 
-@pytest.fixture(scope="function")
-async def ac() -> AsyncGenerator[AsyncClient, None]:
 
+@pytest.fixture()
+async def ac() -> AsyncGenerator[AsyncClient, None]:
     async with AsyncClient(
         transport=ASGITransport(app=app),
-        base_url="http://test"
+        base_url="http://test",
     ) as client:
         yield client
 
+
+
 @pytest.fixture(scope="function")
 async def session() -> AsyncGenerator[AsyncSession, None]:
-    async for session in get_async_session():
-        yield session
+    agen = get_async_session()            
+    session = await anext(agen)           
+    try:
+        yield session                    
+    finally:
         await session.close()
-        
+        await agen.aclose()               
+
+
+# ---------- очистка таблиц ----------
+@pytest_asyncio.fixture(autouse=True)
+async def clean_tables() -> None:
+    yield                                 
+
+    agen = get_async_session()
+    session = await anext(agen)
+    try:
+        await session.execute(delete(UsersORM))
+        await session.execute(delete(SecretInfoORM))
+        await session.commit()
+    finally:
+        await session.close()
 
 def pytest_addoption(parser):
     parser.addoption(
@@ -63,4 +104,6 @@ def test_slow():
     
 def test_fast():
     pass
+
+
 
