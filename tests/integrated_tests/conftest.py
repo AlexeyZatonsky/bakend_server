@@ -6,18 +6,19 @@ from sqlalchemy import delete
 from sqlalchemy.ext.asyncio import AsyncSession
 from pydantic import BaseModel, EmailStr
 
-from src.auth.models import Users, SecretInfo
-from src.auth.schemas import UserCreate, UserLogin
+from src.auth.models import UsersORM, SecretInfoORM
+from src.auth.schemas import UserCreateSchema, UserLoginSchema
+from src.auth.exceptions import  AuthHTTPExceptions
 
 
 
 
 TEST_EMAIL = "test@example.com"
 TEST_USERNAME = "testuser"
-TEST_PASSWORD = "testpassword123"
+TEST_PASSWORD = "TesTpassword123"
 WRONG_PASSWORD = "wrongpassword"
 NONEXISTENT_EMAIL = "nonexistent@example.com"
-TEST_CHANNEL_NAME = "test_channel"
+TEST_channel_id = "test_channel"
 TEST_USER_AVATAR = "https://example.com/avatar.png"
 TEST_CHANNEL_AVATAR = "https://example.com/channel_avatar.png"
 
@@ -29,23 +30,9 @@ class UserTestData(BaseModel):
     test_password: str = TEST_PASSWORD
     test_wrong_password: str = WRONG_PASSWORD
     test_nonexistent_email: EmailStr = NONEXISTENT_EMAIL
-    test_channel_name: str = TEST_CHANNEL_NAME
+    test_channel_id: str = TEST_channel_id
     test_user_avatar: str = TEST_USER_AVATAR
     test_channel_avatar: str = TEST_CHANNEL_AVATAR
-
-
-@pytest_asyncio.fixture(autouse=True)
-async def clean_tables(session: AsyncSession):    
-    """
-    Автоматически очищает таблицы до и после каждого теста.
-    Использует каскадное удаление: удаление из Users автоматически удалит записи из SecretInfo.
-    """
-    yield
-
-    await session.execute(delete(Users))
-    await session.execute(delete(SecretInfo))
-    await session.commit()
-
 
 
 
@@ -54,44 +41,21 @@ def test_user_data() -> UserTestData:
     """Фикстура для получения тестовых данных пользователя"""
     return UserTestData()
 
-
-@pytest_asyncio.fixture(autouse=True)
-async def clean_tables(session: AsyncSession):    
-    """
-    Автоматически очищает таблицы до и после каждого теста.
-    Использует каскадное удаление: удаление из Users автоматически удалит записи из SecretInfo.
-    """
-    yield
-
-    await session.execute(delete(Users))
-    await session.execute(delete(SecretInfo))
-    await session.commit()
-
 @pytest.fixture(scope="session")
-def user_data_model(test_user_data: UserTestData) -> UserCreate:
+def user_data_model(test_user_data: UserTestData) -> UserCreateSchema:
     """Создает тестовые данные для регистрации пользователя."""
-    return UserCreate(
+    return UserCreateSchema(
         email=test_user_data.test_user_email,
-        username=test_user_data.test_username,
         password=test_user_data.test_password
     )
 
 
 @pytest.fixture(scope="session")
-def user_login_data(test_user_data: UserTestData) -> UserLogin:
+def user_login_data(test_user_data: UserTestData) -> UserLoginSchema:
     """Создает тестовые данные для входа пользователя."""
-    return UserLogin(
+    return UserLoginSchema(
         email=test_user_data.test_user_email,
         password=test_user_data.test_password
     )
-
-
-@pytest.fixture(scope="session")
-def event_loop():
-    """Создает event loop для всей тестовой сессии"""
-    loop = asyncio.new_event_loop()
-    yield loop
-    loop.close()
-
 
 
