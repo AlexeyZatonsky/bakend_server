@@ -6,9 +6,12 @@ from sqlalchemy import delete
 from sqlalchemy.ext.asyncio import AsyncSession
 from pydantic import BaseModel, EmailStr
 
-from src.auth.models import UsersORM, SecretInfoORM
+
+import sys, pathlib
+root_dir = pathlib.Path(__file__).resolve().parents[1]   #  …/bakend_server
+sys.path.insert(0, str(root_dir)) 
 from src.auth.schemas import UserCreateSchema, UserLoginSchema
-from src.auth.exceptions import  AuthHTTPExceptions
+
 
 
 
