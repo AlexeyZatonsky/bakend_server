@@ -9,7 +9,7 @@ from ..channels.service import ChannelService
 from ..channels.dependencies import get_channel_service, get_current_channel
 from ..channels.schemas import ChannelReadSchema
 
-from .dependencies import get_course_service, get_current_course
+from .dependencies import get_course_service, get_current_course_with_owner_validate
 from .service import CourseService
 from .schemas import (
     CourseCreateSchema, CourseUpdateSchema, CourseReadSchema
@@ -53,7 +53,7 @@ async def create_course(
 
 @router.delete("/channels/{channel_id}/courses/{course_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_course(
-    course: CourseReadSchema = Depends(get_current_course),  # проверка владельца курса
+    course: CourseReadSchema = Depends(get_current_course_with_owner_validate),  # проверка владельца курса
     course_service: CourseService = Depends(get_course_service),
 ):
     await course_service.delete_course(course)
@@ -62,7 +62,7 @@ async def delete_course(
 @router.patch("/channels/{channel_id}/courses/{course_id}", response_model=CourseReadSchema)
 async def patch_course(
     update_data: CourseUpdateSchema,
-    course: CourseReadSchema = Depends(get_current_course),  # проверка владельца курса
+    course: CourseReadSchema = Depends(get_current_course_with_owner_validate),  # проверка владельца курса
     course_service: CourseService = Depends(get_course_service),
 ):
     return await course_service.update_course(course, update_data)
