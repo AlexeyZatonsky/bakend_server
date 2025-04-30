@@ -17,27 +17,20 @@ from src.permissions.permissionsEnum import PermissionsEnum
 
 fake = Faker("ru_RU")
 
-# ────────────────────────────────
-# модель «тестовый пользователь»
-# ────────────────────────────────
+
 class TestUser:
     def __init__(self, index: int):
         self.email = f"user_{index}@example.com"
         self.password = f"User_{index}_PSWD"
-        self.id: str | None = None
-        self.token: str | None = None
 
 
-# ────────────────────────────────
-# регистрация пользователей
-# ────────────────────────────────
+# Получаем список пользователей
 @pytest.fixture(scope="function")
 def raw_users() -> List[TestUser]:
-    # owner, collaborator, stranger
     return [TestUser(i) for i in range(1, 4)]
 
 
-async def _register(ac: AsyncClient, user: TestUser) -> None:
+async def _register_user(ac: AsyncClient, user: TestUser) -> None:
     await ac.post("/auth/register", json={"email": user.email, "password": user.password})
     r = await ac.post("/auth/login", data={"username": user.email, "password": user.password})
     user.token = r.json()["access_token"]
@@ -117,15 +110,15 @@ async def grant_permission_factory(
 
     async def _grant(
         granter_id: str,
-        target_user_id: str,
-        course_id: str,
+        target_user_id: UUID,
+        course_id: UUID,
         level: PermissionsEnum = PermissionsEnum.MODERATOR,
     ) -> PermissionReadSchema:
         client = authed_clients[granter_id]
         payload = jsonable_encoder(
             PermissionCreateSchema(
-                user_id=UUID(target_user_id),
-                course_id=UUID(course_id),
+                user_id=target_user_id,
+                course_id=course_id,
                 access_level=level,
             )
         )

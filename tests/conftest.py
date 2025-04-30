@@ -7,18 +7,22 @@ import time
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy import delete
 from httpx import AsyncClient, ASGITransport
-from pydantic import BaseModel, EmailStr
+
+from typing import AsyncGenerator
+
+
+import sys, pathlib
+root_dir = pathlib.Path(__file__).resolve().parents[1]   #  …/bakend_server
+sys.path.insert(0, str(root_dir)) 
 
 from src.database import get_async_session
 from src.app import app
-from typing import AsyncGenerator
-from src.settings.config import settings
+from settings.config import settings
 
 from src.auth.models import UsersORM, SecretInfoORM
-from src.auth.schemas import UserCreateSchema, UserLoginSchema, UserReadSchema
 
-# Добавляем путь к родительской директории для импорта из src
-sys.path.append(str(Path(__file__).parent.parent))
+
+
 
 if sys.platform.startswith("win"):
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
