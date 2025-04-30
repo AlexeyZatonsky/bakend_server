@@ -61,6 +61,7 @@ class PermissionsService:
         return PermissionReadSchema.model_validate(entity)
 
     async def get_all_user_permissions(self, user_id: UUID) -> List[PermissionReadSchema]:
-        pass
+        entities = await self.repository.get_all_by_user(user_id)
+        return [PermissionReadSchema.model_validate(entity) for entity in entities]
 
     
