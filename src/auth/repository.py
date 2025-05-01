@@ -176,3 +176,6 @@ class AuthRepository:
         secret_info_entity = await self.secret_repo.get_by_id(user_id)
 
         return user_entity + secret_info_entity
+    
+    async def get_all_user_public_data(self, limit:int = 20)->List[UsersORM]:
+        return await self.user_repo.get_all(limit)

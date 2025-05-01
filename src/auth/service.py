@@ -3,7 +3,7 @@ import sys
 import random
 from uuid import UUID
 from datetime import datetime, timedelta, UTC
-from typing import Optional, Dict, Any
+from typing import List, Optional, Dict, Any
 
 from jose import JWTError, jwt
 from fastapi import HTTPException, status
@@ -12,13 +12,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from .schemas import (
     UserCreateSchema,
     UserReadSchema,
-    TokenSchema,
-    TokenDataSchema,
-    UserUpdateSchema
+    UserReadPublicSchema
 )
 from ..settings.config import settings
 from .repository import AuthRepository
-from .models import UsersORM, SecretInfoORM
 from .exceptions import AuthHTTPExceptions
 from passlib.context import CryptContext
 
@@ -173,3 +170,7 @@ class AuthService:
         if not success:
             raise self.http_exceptions.not_found_404()
         return True
+    
+    async def get_all_users(self, limit: int = 20) -> List[UserReadPublicSchema]:
+        entities = await self.repository.get_all_user_public_data(limit)
+        return [UserReadPublicSchema.model_validate(user) for user in entities]

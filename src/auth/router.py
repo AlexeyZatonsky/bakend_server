@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 import logging
 from datetime import timedelta
 
-from .schemas import UserCreateSchema, UserReadSchema, TokenSchema, UserUpdateSchema
+from .schemas import UserCreateSchema, UserReadSchema, TokenSchema, UserUpdateSchema, UserReadPublicSchema
 from .service import AuthService
 from ..database import get_async_session
 from .dependencies import get_current_user, get_auth_service
@@ -183,3 +183,11 @@ async def delete_user_me(
     logger.info(f"Delete user: {current_user.username}")
     await auth_service.delete_user(current_user.id)
     return None 
+
+
+@router.get("/users", response_model=list[UserReadPublicSchema])
+async def get_users( 
+    auth_service: AuthService = Depends(get_auth_service), 
+    limit:int = 20) :
+    """Тетовы метод просто для получения всех пользователей"""
+    return await auth_service.get_all_users(limit)

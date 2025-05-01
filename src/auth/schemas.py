@@ -33,6 +33,22 @@ class UserBaseSchema(BaseModel):
         from_attributes=True
     )
 
+
+class UserReadPublicSchema(BaseModel):
+    id: UUID = Field(..., description="Уникальный идентификатор пользователя")
+    username: str = Field(..., description="Имя пользователя")
+    avatar: Optional[str] = Field(None, description="URL аватара пользователя")
+    is_verified: bool = Field(default=False, description="Статус верификации пользователя")
+    is_active: bool = Field(default=True, description="Активность пользователя")
+    created_at: datetime = Field(..., description="Дата и время создания аккаунта")
+    updated_at: datetime = Field(..., description="Дата и время последнего обновления аккаунта")
+
+    model_config = ConfigDict(
+        title="Данные пользователя для публичного отображения",
+        from_attributes=True
+    )
+
+
 class UserReadSchema(BaseModel):
     """Схема для чтения данных пользователя"""
     id: UUID = Field(..., description="Уникальный идентификатор пользователя")
