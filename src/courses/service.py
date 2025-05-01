@@ -1,3 +1,6 @@
+import logging
+from ..core.log import configure_logging
+
 from typing import List, Optional
 from uuid import UUID
 
@@ -15,6 +18,9 @@ from .repository import CourseRepository
 from .schemas import CourseCreateSchema, CourseUpdateSchema, CourseReadSchema
 from .exceptions import CoursesHTTPExceptions
 
+
+logger = logging.getLogger(__name__)
+configure_logging()
 
 
 

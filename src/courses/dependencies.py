@@ -1,3 +1,6 @@
+import logging
+from ..core.log import configure_logging
+
 from uuid import UUID
 from fastapi import Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -18,12 +21,16 @@ from .service import CourseService
 from .schemas import CourseReadSchema
 from .exceptions import CoursesHTTPExceptions
 
+logger = logging.getLogger(__name__)
+configure_logging()
+
 
 
 
 async def get_course_service(session: AsyncSession = Depends(get_async_session)) -> CourseService:
     repository = CourseRepository(session)
     http_exceptions = CoursesHTTPExceptions()
+    logger.debug("get_course_service")
     return CourseService(repository, http_exceptions)
 
 
@@ -55,6 +62,8 @@ async def get_current_course_with_owner_validate(
     к которому привязан этот курс. Работает и там, где нет параметра `channel_id`
     (например, /courses/{course_id}/permissions).
     """
+    logger.debug("get_current_course_with_owner_validate")
+
     # 1. Находим курс
     course_orm = await course_service.repository.get_by_id(course_id)
     if not course_orm:
@@ -67,6 +76,8 @@ async def get_current_course_with_owner_validate(
 
     if channel_orm.owner_id != user.id:
         raise course_service.http_exceptions.forbidden_403()
+
+    logger.debug("get_current_course_with_owner_validate - SUCCESSFULL")
 
     # 3. Отдаём валидированное DTO
     return CourseReadSchema.model_validate(course_orm)
