@@ -34,23 +34,6 @@ async def get_course_service(session: AsyncSession = Depends(get_async_session))
     return CourseService(repository, http_exceptions)
 
 
-# async def get_current_course_with_owner_validate(
-#     course_id: UUID,
-#     user: UserReadSchema = Depends(get_current_user),       # <-- подменяем зависимость
-#     course_service: CourseService = Depends(get_course_service),
-# ) -> CourseReadSchema:
-#     course_orm = await course_service.repository.get_by_id(course_id)
-#     if not course_orm:
-#         raise course_service.http_exceptions.not_found_404()
-
-#     # Проверяем, что обращается владелец курса.
-#     if course_orm.owner_id != user.id:
-#         raise course_service.http_exceptions.forbidden_403()
-
-#     return CourseReadSchema.model_validate(course_orm)
-
-
-# ⬇︎ обновлённая версия
 async def get_current_course_with_owner_validate(
     course_id: UUID,
     user: UserReadSchema               = Depends(get_current_user),
@@ -81,3 +64,19 @@ async def get_current_course_with_owner_validate(
 
     # 3. Отдаём валидированное DTO
     return CourseReadSchema.model_validate(course_orm)
+
+
+async def course_is_open(
+    course_id: UUID,
+    course_service: CourseService = Depends(get_course_service),
+) -> CourseReadSchema:
+    """
+    Проверяет, что курс **открыт** 
+    """
+    logger.debug("course_is_open")
+
+    course_DTO = await course_service.get_courses_by_id(course_id)
+    if course_DTO.is_public == False:
+        return False
+
+    return True
