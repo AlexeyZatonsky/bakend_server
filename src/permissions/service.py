@@ -9,6 +9,7 @@ from .models import PermissionsORM
 from .repository import PermissionRepository
 from .schemas import PermissionCreateSchema, PermissionReadSchema
 from .exceptions import PermissionsHTTPExceptions
+from .permissionsEnum import PermissionsEnum
 
 
 logger = logging.getLogger(__name__)
@@ -71,3 +72,13 @@ class PermissionsService:
         return [PermissionReadSchema.model_validate(entity) for entity in entities]
 
     
+    async def compare_permissions(
+        self, 
+        user_id: UUID, 
+        course_id: UUID, 
+        access_level: PermissionsEnum) -> bool:
+        
+        permission = await self.get_course_permission_for_user(user_id, course_id)
+        
+        
+        return permission.access_level == access_level

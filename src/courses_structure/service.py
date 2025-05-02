@@ -1,16 +1,10 @@
 from typing import List, Optional
 from uuid import UUID
 
-from fastapi import HTTPException, status
 
-from ..channels.service import ChannelService
+from .schemas import FullStructureReadSchema, FullStructureCreateSchema
 
-from ..auth.schemas import UserReadSchema
 
-from ..channels.schemas import ChannelReadSchema
-from ..channels.service import ChannelService
-
-from .models import CoursesORM
 from .repository import  CourseStructureRepository
 
 
@@ -19,4 +13,9 @@ class CourseStructureService:
         self.repository = repository
 
 
-    async def create(self): pass
+    async def create_structure_for_course(course_id: UUID): pass
+
+    async def get_full_structure(course_id: UUID) -> FullStructureReadSchema: pass
+
+    async def open_module(self, course_id: UUID, module_id: UUID): pass
+
