@@ -1,5 +1,5 @@
 from typing import List
-from fastapi import APIRouter, Depends, status, Path, HTTPException
+from fastapi import APIRouter, Depends, status, Path, Body
 from uuid import UUID
 
 
@@ -51,17 +51,19 @@ async def get_course_structure(
 
 
 @router.post(
-        "/", 
-        response_model=StructureReadSchema, 
-        status_code=status.HTTP_201_CREATED
+    "/", 
+    response_model=StructureReadSchema, 
+    status_code=status.HTTP_201_CREATED
 )
 async def create_structure(
+    course_id: UUID = Path(..., alias="course_id"),
     _: PermissionReadSchema = Depends(
         require_permission(
             access_level={PermissionsEnum.OWNER, PermissionsEnum.HIGH_MODERATOR},
             skip_if_public=False,
         )
     ),
-    structure_data: StructureCreateSchema = Depends(),
+    structure_data: StructureCreateSchema = Body(...),        # <‑‑ Body, а не Depends()
     service: CourseStructureService = Depends(get_course_structure_service),
-): pass
+):
+    return await service.create_structure_for_course(course_id, structure_data.structure)

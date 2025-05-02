@@ -19,13 +19,13 @@ class CourseStructureRepository(AbstractRepository[CoursesStructureORM]):
 
     async def get_all(self, limit: int = 20) -> List[CoursesStructureORM]:
         """Не имплементировано"""
-        return await NotImplementedError()
+        raise await NotImplementedError()
 
     async def create(self, entity: CoursesStructureORM) -> CoursesStructureORM:
         """Создание новой структуры курса"""
         return await super().create(entity)
 
-    async def delete(self, entity: CoursesStructureORM) -> Optional[CoursesStructureORM]:
+    async def delete(self, entity: CoursesStructureORM) -> None:
         """Удаление существующей структуры курса"""
         await super().delete(entity)
 
@@ -37,7 +37,7 @@ class CourseStructureRepository(AbstractRepository[CoursesStructureORM]):
         query = (
             update(self.model)
             .where(self.model.course_id == old_entity.course_id)
-            .values(course_structure=new_entity.structure)
+            .values(structure=new_entity.structure)
             .returning(self.model)
         )
         result = await self.session.execute(query)
