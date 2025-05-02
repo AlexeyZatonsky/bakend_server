@@ -38,7 +38,7 @@ class PermissionsService:
         data: PermissionCreateSchema
     ) -> PermissionReadSchema:
         
-        logger.info(f"Метод set_user-permission({course_id})")
+        logger.debug(f"Метод set_user-permission({course_id}, для {data.user_id})")
 
         """
         Выдает пользователю право на курс до data.expiration_date.
@@ -62,9 +62,10 @@ class PermissionsService:
                 granted_at      = now,
                 expiration_date = data.expiration_date
             )
-            self.repository.session.add(entity)
 
-        # 3) возвращаем DTO
+            self.repository.create(entity)
+
+
         return PermissionReadSchema.model_validate(entity)
 
     async def get_all_user_permissions(self, user_id: UUID) -> List[PermissionReadSchema]:
@@ -81,4 +82,4 @@ class PermissionsService:
         permission = await self.get_course_permission_for_user(user_id, course_id)
         
         
-        return permission.access_level == access_level
+        return bool(permission) and permission.access_level == access_level

@@ -78,3 +78,4 @@ class CourseService:
             raise self.http_exceptions.not_found_404()
         
         return CourseReadSchema.model_validate(course_orm)
+    
