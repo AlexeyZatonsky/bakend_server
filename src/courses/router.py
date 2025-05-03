@@ -17,7 +17,7 @@ from .schemas import (
 
 router = APIRouter(tags=["Courses"])
 
-# 🔹 Все публичные курсы (для поиска и каталога)
+
 @router.get("/courses", response_model=List[CourseReadSchema])
 async def get_all_courses(
     course_service: CourseService = Depends(get_course_service),
@@ -25,11 +25,13 @@ async def get_all_courses(
     return await course_service.get_all_public_courses()
 
 
-# 🔹 Получить курс по ID (TODO: нужно реализовать)
+
 @router.get("/courses/{course_id}", response_model=CourseReadSchema)
-async def get_course_by_id(course_id: UUID):
-    # TODO: использовать get_by_id, возможно без прав
-    pass
+async def get_course_by_id( 
+    course_id: UUID,
+    course_service: CourseService = Depends(get_course_service)
+    ):
+    return await course_service.get_courses_by_id(course_id)
 
 
 # 🔹 Курсы всех каналов пользователя
@@ -45,7 +47,7 @@ async def get_user_courses(
 @router.post("/channels/{channel_id}/courses", response_model=CourseReadSchema, status_code=status.HTTP_201_CREATED)
 async def create_course(
     course_data: CourseCreateSchema,
-    channel: ChannelReadSchema = Depends(get_current_channel),  # проверка владельца
+    channel: ChannelReadSchema = Depends(get_current_channel),  
     course_service: CourseService = Depends(get_course_service),
 ):
     return await course_service.create(course_data, channel)
@@ -53,7 +55,7 @@ async def create_course(
 
 @router.delete("/channels/{channel_id}/courses/{course_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_course(
-    course: CourseReadSchema = Depends(get_current_course_with_owner_validate),  # проверка владельца курса
+    course: CourseReadSchema = Depends(get_current_course_with_owner_validate),  
     course_service: CourseService = Depends(get_course_service),
 ):
     await course_service.delete_course(course)
@@ -62,14 +64,14 @@ async def delete_course(
 @router.patch("/channels/{channel_id}/courses/{course_id}", response_model=CourseReadSchema)
 async def patch_course(
     update_data: CourseUpdateSchema,
-    course: CourseReadSchema = Depends(get_current_course_with_owner_validate),  # проверка владельца курса
+    course: CourseReadSchema = Depends(get_current_course_with_owner_validate),  
     course_service: CourseService = Depends(get_course_service),
 ):
     return await course_service.update_course(course, update_data)
 
 @router.get("/channels/{channel_id}/courses", response_model=List[CourseReadSchema])
 async def get_channel_courses(
-    channel: ChannelReadSchema = Depends(get_current_channel),  # проверка владельца
+    channel: ChannelReadSchema = Depends(get_current_channel),  
     course_service: CourseService = Depends(get_course_service),
 ):
     return await course_service.get_courses_by_channel(channel)

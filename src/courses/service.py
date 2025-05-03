@@ -65,14 +65,13 @@ class CourseService:
 
         return [CourseReadSchema.model_validate(course) for course in all_courses]
 
+
     async def get_courses_by_channel(self, channel: ChannelReadSchema) -> List[CourseReadSchema]:
         courses = await self.repository.get_by_channel_id(channel.id)
         return [CourseReadSchema.model_validate(course) for course in courses]
     
-    async def get_courses_by_id(self, course_id:UUID) -> CourseReadSchema:
-        #Проверка на то, обучается ли пользователь на курсе
-        #TODO_service: Внести проверку на is_public поле для курса
 
+    async def get_courses_by_id(self, course_id:UUID) -> CourseReadSchema:
         course_orm = self.repository.get_by_id(course_id)
         if course_orm is None: 
             raise self.http_exceptions.not_found_404()
