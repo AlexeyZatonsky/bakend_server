@@ -63,7 +63,7 @@ class PermissionsService:
                 expiration_date = data.expiration_date
             )
 
-            self.repository.create(entity)
+            await self.repository.create(entity)
 
 
         return PermissionReadSchema.model_validate(entity)

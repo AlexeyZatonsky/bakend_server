@@ -22,12 +22,11 @@ configure_logging()
 
 router = APIRouter(
     tags=["Permissions"],
-    prefix="/courses",
 )
 
 
 @router.post(
-    "/{course_id}/permissions",
+    "courses/{course_id}/permissions",
     response_model=PermissionReadSchema,
     status_code=status.HTTP_201_CREATED
 )
@@ -42,7 +41,7 @@ async def grant_course_permission(
 
 
 @router.get(
-    "/{course_id}/permissions",
+    "courses/{course_id}/permissions",
     response_model=PermissionReadSchema,
     status_code=status.HTTP_200_OK
 )
@@ -59,7 +58,7 @@ async def get_course_permission(
 
 
 @router.get(
-    "/permissions",
+    "/my/permissions",
     response_model=List[PermissionReadSchema],
     status_code=status.HTTP_200_OK
 )

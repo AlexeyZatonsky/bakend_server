@@ -9,7 +9,7 @@ from ..auth.dependencies import get_current_user
 from ..auth.schemas import UserReadSchema
 
 from ..permissions.service import PermissionsService
-from ..permissions.dependencies import get_permissions_service, check_any_active_permission_for_course
+from ..permissions.dependencies import get_permissions_service
 
 from ..channels.dependencies import get_channel_service
 from ..channels.service import ChannelService

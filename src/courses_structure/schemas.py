@@ -1,5 +1,4 @@
 from typing import Optional, List
-from uuid import UUID
 from pydantic import BaseModel, Field, ConfigDict
 
 
@@ -73,7 +72,6 @@ class FullStructureReadSchema(FullStructureBaseSchema):
 
 class StructureBaseSchema(BaseModel):
     """Схема создания нового курса."""
-    channel_id: UUID = Field(..., description="Идентификатор канала, к которому привязан курс")
     structure: FullStructureReadSchema = Field(..., description="Полная структура курса")
 
 class StructureCreateSchema(StructureBaseSchema): pass

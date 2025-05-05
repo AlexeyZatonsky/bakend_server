@@ -6,6 +6,17 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from sqlalchemy.orm import DeclarativeBase
 
+
+import logging
+from ..core.log import configure_logging
+
+
+
+logger = logging.getLogger(__name__)
+configure_logging()
+
+
+
 ModelType = TypeVar("ModelType", bound=DeclarativeBase)
 
 class AbstractRepository(ABC, Generic[ModelType]):
@@ -26,7 +37,7 @@ class AbstractRepository(ABC, Generic[ModelType]):
         return result.scalars().all()
 
     # Базовая реализация метода создания записи
-    async def create(self, entity: ModelType) -> ModelType:
+    async def create(self, entity: ModelType) -> ModelType:  
         self.session.add(entity)
         await self.session.commit()
         await self.session.refresh(entity)

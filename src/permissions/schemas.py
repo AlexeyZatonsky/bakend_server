@@ -30,7 +30,7 @@ class PermissionCreateSchema(PermissionBaseSchema):
         description="Уровень доступа (по умолчанию STUDENT)"
     )
     expiration_date: Optional[datetime] = Field(
-        default_factory= plus_month(),
+        default_factory=lambda: datetime.now(UTC) + timedelta(days=30),
         description="Дата окончания действия прав (по умолчанию +30 дней; None — бессрочно)",
     )
 
