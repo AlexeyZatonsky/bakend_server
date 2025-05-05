@@ -1,9 +1,11 @@
 from datetime import datetime
-from pydantic import BaseModel, EmailStr, Field, ConfigDict, field_validator
+from pydantic import BaseModel, EmailStr, Field, ConfigDict, field_validator, field_serializer
 from uuid import UUID
 from typing import Optional, Union, Annotated
 
 from .models import UsersORM, SecretInfoORM
+
+from ..settings.config import settings
 
 # Добавляем схему для логина
 class UserLoginSchema(BaseModel):
@@ -48,6 +50,12 @@ class UserReadPublicSchema(BaseModel):
         from_attributes=True
     )
 
+    @field_serializer("avatar", when_used="json")
+    def _get_full_avatar_url(self, avatar_key: str | None, _) -> str | None:
+        if not avatar_key:
+            return None
+        return f"{settings.S3_URL}/{self.id}/{avatar_key}"
+
 
 class UserReadSchema(BaseModel):
     """Схема для чтения данных пользователя"""
@@ -76,7 +84,6 @@ class UserReadSchema(BaseModel):
             }
         }
     )
-
     @staticmethod
     def from_orm(user: UsersORM, secret_info: SecretInfoORM) -> 'UserReadSchema':
         """
@@ -99,6 +106,15 @@ class UserReadSchema(BaseModel):
             created_at=user.created_at,
             updated_at=user.updated_at
         )
+    
+    
+    @field_serializer("avatar", when_used="json")
+    def _get_full_avatar_url(self, avatar_key: str | None, _) -> str | None:
+        if not avatar_key:
+            return None
+        return f"{settings.S3_URL}/{self.id}/{avatar_key}"
+    
+    
 
 class UserCreateSchema(BaseModel):
     """Схема для создания пользователя"""
