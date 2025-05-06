@@ -1,7 +1,9 @@
 from enum import Enum
 
+class MimeEnum(str, Enum): pass
 
-class ImageMimeEnum(str, Enum):
+
+class ImageMimeEnum(MimeEnum):
     PNG = "image/png"
     JPEG = "image/jpeg"
     WEBP = "image/webp"

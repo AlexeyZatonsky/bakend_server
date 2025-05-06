@@ -33,7 +33,7 @@ async def get_user_profile_preview_url(
     presign = await storage_service.generate_upload_urls(
         owner_id=user_id,
         object_kind=ObjectKind.PROFILE_AVATAR,
-        content_type=payload.content_type.value,
+        content_type=payload.content_type,
         source_filename=payload.file_name,
     )
 

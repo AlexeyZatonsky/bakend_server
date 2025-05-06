@@ -4,8 +4,10 @@ from typing import Any, Dict
 from types_aiobotocore_s3.client import S3Client
 from botocore.exceptions import ClientError
 
+from .mime_enums import MimeEnum
 from .client import get_s3_client
 from .strategies import ObjectKind, build_key
+from .access_policies import AccessPolicy
 
 from ..settings.config import settings
 
@@ -38,7 +40,8 @@ class StorageService:
         *,
         owner_id: UUID,
         object_kind: ObjectKind,
-        content_type: str,
+        content_type: MimeEnum,
+        access: AccessPolicy = AccessPolicy.PUBLIC_READ,
         expires_in_second: int = 60 * 60,
         **context: Any
     ) -> Dict[str, str]:
@@ -53,7 +56,8 @@ class StorageService:
             Params={
                 "Bucket": bucket,
                 "Key": object_key,
-                "ContentType": content_type,
+                "ContentType": content_type.value,
+                "ACL": access.value
             },
             ExpiresIn=expires_in_second,
         )
