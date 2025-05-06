@@ -11,6 +11,7 @@ from .channels.router import router as channel_router
 from .courses.router import router as courses_router
 from .permissions.router import router as permissions_router
 from .courses_structure.router import router as courses_structure_router
+from .aws.router import router as storage_router
 # from .videos.router import router as video_router
 
 
@@ -49,6 +50,7 @@ app.include_router(channel_router)
 app.include_router(courses_router)
 app.include_router(permissions_router)
 app.include_router(courses_structure_router)
+app.include_router(storage_router)
 # app.include_router(video_router)
 
 @app.get('/protected-route')
