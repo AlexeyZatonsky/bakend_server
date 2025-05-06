@@ -1,10 +1,4 @@
-from typing import Any
-from types_aiobotocore_s3.client import S3Client
-
-from botocore.exceptions import ClientError
-
-from .key_strategies import ObjectKind, _STRATEGY_REGISTRY
-
+from .service import StorageService
 
 
 
@@ -17,26 +11,16 @@ logger = logging.getLogger(__name__)
 configure_logging()
 
 
-def build_object_key(object_kind: ObjectKind, **context: Any) -> str:
-    """Return S3 key according to strategy registered for *object_kind*."""
-    try:
-        strategy = _STRATEGY_REGISTRY[object_kind]
-    except KeyError as exc:  # pragma: no cover
-        raise ValueError(f"No strategy registered for {object_kind!r}") from exc
-    return strategy.build_key(**context)
+_storage_singleton: StorageService | None = None
 
 
-async def _ensure_bucket(client: S3Client, bucket_name: str) -> None:    
-    try:
-        await client.create_bucket(Bucket=bucket_name)
-    except (
-        client.exceptions.BucketAlreadyOwnedByYou,  
-        client.exceptions.BucketAlreadyExists,      
-    ):
-        logger.debug(f"Бакет с именем {bucket_name} уже создан")
-    except ClientError:
-        logger.error(f"Другая ошибка клиента для создания бакета")
-        raise
-    
+
+async def get_storage_service() -> StorageService:
+    logger.debug("инициация storage service")
+    global _storage_singleton
+    if _storage_singleton is None:
+        logger.debug("storage service - none - инициация singleton объекта")
+        _storage_singleton = StorageService()
+    return _storage_singleton
 
 

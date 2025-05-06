@@ -8,6 +8,15 @@ from types_aiobotocore_s3.client import S3Client
 
 from ..settings.config import settings
 
+import logging
+from ..core.log import configure_logging
+
+
+
+logger = logging.getLogger(__name__)
+configure_logging()
+
+
 
 _REGION = "us-east-1"  # для MinIO регион произвольный, но задаём по умолчанию
 

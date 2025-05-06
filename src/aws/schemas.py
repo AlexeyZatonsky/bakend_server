@@ -11,6 +11,14 @@ class BaseUploadRequestSchema(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
 
+class UserAvatarUploadRequestSchema(BaseUploadRequestSchema):
+    user_id: UUID = Field(alias="userID")
+
+class UserAvatarUploadResponseSchema(BaseUploadRequestSchema):
+    upload_url: str
+    key: str
+
+
 class UploadURLResponseSchema(BaseModel):
     upload_url: str
     key: str

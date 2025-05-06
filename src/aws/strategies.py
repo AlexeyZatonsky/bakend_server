@@ -85,3 +85,13 @@ class VideoKeyStrategy(KeyBuildingStrategy):
             or ".bin"
         )
         return f"channels/{channel_id}/videos/{video_id}{extension}"
+    
+
+
+def build_key(object_kind: ObjectKind, **context: Any) -> str:
+    """Return S3 key according to strategy registered for *object_kind*."""
+    try:
+        strategy = _STRATEGY_REGISTRY[object_kind]
+    except KeyError as exc:
+        raise ValueError(f"No strategy registered for {object_kind!r}") from exc
+    return strategy.build_key(**context)
