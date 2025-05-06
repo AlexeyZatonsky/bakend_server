@@ -1,20 +1,19 @@
 from uuid import UUID
 from pydantic import BaseModel, ConfigDict, Field
 
+from .mime_enums import  ImageMimeEnum
 
 
 
 class BaseUploadRequestSchema(BaseModel):
     file_name: str = Field(alias="fileName", description="Имя файла с расширением")
-    content_type: str = Field(alias="contentType", description="MIME-тип файлов")
-
     model_config = ConfigDict(populate_by_name=True)
 
 
 class UserAvatarUploadRequestSchema(BaseUploadRequestSchema):
-    user_id: UUID = Field(alias="userID")
+    content_type: ImageMimeEnum = Field(alias="contentType")
 
-class UserAvatarUploadResponseSchema(BaseUploadRequestSchema):
+class UserAvatarUploadResponseSchema(BaseModel):
     upload_url: str
     key: str
 
