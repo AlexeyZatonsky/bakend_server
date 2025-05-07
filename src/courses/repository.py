@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from ..core.AbstractRepository import AbstractRepository
 from .models import CoursesORM
 
-from ..permissions.permissionsEnum import PermissionsEnum
+from ..core.Enums.PermissionsEnum import PermissionsEnum
 from ..permissions.models import PermissionsORM
 
 

@@ -1,15 +1,20 @@
+from uuid import UUID
 from fastapi import Depends, HTTPException, status, Request, Cookie
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Optional
 
 import logging
 
+from ..core.Enums.ExtensionsEnums import ImageExtensionsEnum
+
+from ..database import get_async_session
+
 from ..core.log import configure_logging
+from ..core.Enums.MIMETypeEnums import ImageMimeEnum
 
 from .exceptions import AuthHTTPExceptions
 from .service import AuthService
 from .schemas import UserReadSchema
-from ..database import get_async_session
 
 
 logger = logging.getLogger(__name__)
@@ -96,3 +101,12 @@ async def get_current_user(
         logger.warning(f"Authentication failed: {str(e)}")
         raise auth_service.http_exceptions.unauthorized_401("Invalid authentication credentials")
 
+
+
+async def set_image_extension(
+        user_id: UUID,
+        mime: ImageMimeEnum,
+        auth_service: AuthService = Depends(get_auth_service)
+):
+    await auth_service.set_avatar_extension(user_id, mime)
+    

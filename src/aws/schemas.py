@@ -1,7 +1,7 @@
 from uuid import UUID
 from pydantic import BaseModel, ConfigDict, Field
 
-from .mime_enums import  ImageMimeEnum
+from ..core.Enums.MIMETypeEnums import  ImageMimeEnum
 
 
 

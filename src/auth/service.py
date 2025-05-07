@@ -9,12 +9,17 @@ from jose import JWTError, jwt
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from ..settings.config import settings
+
+from ..core.Enums.MIMETypeEnums import ImageMimeEnum
+from ..core.Enums.ExtensionsEnums import ImageExtensionsEnum
+from ..core.Enums.TypeReferencesEnums import ImageTypeReferenceEnum
+
 from .schemas import (
     UserCreateSchema,
     UserReadSchema,
     UserReadPublicSchema
 )
-from ..settings.config import settings
 from .repository import AuthRepository
 from .exceptions import AuthHTTPExceptions
 from passlib.context import CryptContext
@@ -136,7 +141,7 @@ class AuthService:
         secret_info_data = {}
         
         for key, value in update_data.items():
-            if key in ['username', 'avatar', 'is_verified', 'is_active']:
+            if key in ['username', 'is_verified', 'is_active']:
                 user_data[key] = value
             elif key in ['phone_number', 'INN', 'organization_name']:
                 secret_info_data[key] = value
@@ -174,3 +179,12 @@ class AuthService:
     async def get_all_users(self, limit: int = 20) -> List[UserReadPublicSchema]:
         entities = await self.repository.get_all_user_public_data(limit)
         return [UserReadPublicSchema.model_validate(user) for user in entities]
+
+    async def set_avatar_extension(
+            self,
+            user_id: UUID,
+            mime: ImageMimeEnum,      
+    ) -> None: 
+        image_type : ImageExtensionsEnum = ImageTypeReferenceEnum.from_mime(mime)
+        await self.repository.set_avatar_extension(user_id, image_type)
+

@@ -2,7 +2,7 @@ from uuid import UUID
 from typing import Optional, List, Tuple
 
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, update
 from sqlalchemy.orm import selectinload
 from sqlalchemy.dialects.postgresql import UUID
 
@@ -10,6 +10,7 @@ from .models import UsersORM, SecretInfoORM
 from .schemas import UserCreateSchema
 
 from ..core.AbstractRepository import AbstractRepository
+from ..core.Enums.ExtensionsEnums import ImageExtensionsEnum
 
 
 
@@ -36,10 +37,17 @@ class UserRepository(AbstractRepository[UsersORM]):
 
     async def get_user_by_username(self, username: str) -> Optional[UsersORM]:
         """Получение пользователя по username"""
-        query = select(self.model).where(self.model.username == username)
+        query = select(UsersORM).where(UsersORM.username == username)
         result = await self.session.execute(query)
         return result.scalar_one_or_none()
 
+    async def set_avatar_extension(self, user_id: UUID, extension: ImageExtensionsEnum) -> None:
+        await self.session.execute(
+            update(UsersORM)
+            .where(UsersORM.id == user_id)
+            .values(avatar_ext = extension)
+        )
+        await self.session.commit()
 
 
 class SecretInfoRepository(AbstractRepository[SecretInfoORM]):
@@ -179,3 +187,8 @@ class AuthRepository:
     
     async def get_all_user_public_data(self, limit:int = 20)->List[UsersORM]:
         return await self.user_repo.get_all(limit)
+    
+
+    async def set_avatar_extension(self, user_id: UUID, extension: ImageExtensionsEnum) -> None:
+        await self.user_repo.set_avatar_extension(user_id, extension)
+

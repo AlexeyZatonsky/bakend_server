@@ -6,7 +6,7 @@ from uuid import UUID
 from ..auth.dependencies import get_current_user
 from ..auth.schemas import UserReadSchema
 
-from ..permissions.permissionsEnum import PermissionsEnum
+from ..core.Enums.PermissionsEnum import PermissionsEnum
 from ..permissions.schemas import PermissionReadSchema
 from ..permissions.dependencies import require_permission
 

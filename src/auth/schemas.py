@@ -26,7 +26,6 @@ class UserLoginSchema(BaseModel):
 class UserBaseSchema(BaseModel):
     """Базовая схема пользователя"""
     username: str = Field(..., min_length=3, max_length=255, description="Имя пользователя")
-    avatar: Optional[str] = Field(None, max_length=1000, description="URL аватара пользователя")
     is_verified: bool = Field(default=False, description="Статус верификации пользователя")
     is_active: bool = Field(default=True, description="Активность пользователя")
 
@@ -39,7 +38,7 @@ class UserBaseSchema(BaseModel):
 class UserReadPublicSchema(BaseModel):
     id: UUID = Field(..., description="Уникальный идентификатор пользователя")
     username: str = Field(..., description="Имя пользователя")
-    avatar: Optional[str] = Field(None, description="URL аватара пользователя")
+    avatar: Optional[str] = None
     is_verified: bool = Field(default=False, description="Статус верификации пользователя")
     is_active: bool = Field(default=True, description="Активность пользователя")
     created_at: datetime = Field(..., description="Дата и время создания аккаунта")
@@ -61,7 +60,7 @@ class UserReadSchema(BaseModel):
     """Схема для чтения данных пользователя"""
     id: UUID = Field(..., description="Уникальный идентификатор пользователя")
     username: str = Field(..., description="Имя пользователя")
-    avatar: Optional[str] = Field(None, description="URL аватара пользователя")
+    avatar: Optional[str] = None
     is_verified: bool = Field(default=False, description="Статус верификации пользователя")
     is_active: bool = Field(default=True, description="Активность пользователя")
     email: str = Field(..., description="Email пользователя")
@@ -97,9 +96,9 @@ class UserReadSchema(BaseModel):
             UserReadSchema: Схема для чтения данных пользователя
         """
         return UserReadSchema(
-            id=str(user.id),
+            id=user.id,
             username=user.username,
-            avatar=user.avatar,
+            avatar=f"{settings.S3_URL}/{user.id}/other/avatar",
             is_verified=user.is_verified,
             is_active=user.is_active,
             email=secret_info.email,
@@ -109,7 +108,7 @@ class UserReadSchema(BaseModel):
     
     
     @field_serializer("avatar", when_used="json")
-    def _get_full_avatar_url(self, avatar_key: str | None, _) -> str | None:
+    def _get_full_avatar_url(self, avatar_key: str | None) -> str | None:
         if not avatar_key:
             return None
         return f"{settings.S3_URL}/{self.id}/{avatar_key}"
@@ -155,7 +154,6 @@ class UserCreateSchema(BaseModel):
 class UserUpdateSchema(BaseModel):
     """Схема для обновления данных пользователя"""
     username: Optional[str] = Field(None, min_length=3, max_length=255, description="Новое имя пользователя")
-    avatar: Optional[str] = Field(None, max_length=1000, description="Новый URL аватара пользователя")
     phone_number: Optional[str] = Field(None, max_length=15, description="Номер телефона пользователя")
     INN: Optional[str] = Field(None, max_length=12, description="ИНН пользователя")
     organization_name: Optional[str] = Field(None, max_length=255, description="Название организации пользователя")

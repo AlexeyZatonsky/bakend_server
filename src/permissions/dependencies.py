@@ -12,7 +12,7 @@ from ..auth.dependencies import get_current_user
 
 from ..courses.dependencies import course_is_open
 
-from .permissionsEnum import PermissionsEnum
+from ..core.Enums.PermissionsEnum import PermissionsEnum
 from .repository import PermissionRepository
 from .service import PermissionsService
 from .schemas import PermissionReadSchema

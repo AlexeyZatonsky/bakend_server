@@ -11,7 +11,7 @@ from ..database import Base
 from ..auth.models import UsersORM
 from ..courses.models import CoursesORM
 
-from .permissionsEnum import PermissionsEnum
+from ..core.Enums.PermissionsEnum import PermissionsEnum
 
 
 
@@ -33,7 +33,6 @@ class PermissionsORM(Base):
         PgEnum(
             PermissionsEnum,
             name="access_level_enum",
-            create_type=False,
             values_callable=lambda e: [f.value for f in e],
         ),
         nullable=False,

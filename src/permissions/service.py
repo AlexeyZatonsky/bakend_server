@@ -9,7 +9,7 @@ from .models import PermissionsORM
 from .repository import PermissionRepository
 from .schemas import PermissionCreateSchema, PermissionReadSchema
 from .exceptions import PermissionsHTTPExceptions
-from .permissionsEnum import PermissionsEnum
+from ..core.Enums.PermissionsEnum import PermissionsEnum
 
 
 logger = logging.getLogger(__name__)

@@ -4,7 +4,7 @@ from typing import Any, Dict
 from types_aiobotocore_s3.client import S3Client
 from botocore.exceptions import ClientError
 
-from .mime_enums import MimeEnum
+from ..core.Enums.MIMETypeEnums import MimeEnum
 from .client import get_s3_client
 from .strategies import ObjectKind, build_key
 from .access_policies import AccessPolicy
