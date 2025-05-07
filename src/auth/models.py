@@ -1,10 +1,12 @@
 from datetime import datetime, UTC
-from sqlalchemy import String, Boolean, ForeignKey, DateTime
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy import String, Boolean, ForeignKey, DateTime 
+from sqlalchemy.dialects.postgresql import ENUM as PgEnum, UUID
 from sqlalchemy.orm import Mapped, mapped_column
 import uuid
 
 from ..database import Base
+from ..core.Enums.ExtensionsEnums import ImageExtensionsEnum
+
 
 
 class UsersORM(Base):
@@ -21,9 +23,15 @@ class UsersORM(Base):
         nullable=False,
         unique=True
     )
-    avatar: Mapped[str | None] = mapped_column(
-        String(1000), 
-        nullable=True
+    avatar_ext: Mapped[ImageExtensionsEnum] = mapped_column(
+        PgEnum(
+            ImageExtensionsEnum,
+            name="image_extensions_enum",
+            create_type=False,
+            value_callable = lambda e: [f.value for f in e],
+        ),
+        nullable=True,
+        default=None
     )
     is_verified: Mapped[bool] = mapped_column(
         Boolean, 
