@@ -108,5 +108,6 @@ async def set_image_extension(
         mime: ImageMimeEnum,
         auth_service: AuthService = Depends(get_auth_service)
 ):
+    logger.debug(f"Задействована зависимость set_image_extension для модуля auth")
     await auth_service.set_avatar_extension(user_id, mime)
     

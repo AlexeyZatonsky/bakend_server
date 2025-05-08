@@ -27,8 +27,8 @@ class UsersORM(Base):
         PgEnum(
             ImageExtensionsEnum,
             name="image_extensions_enum",
-            create_type=False,
-            value_callable = lambda e: [f.value for f in e],
+            value_callable = lambda e: e.value,
+            nullable = True
         ),
         nullable=True,
         default=None

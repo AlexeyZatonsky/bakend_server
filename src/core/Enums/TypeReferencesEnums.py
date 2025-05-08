@@ -25,49 +25,33 @@ class ImageTypeReferenceEnum(Enum):
     def mime(self) -> ImageMimeEnum:      return self.value[1]   
 
 
-    _EXT_MAP:  ClassVar[Dict[ImageExtensionsEnum, "ImageTypeReferenceEnum"]]
-    _MIME_MAP: ClassVar[Dict[ImageMimeEnum,      "ImageTypeReferenceEnum"]]
+    _EXT:  ClassVar[Dict[ImageExtensionsEnum, "ImageTypeReferenceEnum"]] = {}
+    _MIME: ClassVar[Dict[ImageMimeEnum,      "ImageTypeReferenceEnum"]] = {}
 
     @classmethod
-    def _init_maps(cls) -> None:
-        if not hasattr(cls, "_EXT_MAP"):           
-            cls._EXT_MAP  = {it.ext : it for it in cls}
-            cls._MIME_MAP = {it.mime: it for it in cls}
+    def _init(cls) -> None:
+        if not cls._EXT:        
+            for it in cls:
+                cls._EXT[it.ext]   = it
+                cls._MIME[it.mime] = it
 
 
     @classmethod
-    def from_ext(cls, ext: ImageExtensionsEnum | str) -> "ImageTypeReferenceEnum":
-        """
-        Принимает либо Enum, либо «png» и возвращает ImageTypeReferenceEnum.
-        """
-        cls._init_maps()
-
+    def from_ext(cls, ext: ImageExtensionsEnum | str) -> ImageExtensionsEnum:
+        cls._init()
         if isinstance(ext, str):
-            try:
-                ext = ImageExtensionsEnum(ext.lower())
-            except ValueError as exc:               
-                raise InvalidUploadMimeError(ext) from exc
-
+            ext = ImageExtensionsEnum(ext.lower())
         try:
-            return cls._EXT_MAP[ext]               
-        except KeyError as exc:
-            raise InvalidUploadMimeError(ext.value) from exc
-        
+            return cls._EXT[ext].ext
+        except KeyError:
+            raise InvalidUploadMimeError(ext)
 
     @classmethod
-    def from_mime(cls, mime: ImageMimeEnum | str) -> "ImageTypeReferenceEnum":
-        """
-        Принимает Enum или строку «image/png».
-        """
-        cls._init_maps()
-
+    def from_mime(cls, mime: ImageMimeEnum | str) -> ImageExtensionsEnum:
+        cls._init()
         if isinstance(mime, str):
-            try:
-                mime = ImageMimeEnum(mime.lower())
-            except ValueError as exc:
-                raise InvalidUploadMimeError(mime) from exc
-
+            mime = ImageMimeEnum(mime.lower())
         try:
-            return cls._MIME_MAP[mime]
-        except KeyError as exc:
-            raise InvalidUploadMimeError(mime.value) from exc
+            return cls._MIME[mime].ext
+        except KeyError:
+            raise InvalidUploadMimeError(mime)
