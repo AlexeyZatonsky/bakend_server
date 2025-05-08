@@ -6,7 +6,7 @@ from botocore.config import Config
 
 from types_aiobotocore_s3.client import S3Client
 
-from ..settings.config import settings
+from ..settings.config import S3_ENV
 
 import logging
 from ..core.log import configure_logging
@@ -35,10 +35,10 @@ class _S3ClientFactory:
             if self._client is None:
                 self._client = await self._session.create_client(
                     "s3",
-                    endpoint_url = settings.S3_URL,
+                    endpoint_url = S3_ENV.S3_URL,
                     region_name = _REGION,
-                    aws_access_key_id=settings.S3_ACCESS_KEY,
-                    aws_secret_access_key=settings.S3_SECRET_KEY,
+                    aws_access_key_id=S3_ENV.S3_ACCESS_KEY,
+                    aws_secret_access_key=S3_ENV.S3_SECRET_KEY,
                     config=Config(signature_version="s3v4"),
                 ).__aenter__()
             return self._client

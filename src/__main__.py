@@ -1,6 +1,6 @@
 import logging
 import uvicorn
-from .settings.config import settings
+from .settings.config import API_ENV
 from .core.log import configure_logging
 
 logger = logging.getLogger("src.main")
@@ -13,7 +13,7 @@ if __name__ == '__main__':
 
     uvicorn.run(
         'src.app:app',
-        host=settings.SERVER_HOST,
-        port=settings.SERVER_PORT,
+        host=API_ENV.SERVER_HOST,
+        port=API_ENV.SERVER_PORT,
         reload=True,
     )

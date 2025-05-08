@@ -9,7 +9,7 @@ from jose import JWTError, jwt
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from ..settings.config import settings
+from ..settings.config import AUTH_ENV
 
 from ..core.Enums.MIMETypeEnums import ImageMimeEnum
 from ..core.Enums.ExtensionsEnums import ImageExtensionsEnum
@@ -40,9 +40,9 @@ class AuthService:
     def __init__(self, session: AsyncSession, http_exceptions :AuthHTTPExceptions):
         self.repository = AuthRepository(session)
         self.http_exceptions = http_exceptions
-        self.secret_key = settings.SECRET_AUTH
+        self.secret_key = AUTH_ENV.SECRET_AUTH
         self.algorithm = "HS256"
-        self.access_token_expire_minutes = settings.ACCESS_TOKEN_EXPIRE_MINUTES
+        self.access_token_expire_minutes = AUTH_ENV.ACCESS_TOKEN_EXPIRE_MINUTES
 
 
     def create_access_token(self, data: dict, expires_delta: Optional[timedelta] = None) -> str:
@@ -184,7 +184,9 @@ class AuthService:
             self,
             user_id: UUID,
             mime: ImageMimeEnum,      
-    ) -> None: 
+    ) -> None:
+        logger.debug(f"ДЛя пользователя {user_id} создаётся запись с типом аватара {mime.value}") 
         image_type : ImageExtensionsEnum = ImageTypeReferenceEnum.from_mime(mime)
+        logger.debug(f"Тип преобразован в {image_type.value}")
         await self.repository.set_avatar_extension(user_id, image_type)
 

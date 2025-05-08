@@ -5,7 +5,7 @@ from typing import Optional, Union, Annotated
 
 from .models import UsersORM, SecretInfoORM
 
-from ..settings.config import settings
+from ..settings.config import S3_ENV
 
 # Добавляем схему для логина
 class UserLoginSchema(BaseModel):
@@ -53,7 +53,7 @@ class UserReadPublicSchema(BaseModel):
     def _get_full_avatar_url(self, avatar_key: str | None, _) -> str | None:
         if not avatar_key:
             return None
-        return f"{settings.S3_URL}/{self.id}/{avatar_key}"
+        return f"{S3_ENV.S3_URL}/{self.id}/{avatar_key}"
 
 
 class UserReadSchema(BaseModel):
@@ -98,7 +98,7 @@ class UserReadSchema(BaseModel):
         return UserReadSchema(
             id=user.id,
             username=user.username,
-            avatar=f"{settings.S3_URL}/{user.id}/other/avatar",
+            avatar=f"{S3_ENV.S3_URL}/{user.id}/other/avatar",
             is_verified=user.is_verified,
             is_active=user.is_active,
             email=secret_info.email,
@@ -111,7 +111,7 @@ class UserReadSchema(BaseModel):
     def _get_full_avatar_url(self, avatar_key: str | None) -> str | None:
         if not avatar_key:
             return None
-        return f"{settings.S3_URL}/{self.id}/{avatar_key}"
+        return f"{S3_ENV.S3_URL}/{self.id}/{avatar_key}"
     
     
 

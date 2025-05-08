@@ -9,7 +9,7 @@ from .client import get_s3_client
 from .strategies import ObjectKind, build_key
 from .access_policies import AccessPolicy
 
-from ..settings.config import settings
+from ..settings.config import S3_ENV
 
 
 
@@ -62,7 +62,7 @@ class StorageService:
             ExpiresIn=expires_in_second,
         )
 
-        public_url = f"{settings.S3_URL}/{bucket}/{object_key}"
+        public_url = f"{S3_ENV.S3_URL}/{bucket}/{object_key}"
         return {
             "upload_url": upload_url,
             "public_url": public_url,

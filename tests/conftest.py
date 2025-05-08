@@ -17,7 +17,7 @@ sys.path.insert(0, str(root_dir))
 
 from src.database import get_async_session
 from src.app import app
-from settings.config import settings
+from settings.config import MODE_ENV
 
 from src.auth.models import UsersORM, SecretInfoORM
 
@@ -41,7 +41,7 @@ def event_loop():
 
 @pytest.fixture( autouse=True)
 def verify_test_environment():
-    if settings.MODE != "TEST":
+    if MODE_ENV.MODE != "TEST":
         pytest.skip("Skipping tests for non-test environment")
 
 
