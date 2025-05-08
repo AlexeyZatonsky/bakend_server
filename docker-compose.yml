@@ -1,0 +1,62 @@
+version: "3.9"
+
+services:
+  minio:
+    image: minio/minio:latest         
+    container_name: minio
+    restart: unless-stopped
+
+
+    command: server /data --console-address ":9001"
+
+    ports:
+      - "9000:9000"                   
+      - "9001:9001"                    
+
+
+    env_file: .env                 
+    environment:
+      MINIO_NOTIFY_WEBHOOK_ENABLE_AVATAR: "on"
+      MINIO_NOTIFY_WEBHOOK_ENDPOINT_AVATAR: "${MINIO_WEBHOOK_ENDPOINT}"
+      MINIO_NOTIFY_WEBHOOK_AUTH_TOKEN_AVATAR: "${MINIO_WEBHOOK_TOKEN}"
+
+    volumes:
+      - ../minio-data:/data     
+
+  postgres:
+    image: postgres:16
+    container_name: postgres
+    restart: unless-stopped
+    env_file: .env 
+
+    environment:
+      POSTGRES_USER:     ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASS}
+      POSTGRES_DB:       ${DB_NAME}
+
+    ports:
+      - "${DB_PORT:-5432}:5432"
+
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+
+  app:
+    build: .
+    container_name: fastapi-app
+    restart: unless-stopped
+    env_file:
+      - .env
+    working_dir: /app
+    volumes:
+      - ./:/app                    
+      - ~/.cache/pip:/root/.cache/pip
+    ports:
+      - "${SERVER_PORT:-1086}:${SERVER_PORT:-1086}"
+    depends_on:
+      - postgres
+      - minio
+
+volumes:
+  minio-data:
+  postgres-data:
