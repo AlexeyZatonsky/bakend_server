@@ -1,42 +1,46 @@
 version: "3.9"
 
 services:
+
   minio:
-    image: minio/minio:latest         
+    image: minio/minio:latest
     container_name: minio
     restart: unless-stopped
-
-
     command: server /data --console-address ":9001"
 
-    ports:
-      - "9000:9000"                   
-      - "9001:9001"                    
+    # пробрасываем порты наружу
+    # ports:
+    #   - "9000:9000"   # S3 API
+    #   - "9001:9001"   # Web-UI
 
+    expose:
+      - "9000"
+      - "9001"
 
-    env_file: .env                 
+    env_file: .env
     environment:
-      MINIO_NOTIFY_WEBHOOK_ENABLE_AVATAR: "on"
-      MINIO_NOTIFY_WEBHOOK_ENDPOINT_AVATAR: "${MINIO_WEBHOOK_ENDPOINT}"
-      MINIO_NOTIFY_WEBHOOK_AUTH_TOKEN_AVATAR: "${MINIO_WEBHOOK_TOKEN}"
+      # включаем webhook target с именем "avatar"
+          MINIO_NOTIFY_WEBHOOK_ENABLE:      "on"
+          MINIO_NOTIFY_WEBHOOK_ENDPOINT:    "http://app:${SERVER_PORT}/webhooks/minio/avatar"
+          MINIO_NOTIFY_WEBHOOK_AUTH_TOKEN:  "${MINIO_WEBHOOK_TOKEN}"
+          MINIO_NOTIFY_WEBHOOK_ROUTER:      "s3:ObjectCreated:PutObject"
+      # указываем, какие именно события шлём
 
     volumes:
-      - ../minio-data:/data     
+      - ../minio-data:/data
+
 
   postgres:
     image: postgres:16
     container_name: postgres
     restart: unless-stopped
-    env_file: .env 
-
+    env_file: .env
     environment:
       POSTGRES_USER:     ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASS}
       POSTGRES_DB:       ${DB_NAME}
-
     ports:
       - "${DB_PORT:-5432}:5432"
-
     volumes:
       - postgres-data:/var/lib/postgresql/data
 
@@ -49,13 +53,39 @@ services:
       - .env
     working_dir: /app
     volumes:
-      - ./:/app                    
+      - ./:/app
       - ~/.cache/pip:/root/.cache/pip
-    ports:
-      - "${SERVER_PORT:-1086}:${SERVER_PORT:-1086}"
+
+    # ports:
+    #   - "${SERVER_PORT:-1086}:${SERVER_PORT:-1086}"
+
+    expose:
+    - "1086"
+
     depends_on:
       - postgres
       - minio
+
+
+  proxy:
+    image: nginx:latest
+    container_name: proxy
+    restart: unless-stopped
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+      - "1086:1086"
+        # проксируем MinIO S3 API
+        # проксируем MinIO Web-UI
+        # проксируем FastAPI
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+
+  cli:
+    image: ubuntu:22.04
+    container_name: dev-cli
+    restart: unless-stopped
+    command: sleep infinity
 
 volumes:
   minio-data:
