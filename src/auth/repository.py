@@ -12,7 +12,10 @@ from .schemas import UserCreateSchema
 from ..core.AbstractRepository import AbstractRepository
 from ..core.Enums.ExtensionsEnums import ImageExtensionsEnum
 
-
+import logging
+from ..core.log import configure_logging
+logger = logging.getLogger(__name__)
+configure_logging()
 
 
 class UserRepository(AbstractRepository[UsersORM]):
@@ -42,10 +45,12 @@ class UserRepository(AbstractRepository[UsersORM]):
         return result.scalar_one_or_none()
 
     async def set_avatar_extension(self, user_id: UUID, extension: ImageExtensionsEnum) -> None:
+        logger.debug(f"Передано в avatar_ext: {extension} ({type(extension)}), name={getattr(extension, 'name', None)}, value={getattr(extension, 'value', None)}")
+
         await self.session.execute(
             update(UsersORM)
             .where(UsersORM.id == user_id)
-            .values(avatar_ext = extension)
+            .values(avatar_ext = extension.value)
         )
         await self.session.commit()
 
@@ -190,5 +195,6 @@ class AuthRepository:
     
 
     async def set_avatar_extension(self, user_id: UUID, extension: ImageExtensionsEnum) -> None:
+        logger.debug(f"Тип переданного в repositopry extension объекта - {type(extension)}")
         await self.user_repo.set_avatar_extension(user_id, extension)
 
