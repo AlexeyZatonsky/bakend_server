@@ -24,16 +24,39 @@ logger = logging.getLogger(__name__)
 class StorageService:
 
     async def _ensure_bucket(self, client: S3Client, bucket_name: str) -> None:    
+        created = False
         try:
             await client.create_bucket(Bucket=bucket_name)
+            created = True
         except (
             client.exceptions.BucketAlreadyOwnedByYou,  
             client.exceptions.BucketAlreadyExists,      
         ):
             logger.debug(f"Бакет с именем {bucket_name} уже создан")
+        
         except ClientError:
             logger.error(f"Другая ошибка клиента для создания бакета")
             raise
+
+        await client.put_bucket_notification_configuration(
+                Bucket=bucket_name,
+                NotificationConfiguration={
+                    "QueueConfigurations": [
+                        {
+                            "Id": "user_avatar",  # любая уникальная строка
+                            "QueueArn": f"arn:minio:sqs::user_avatar:webhook",
+                            "Events": ["s3:ObjectCreated:*"],
+                            "Filter": {
+                                "Key": {
+                                    "FilterRules": [
+                                        {"Name": "prefix", "Value": "other/"},
+                                    ]
+                                }
+                            },
+                        }
+                    ]
+                },
+        )   
 
     async def generate_upload_urls(
         self,
