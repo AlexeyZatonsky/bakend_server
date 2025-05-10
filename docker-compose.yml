@@ -21,7 +21,7 @@ services:
     environment:
       # включаем webhook target с именем "avatar"
           MINIO_NOTIFY_WEBHOOK_ENABLE:      "on"
-          MINIO_NOTIFY_WEBHOOK_ENDPOINT:    "http://app:${SERVER_PORT}/webhooks/minio/avatar"
+          MINIO_NOTIFY_WEBHOOK_ENDPOINT:    "http://app:1086/webhooks/minio/avatar"
           MINIO_NOTIFY_WEBHOOK_AUTH_TOKEN:  "${MINIO_WEBHOOK_TOKEN}"
           MINIO_NOTIFY_WEBHOOK_ROUTER:      "s3:ObjectCreated:PutObject"
       # указываем, какие именно события шлём
