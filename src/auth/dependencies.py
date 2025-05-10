@@ -32,6 +32,8 @@ async def get_auth_service(session: AsyncSession = Depends(get_async_session)) -
     Returns:
         AuthService: Экземпляр сервиса аутентификации
     """
+
+    logger.warning("Вызван depends метод для получения объекта AuthService")
     http_exceptions = AuthHTTPExceptions()
     
 
@@ -100,14 +102,3 @@ async def get_current_user(
     except Exception as e:
         logger.warning(f"Authentication failed: {str(e)}")
         raise auth_service.http_exceptions.unauthorized_401("Invalid authentication credentials")
-
-
-
-async def set_image_extension(
-        user_id: UUID,
-        mime: ImageMimeEnum,
-        auth_service: AuthService = Depends(get_auth_service)
-):
-    logger.debug(f"Задействована зависимость set_image_extension для модуля auth")
-    await auth_service.set_avatar_extension(user_id, mime)
-    
