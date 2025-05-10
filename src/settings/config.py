@@ -32,11 +32,15 @@ class S3Env(BaseSettings):
     S3_ACCESS_KEY: str
     S3_SECRET_KEY: str
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
-    
 
-    
+class WebhookEnv(BaseSettings):
+    MINIO_WEBHOOK_ENDPOINT: str
+    MINIO_WEBHOOK_TOKEN: str
+
+
 API_ENV = APIEnv()
 DB_ENV = DBEnv()
 S3_ENV = S3Env()
 MODE_ENV = ModeEnv()
 AUTH_ENV = AuthEnv()
+WEBHOOK_ENV = WebhookEnv()
