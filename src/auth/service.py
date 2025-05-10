@@ -44,6 +44,8 @@ class AuthService:
         self.algorithm = "HS256"
         self.access_token_expire_minutes = AUTH_ENV.ACCESS_TOKEN_EXPIRE_MINUTES
 
+        logger.warning("AuthService успешно инициализирован")
+
 
     def create_access_token(self, data: dict, expires_delta: Optional[timedelta] = None) -> str:
         """Создает JWT токен доступа"""
@@ -186,7 +188,11 @@ class AuthService:
             mime: ImageMimeEnum,      
     ) -> None:
         logger.debug(f"ДЛя пользователя {user_id} создаётся запись с типом аватара {mime.value}") 
-        image_type : ImageExtensionsEnum = ImageTypeReferenceEnum.from_mime(mime)
+        
+        image_type_enum = ImageTypeReferenceEnum.from_mime(mime)
+        image_type: ImageExtensionsEnum = image_type_enum.ext
+
         logger.debug(f"Тип преобразован в {image_type.value}")
+        logger.debug(f"Тип объекта {type(image_type)}")
         await self.repository.set_avatar_extension(user_id, image_type)
 
