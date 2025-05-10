@@ -1,14 +1,17 @@
 from __future__ import annotations
 
-from fastapi import APIRouter, HTTPException, Request, status
+from fastapi import APIRouter, HTTPException, Request, status, Depends
 from uuid import UUID
 from pathlib import Path
 from urllib.parse import unquote_plus
 
 from ..settings.config import WEBHOOK_ENV
 
-from ..auth.dependencies import set_image_extension
+from ..auth.service import AuthService
+from ..auth.dependencies import get_auth_service
 from ..core.Enums.TypeReferencesEnums import ImageTypeReferenceEnum, InvalidUploadMimeError
+
+from .schemas import MinioWebhookPayloadSchema
 
 import logging
 from ..core.log import configure_logging
@@ -24,42 +27,45 @@ router = APIRouter(
 )
 
 
-@router.post(
-    "/avatar",
-    #status_code=status.HTTP_204_NO_CONTENT, 
-)
-async def avatar_uploaded_webhook(
-    request: Request,
-) -> None:
-    
-    logger.debug(f"Вызван webhook /minio/avatar/POST")
 
-    if request.headers.get("X-Minio-Webhook-Token") != WEBHOOK_ENV.MINIO_WEBHOOK_TOKEN:
-        logger.debug("Токен Webhook MINIO не валиден")
-        raise HTTPException(status_code=403, detail="Invalid webhook token")
+
+@router.post("/avatar")
+async def avatar_uploaded_webhook(
+    payload: MinioWebhookPayloadSchema,
+    request: Request,
+    auth_service: AuthService = Depends(get_auth_service)
+):
+    logger.debug("Вызван webhook /minio/avatar/POST")
+
+    token = request.headers.get("X-Minio-Webhook-Token")
+    expected = WEBHOOK_ENV.MINIO_WEBHOOK_TOKEN
+    if token != expected:
+        logger.debug("Токен Webhook MINIO не валиден: %r != %r", token, expected)
+        # raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Invalid webhook token")
 
     logger.debug("Токен Webhook MINIO Прошёл валидацию")
 
-
-    event = await request.json()        
-    logger.debug(f"Minio event {event}")
-    records = event.get("Records", [])
-
-    for rec in records:
+    for rec in payload.Records:
         try:
-            key_raw: str = rec["s3"]["object"]["key"]      
-            key = unquote_plus(key_raw)                    
-            parts = key.split("/", 2)                    
+            bucket = rec.s3.bucket.name
+            user_id = UUID(bucket)
 
-            user_id = UUID(parts[0])                       
-            if parts[1] != "other":
-                continue                                 
+            key = unquote_plus(rec.s3.object.key)
+            prefix, filename = key.split("/", 1)
+            if prefix != "other":
+                continue
 
-            ext = Path(parts[-1]).suffix.lstrip(".").lower()  
+            ext = Path(filename).suffix.lstrip(".").lower()
+
+            logger.debug(f"Тип полученный из minio  {ext}")
             img_type = ImageTypeReferenceEnum.from_ext(ext)
 
-            await set_image_extension(user_id, img_type.ext)
+            await auth_service.set_avatar_extension(user_id, img_type.mime)
+            logger.debug("set_image_extension(%s, %s) выполнен", user_id, img_type)
 
-        except (KeyError, ValueError, InvalidUploadMimeError):
-            logger.warning("Webhook record skipped: %s", rec)
-            continue
+        except Exception as e:
+            logger.warning("Webhook record skipped: %r (%s)", rec, e)
+            raise
+
+    return {"status": "ok"}
+
