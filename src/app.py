@@ -33,6 +33,7 @@ async def lifespan(app: FastAPI):
     # Shutdown
 
 app = FastAPI(
+    openapi_version="3.0.3",
     title="Video Hosting API",
     description="Video hosting service built with FastAPI",
     version="2.0.0",
