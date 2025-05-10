@@ -4,7 +4,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends,status
 
 from ..auth.schemas import UserReadSchema
-from ..auth.dependencies import get_current_user, set_image_extension
+from ..auth.dependencies import get_current_user
 
 from .schemas import UserAvatarUploadRequestSchema, UserAvatarUploadResponseSchema
 from .service  import StorageService

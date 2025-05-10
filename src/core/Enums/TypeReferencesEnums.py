@@ -1,15 +1,14 @@
-# src/core/enums/image_type.py
 from __future__ import annotations
 
 from enum import Enum
-from typing import ClassVar, Dict, Final
+from typing import Dict, Final
 
 from .ExtensionsEnums import ImageExtensionsEnum
 from .MIMETypeEnums   import ImageMimeEnum
 
 
 class InvalidUploadMimeError(ValueError):
-    """Пользователь попытался загрузить неподдерживаемый MIME‑тип."""
+    pass
 
 
 class ImageTypeReferenceEnum(Enum):
@@ -18,40 +17,33 @@ class ImageTypeReferenceEnum(Enum):
     WEBP = (ImageExtensionsEnum.WEBP, ImageMimeEnum.WEBP)
     SVG  = (ImageExtensionsEnum.SVG , ImageMimeEnum.SVG )
 
-
     @property
-    def ext(self)  -> ImageExtensionsEnum: return self.value[0]   
+    def ext(self)  -> ImageExtensionsEnum: return self.value[0]
     @property
-    def mime(self) -> ImageMimeEnum:      return self.value[1]   
-
-
-    _EXT:  ClassVar[Dict[ImageExtensionsEnum, "ImageTypeReferenceEnum"]] = {}
-    _MIME: ClassVar[Dict[ImageMimeEnum,      "ImageTypeReferenceEnum"]] = {}
+    def mime(self) -> ImageMimeEnum:      return self.value[1]
 
     @classmethod
-    def _init(cls) -> None:
-        if not cls._EXT:        
-            for it in cls:
-                cls._EXT[it.ext]   = it
-                cls._MIME[it.mime] = it
-
-
-    @classmethod
-    def from_ext(cls, ext: ImageExtensionsEnum | str) -> ImageExtensionsEnum:
-        cls._init()
+    def from_ext(cls, ext: ImageExtensionsEnum | str) -> ImageTypeReferenceEnum:
         if isinstance(ext, str):
             ext = ImageExtensionsEnum(ext.lower())
         try:
-            return cls._EXT[ext].ext
+            return EXT_LOOKUP_BY_EXT[ext]
         except KeyError:
             raise InvalidUploadMimeError(ext)
 
     @classmethod
-    def from_mime(cls, mime: ImageMimeEnum | str) -> ImageExtensionsEnum:
-        cls._init()
+    def from_mime(cls, mime: ImageMimeEnum | str) -> ImageTypeReferenceEnum:
         if isinstance(mime, str):
             mime = ImageMimeEnum(mime.lower())
         try:
-            return cls._MIME[mime].ext
+            return EXT_LOOKUP_BY_MIME[mime]
         except KeyError:
             raise InvalidUploadMimeError(mime)
+
+
+EXT_LOOKUP_BY_EXT: Dict[ImageExtensionsEnum, ImageTypeReferenceEnum] = {
+    item.ext: item for item in ImageTypeReferenceEnum
+}
+EXT_LOOKUP_BY_MIME: Dict[ImageMimeEnum, ImageTypeReferenceEnum] = {
+    item.mime: item for item in ImageTypeReferenceEnum
+}

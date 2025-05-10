@@ -50,7 +50,7 @@ class UserRepository(AbstractRepository[UsersORM]):
         await self.session.execute(
             update(UsersORM)
             .where(UsersORM.id == user_id)
-            .values(avatar_ext = extension.value)
+            .values(avatar_ext = extension)
         )
         await self.session.commit()
 

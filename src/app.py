@@ -13,7 +13,7 @@ from .permissions.router import router as permissions_router
 from .courses_structure.router import router as courses_structure_router
 from .aws.router import router as storage_router
 
-from .webhooks.minio import router as minio_webhook_router
+from .webhooks.router import router as minio_webhook_router
 # from .videos.router import router as video_router
 
 
