@@ -26,7 +26,7 @@ class APIEnv(BaseSettings):
     SERVER_HOST: str
     SERVER_PORT: int
     API_PATH: str = "api"
-    BASE_SERVER_URL: str = "http://localhost"
+    BASE_SERVER_URL: str
     
     @property
     def public_url(self) -> str:
@@ -39,7 +39,7 @@ class S3Env(BaseSettings):
     S3_SECRET_KEY: str
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     S3_PUBLIC_URL: str
-    BASE_SERVER_URL: str = "http://localhost"
+    BASE_SERVER_URL: str
     MINIO_PATH: str = "minio"
     
     @property
