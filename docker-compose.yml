@@ -23,14 +23,14 @@ services:
       MINIO_NOTIFY_WEBHOOK_AUTH_TOKEN: "${MINIO_WEBHOOK_TOKEN}"
       MINIO_NOTIFY_WEBHOOK_ROUTER: "s3:ObjectCreated:PutObject"
       # Настройки для консоли
-      MINIO_BROWSER_REDIRECT_URL: "http://${THIS_SERVER_ADDRESS:-localhost}:9001"
+      MINIO_BROWSER_REDIRECT_URL: "${BASE_SERVER_URL}:9001"
       # Добавляем настройки для консоли
       MINIO_BROWSER_LOGIN_ANIMATION: "off"
-      MINIO_DOMAIN: "${THIS_SERVER_ADDRESS:-localhost}"
+      MINIO_DOMAIN: "${THIS_SERVER_ADDRESS}" # Только адрес 127.0.0.1
       MINIO_CONSOLE_ADDRESS: ":9001"
       # Дополнительные настройки 
       MINIO_BROWSER: "on"
-      MINIO_SERVER_URL: "http://${THIS_SERVER_ADDRESS:-localhost}:9000"
+      MINIO_SERVER_URL: "${BASE_SERVER_URL}:9000"
       # Отключаем проверки браузера и улучшаем доступ для разработки
       MINIO_BROWSER_STRICT_HOSTNAME_CHECK: "off"
     volumes:
@@ -66,10 +66,10 @@ services:
     environment:
       # Конфигурация URL-ов для корректной работы
       S3_URL: "${S3_URL}"
-      BASE_SERVER_URL: "${BASE_SERVER_URL:-http://localhost}"
+      BASE_SERVER_URL: "${BASE_SERVER_URL}"
       API_PATH: "${API_PATH:-api}"
       MINIO_PATH: "${MINIO_PATH:-minio}"
-      THIS_SERVER_ADDRESS: "${THIS_SERVER_ADDRESS:-localhost}"
+      #THIS_SERVER_ADDRESS: "${THIS_SERVER_ADDRESS:-localhost}"
     working_dir: /app
     volumes:
       - ./:/app

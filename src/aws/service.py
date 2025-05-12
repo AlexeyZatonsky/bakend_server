@@ -84,10 +84,8 @@ class StorageService:
         
         # Формируем публичный URL для доступа к объекту
         public_url = f"{S3_ENV.public_url}/{bucket}/{object_key}"
-        
-        # Преобразуем URL для использования через прокси с сохранением правильной подписи
-        # Извлекаем путь и параметры запроса из оригинального URL
-        # Формат оригинального URL: http://minio:9000/bucket/key?params...
+        logger.debug(f" публичный URL для доступа к объекту - {public_url}")
+
         url_parts = internal_url.split('/', 3)
         if len(url_parts) < 4:
             logger.error(f"Неверный формат URL: {internal_url}")
