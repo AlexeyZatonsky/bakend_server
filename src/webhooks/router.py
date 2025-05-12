@@ -38,6 +38,5 @@ async def avatar_uploaded_webhook(
     auth_service: AuthService = Depends(get_auth_service)
 ):
     logger.debug("Вызван webhook /minio/avatar/POST")
-
     await webhooks_service.avatar_uploaded(payload, request, auth_service)
 
