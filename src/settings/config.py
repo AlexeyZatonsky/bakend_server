@@ -25,6 +25,17 @@ class AuthEnv(BaseSettings):
 class APIEnv(BaseSettings):
     SERVER_HOST: str
     SERVER_PORT: int
+    API_PATH: str = "api"
+    
+    @property
+    def public_url(self) -> str:
+        """
+        Публичный URL для доступа к API через Nginx
+        """
+        from os import environ
+        base_url = environ.get('BASE_SERVER_URL', 'http://localhost')
+        api_path = environ.get('API_PATH', self.API_PATH)
+        return f"{base_url}/{api_path}"
 
 
 class S3Env(BaseSettings):
@@ -32,6 +43,16 @@ class S3Env(BaseSettings):
     S3_ACCESS_KEY: str
     S3_SECRET_KEY: str
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+    
+    @property
+    def public_url(self) -> str:
+        """
+        Публичный URL для доступа к S3 через Nginx
+        """
+        from os import environ
+        base_url = environ.get('BASE_SERVER_URL', 'http://localhost')
+        minio_path = environ.get('MINIO_PATH', 'minio')
+        return f"{base_url}/{minio_path}"
 
 class WebhookEnv(BaseSettings):
     MINIO_WEBHOOK_ENDPOINT: str

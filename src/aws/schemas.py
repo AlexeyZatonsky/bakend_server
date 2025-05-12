@@ -16,6 +16,7 @@ class UserAvatarUploadRequestSchema(BaseUploadRequestSchema):
 class UserAvatarUploadResponseSchema(BaseModel):
     upload_url: str
     key: str
+    public_url: str
 
 
 class UploadURLResponseSchema(BaseModel):

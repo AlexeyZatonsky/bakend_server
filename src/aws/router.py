@@ -39,4 +39,8 @@ async def get_user_profile_preview_url(
         source_filename=payload.file_name,
     )
 
-    return UserAvatarUploadResponseSchema(upload_url=presign["upload_url"], key=presign["key"])
+    return UserAvatarUploadResponseSchema(
+        upload_url=presign["upload_url"], 
+        key=presign["key"],
+        public_url=presign["public_url"]
+    )

@@ -16,6 +16,7 @@ from .aws.router import router as storage_router
 from .webhooks.router import router as minio_webhook_router
 # from .videos.router import router as video_router
 
+from .settings.config import API_ENV, MODE_ENV
 
 # TODO: Auth
 # Добавить CSRF-защиту
@@ -32,13 +33,30 @@ async def lifespan(app: FastAPI):
     yield
     # Shutdown
 
+# Настройка корневого пути для документации и серверов в Swagger UI
+root_path = "/api"
+server_url = API_ENV.public_url if hasattr(API_ENV, 'public_url') else None
+
 app = FastAPI(
     openapi_version="3.0.3",
     title="Video Hosting API",
     description="Video hosting service built with FastAPI",
     version="2.0.0",
-    lifespan=lifespan
+    lifespan=lifespan,
+    # Настраиваем пути для документации
+    docs_url="/docs",
+    redoc_url="/redoc",
+    openapi_url="/openapi.json",
+    # Добавляем root_path для корректной работы с префиксом /api
+    root_path=root_path
 )
+
+# Устанавливаем серверы для Swagger UI
+if server_url:
+    app.servers = [
+        {"url": server_url, "description": "Production Server"},
+        {"url": "http://localhost/api", "description": "Local Server"}
+    ]
 
 app.add_middleware(
     CORSMiddleware,
@@ -58,6 +76,18 @@ app.include_router(storage_router)
 
 app.include_router(minio_webhook_router)
 # app.include_router(video_router)
+
+@app.get('/')
+async def root():
+    """
+    Корневой маршрут API
+    """
+    return {
+        "message": "API работает",
+        "version": app.version,
+        "mode": MODE_ENV.MODE,
+        "documentation": "/docs"
+    }
 
 @app.get('/protected-route')
 async def protected_route(current_user: UserReadSchema = Depends(get_current_user)):

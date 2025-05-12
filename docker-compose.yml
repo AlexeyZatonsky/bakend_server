@@ -6,7 +6,7 @@ services:
     image: minio/minio:latest
     container_name: minio
     restart: unless-stopped
-    command: server /data --console-address ":9001"
+    command: server /data --console-address ":9001" --address ":9000"
 
     # пробрасываем порты наружу
     # ports:
@@ -24,6 +24,8 @@ services:
           MINIO_NOTIFY_WEBHOOK_ENDPOINT:    "http://app:1086/webhooks/minio/avatar"
           MINIO_NOTIFY_WEBHOOK_AUTH_TOKEN:  "${MINIO_WEBHOOK_TOKEN}"
           MINIO_NOTIFY_WEBHOOK_ROUTER:      "s3:ObjectCreated:PutObject"
+          # Настройка пути к консоли
+          MINIO_BROWSER_REDIRECT_URL:       "http://${THIS_SERVER_ADDRESS:-localhost}/minio/console"
       # указываем, какие именно события шлём
 
     volumes:
@@ -57,6 +59,15 @@ services:
     restart: unless-stopped
     env_file:
       - .env
+    environment:
+      # Конфигурация URL-ов для корректной работы
+      S3_URL: "http://minio:9000"
+      BASE_SERVER_URL: "${BASE_SERVER_URL:-http://localhost}"
+      API_PATH: "${API_PATH:-api}"
+      MINIO_PATH: "${MINIO_PATH:-minio}"
+      THIS_SERVER_ADDRESS: "${THIS_SERVER_ADDRESS:-localhost}"
+      # Добавляем переменную для внешнего API URL для правильных ссылок
+      API_PUBLIC_URL: "${BASE_SERVER_URL:-http://localhost}/${API_PATH:-api}"
     working_dir: /app
     volumes:
       - ./:/app
@@ -81,6 +92,7 @@ services:
     container_name: proxy
     restart: unless-stopped
     ports:
+      - "80:80"  # Открываем порт 80 для основного доступа
       - "9000:9000"
       - "9001:9001"
       - "1086:1086"
@@ -93,14 +105,6 @@ services:
     networks:
       - edustream
 
-
-  cli:
-    image: ubuntu:22.04
-    container_name: dev-cli
-    restart: unless-stopped
-    command: sleep infinity
-    networks:
-      - edustream
 
 volumes:
   minio-data:

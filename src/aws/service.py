@@ -85,7 +85,9 @@ class StorageService:
             ExpiresIn=expires_in_second,
         )
 
-        public_url = f"{S3_ENV.S3_URL}/{bucket}/{object_key}"
+        # Используем публичный URL с путем через Nginx
+        # Заменяем S3_ENV.S3_URL на публичный URL из настроек
+        public_url = f"{S3_ENV.S3_PUBLIC_URL}/{bucket}/{object_key}"
         return {
             "upload_url": upload_url,
             "public_url": public_url,
