@@ -5,7 +5,7 @@ from pathlib import Path
 from urllib.parse import unquote_plus
 
 
-from ..core.Enums.TypeReferencesEnums import ImageTypeReferenceEnum, InvalidUploadMimeError
+from ..core.Enums.TypeReferencesEnums import ImageTypeReference, InvalidUploadMimeError
 
 
 from ..auth.service import AuthService
@@ -51,7 +51,7 @@ class WebhooksService():
                 ext = Path(filename).suffix.lstrip(".").lower()
 
                 logger.debug(f"Тип полученный из minio  {ext}")
-                img_type = ImageTypeReferenceEnum.from_ext(ext)
+                img_type = ImageTypeReference.from_ext(ext)
 
                 await auth_service.set_avatar_extension(user_id, img_type.mime)
                 logger.debug("set_image_extension(%s, %s) выполнен", user_id, img_type)

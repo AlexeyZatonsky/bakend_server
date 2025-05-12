@@ -13,7 +13,7 @@ from ..settings.config import AUTH_ENV
 
 from ..core.Enums.MIMETypeEnums import ImageMimeEnum
 from ..core.Enums.ExtensionsEnums import ImageExtensionsEnum
-from ..core.Enums.TypeReferencesEnums import ImageTypeReferenceEnum
+from ..core.Enums.TypeReferencesEnums import ImageTypeReference
 
 from .schemas import (
     UserCreateSchema,
@@ -189,8 +189,8 @@ class AuthService:
     ) -> None:
         logger.debug(f"ДЛя пользователя {user_id} создаётся запись с типом аватара {mime.value}") 
         
-        image_type_enum = ImageTypeReferenceEnum.from_mime(mime)
-        image_type: ImageExtensionsEnum = image_type_enum.ext
+        image_type_ref = ImageTypeReference.from_mime(mime)
+        image_type: ImageExtensionsEnum = image_type_ref.ext
 
         logger.debug(f"Тип преобразован в {image_type.value}")
         logger.debug(f"Тип объекта {type(image_type)}")
