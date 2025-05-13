@@ -77,7 +77,7 @@ class StorageService:
                     "QueueConfigurations": [
                         {
                             "Id": "webhook-config",
-                            "QueueArn": "arn:minio:sqs::webhook:webhook",
+                            "QueueArn": "arn:minio:sqs::user_avatar:webhook",
                             "Events": ["s3:ObjectCreated:*"]
                         }
                     ]
