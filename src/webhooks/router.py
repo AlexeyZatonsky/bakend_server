@@ -40,3 +40,13 @@ async def avatar_uploaded_webhook(
     logger.debug("Вызван webhook /minio/avatar/POST")
     await webhooks_service.avatar_uploaded(payload, request, auth_service)
 
+
+
+# @router.post("/channel_avatar")
+# async def channel_avatar_uploaded_webhook(
+#     payload: MinioWebhookPayloadSchema,
+#     request: Request,
+#     webhooks_service: WebhooksService = Depends(get_webhooks_service),
+#     auth_service: AuthService = Depends(get_auth_service),
+# ):
+#     await webhooks_service.channel_avatar_uploaded(payload, request, auth_service)
