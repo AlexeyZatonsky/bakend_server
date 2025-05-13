@@ -10,6 +10,7 @@ from .schemas import UserAvatarUploadRequestSchema, UserAvatarUploadResponseSche
 from .service  import StorageService
 from .dependencies import get_storage_service
 from .strategies import ObjectKind
+from .access_policies import AccessPolicy
 
 
 
@@ -37,6 +38,7 @@ async def get_user_profile_preview_url(
         object_kind=ObjectKind.PROFILE_AVATAR,
         content_type=payload.content_type,
         source_filename=payload.file_name,
+        access=AccessPolicy.PUBLIC_READ,
     )
 
     return UserAvatarUploadResponseSchema(

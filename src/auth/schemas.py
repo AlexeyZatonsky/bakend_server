@@ -3,9 +3,17 @@ from pydantic import BaseModel, EmailStr, Field, ConfigDict, field_validator, fi
 from uuid import UUID
 from typing import Optional, Union, Annotated
 
+from ..core.Enums.ExtensionsEnums import ImageExtensionsEnum
 from .models import UsersORM, SecretInfoORM
 
 from ..settings.config import S3_ENV
+
+import logging
+from ..core.log import configure_logging
+
+logger = logging.getLogger(__name__)
+configure_logging()
+
 
 # Добавляем схему для логина
 class UserLoginSchema(BaseModel):
@@ -38,7 +46,8 @@ class UserBaseSchema(BaseModel):
 class UserReadPublicSchema(BaseModel):
     id: UUID = Field(..., description="Уникальный идентификатор пользователя")
     username: str = Field(..., description="Имя пользователя")
-    avatar: Optional[str] = None
+    avatar_url: Optional[str] = None
+    avatar_ext: Optional[ImageExtensionsEnum] = Field(None, exclude=True)
     is_verified: bool = Field(default=False, description="Статус верификации пользователя")
     is_active: bool = Field(default=True, description="Активность пользователя")
     created_at: datetime = Field(..., description="Дата и время создания аккаунта")
@@ -48,19 +57,39 @@ class UserReadPublicSchema(BaseModel):
         title="Данные пользователя для публичного отображения",
         from_attributes=True
     )
+    
+    @classmethod
+    def model_validate(cls, obj, *args, **kwargs):
+        logger.debug(f"Валидация объекта типа {type(obj)}")
+        logger.debug(f"Атрибуты объекта: avatar_ext={getattr(obj, 'avatar_ext', None)}")
+        logger.debug(f"Тип avatar_ext: {type(getattr(obj, 'avatar_ext', None))}")
+        result = super().model_validate(obj, *args, **kwargs)
+        logger.debug(f"Результат валидации: avatar_url={result.avatar_url}, avatar_ext={result.avatar_ext}")
+        return result
 
-    @field_serializer("avatar", when_used="json")
-    def _get_full_avatar_url(self, avatar_key: str | None, _) -> str | None:
-        if not avatar_key:
-            return None
-        return f"{S3_ENV.S3_URL}/{self.id}/{avatar_key}"
+    @field_serializer("avatar_url", when_used="json")
+    def _get_full_avatar_url(self, avatar_url) -> str | None:
+        logger.debug(f"avatar_url: {avatar_url}, avatar_ext: {self.avatar_ext}")
+        
+        # Если avatar_ext есть, используем его для формирования URL
+        if self.avatar_ext:
+            if isinstance(self.avatar_ext, ImageExtensionsEnum):
+                ext_value = self.avatar_ext.value
+            else:
+                ext_value = self.avatar_ext
+            
+            base_url = S3_ENV.BASE_SERVER_URL
+            return f"{base_url}/minio/{self.id}/other/avatar.{ext_value}"
+        
+        return None
 
 
 class UserReadSchema(BaseModel):
     """Схема для чтения данных пользователя"""
     id: UUID = Field(..., description="Уникальный идентификатор пользователя")
     username: str = Field(..., description="Имя пользователя")
-    avatar: Optional[str] = None
+    avatar_url: Optional[str] = None
+    avatar_ext: Optional[ImageExtensionsEnum] = Field(None, exclude=True)
     is_verified: bool = Field(default=False, description="Статус верификации пользователя")
     is_active: bool = Field(default=True, description="Активность пользователя")
     email: str = Field(..., description="Email пользователя")
@@ -85,20 +114,10 @@ class UserReadSchema(BaseModel):
     )
     @staticmethod
     def from_orm(user: UsersORM, secret_info: SecretInfoORM) -> 'UserReadSchema':
-        """
-        Создаёт схему из ORM моделей пользователя и секретной информации.
-        
-        Args:
-            user: ORM модель пользователя
-            secret_info: ORM модель секретной информации пользователя
-            
-        Returns:
-            UserReadSchema: Схема для чтения данных пользователя
-        """
         return UserReadSchema(
             id=user.id,
             username=user.username,
-            avatar=f"{S3_ENV.S3_URL}/{user.id}/other/avatar",
+            avatar_ext=user.avatar_ext,
             is_verified=user.is_verified,
             is_active=user.is_active,
             email=secret_info.email,
@@ -107,13 +126,22 @@ class UserReadSchema(BaseModel):
         )
     
     
-    @field_serializer("avatar", when_used="json")
-    def _get_full_avatar_url(self, avatar_key: str | None) -> str | None:
-        if not avatar_key:
-            return None
-        return f"{S3_ENV.S3_URL}/{self.id}/{avatar_key}"
-    
-    
+    @field_serializer("avatar_url", when_used="json")
+    def _get_full_avatar_url(self, avatar_url) -> str | None:
+        logger.debug(f"avatar_url: {avatar_url}, avatar_ext: {self.avatar_ext}")
+        
+        # Если avatar_ext есть, используем его для формирования URL
+        if self.avatar_ext:
+            if isinstance(self.avatar_ext, ImageExtensionsEnum):
+                ext_value = self.avatar_ext.value
+            else:
+                ext_value = self.avatar_ext
+            
+            base_url = S3_ENV.BASE_SERVER_URL
+            return f"{base_url}/minio/{self.id}/other/avatar.{ext_value}"
+        
+        return None
+
 
 class UserCreateSchema(BaseModel):
     """Схема для создания пользователя"""
@@ -133,18 +161,6 @@ class UserCreateSchema(BaseModel):
     @field_validator('password')
     @classmethod
     def validate_password_strength(cls, v: str) -> str:
-        """
-        Проверяет надежность пароля
-        
-        Args:
-            v: Пароль для проверки
-            
-        Returns:
-            str: Проверенный пароль
-            
-        Raises:
-            ValueError: Если пароль не соответствует требованиям
-        """
         if not any(char.isdigit() for char in v):
             raise ValueError('Пароль должен содержать хотя бы одну цифру')
         if not any(char.isupper() for char in v):

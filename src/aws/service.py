@@ -27,6 +27,39 @@ class StorageService:
         try:
             await client.create_bucket(Bucket=bucket_name)
             logger.debug(f"Создан новый бакет: {bucket_name}")
+            
+            # Устанавливаем публичный ACL для бакета
+            try:
+                await client.put_bucket_acl(
+                    Bucket=bucket_name,
+                    ACL='public-read'
+                )
+                logger.debug(f"Установлен публичный ACL для бакета {bucket_name}")
+            except Exception as e:
+                logger.warning(f"Не удалось установить ACL для бакета {bucket_name}: {e}")
+            
+            # Устанавливаем политику доступа для бакета
+            try:
+                # Задаем политику доступа для бакета, чтобы сделать все объекты публично доступными
+                policy = {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Principal": {"AWS": "*"},
+                            "Action": ["s3:GetObject"],
+                            "Resource": [f"arn:aws:s3:::{bucket_name}/*"]
+                        }
+                    ]
+                }
+                await client.put_bucket_policy(
+                    Bucket=bucket_name,
+                    Policy=str(policy).replace("'", '"')
+                )
+                logger.debug(f"Установлена политика публичного доступа для бакета {bucket_name}")
+            except Exception as e:
+                logger.warning(f"Не удалось установить политику для бакета {bucket_name}: {e}")
+                
         except (
             client.exceptions.BucketAlreadyOwnedByYou,  
             client.exceptions.BucketAlreadyExists,      
@@ -69,6 +102,8 @@ class StorageService:
         await self._ensure_bucket(client, bucket)
 
         object_key = build_key(object_kind, **context)
+        
+        logger.debug(f"Установлена политика доступа: {access.value} для объекта {bucket}/{object_key}")
 
         # Получаем presigned URL от MinIO с правильной подписью для внутреннего хоста
         internal_url = await client.generate_presigned_url(
