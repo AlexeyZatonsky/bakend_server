@@ -1,9 +1,10 @@
 import uuid
 
 from sqlalchemy import String, Integer, ForeignKey
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import UUID, ENUM as PgEnum
 from sqlalchemy.orm import Mapped, mapped_column
 
+from ..core.Enums.ExtensionsEnums import ImageExtensionsEnum
 from ..database import Base
 
 from ..auth.models import UsersORM
@@ -19,5 +20,14 @@ class ChannelsORM(Base):
         UUID(as_uuid=True), ForeignKey(UsersORM.id, ondelete='CASCADE'), nullable=False
     )
     
-    avatar : Mapped[str | None] = mapped_column(String(1000), nullable=True)
+    avatar_ext: Mapped[ImageExtensionsEnum] = mapped_column(
+        PgEnum(
+            ImageExtensionsEnum,
+            name="image_extensions_enum",
+            value_callable = lambda e: e.value,
+            nullable = True
+        ),
+        nullable=True,
+        default=None
+    )
     subscribers_count : Mapped[int] = mapped_column(Integer, default=0, nullable=False)
