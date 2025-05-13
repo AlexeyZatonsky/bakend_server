@@ -28,7 +28,10 @@ class UserRepository(AbstractRepository[UsersORM]):
 
     async def get_all(self, limit: int = 20) -> List[UsersORM]:
         """Получение списка пользователей с лимитом"""
-        return await super().get_all(limit)
+        query = select(UsersORM).limit(limit)
+        result = await self.session.execute(query)
+        users = result.scalars().all()          
+        return users
 
     async def create(self, entity: UsersORM) -> UsersORM:
         """Создание пользователя"""
