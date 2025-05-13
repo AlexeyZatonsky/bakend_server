@@ -56,6 +56,16 @@ class UserRepository(AbstractRepository[UsersORM]):
             .values(avatar_ext = extension)
         )
         await self.session.commit()
+        
+    async def update_username(self, user_id: UUID, username: str) -> None:
+        await self.session.execute(
+            update(UsersORM)
+            .where(UsersORM.id == user_id)
+            .values(username = username)
+        )
+        await self.session.commit()
+        
+    
 
 
 class SecretInfoRepository(AbstractRepository[SecretInfoORM]):
@@ -84,6 +94,30 @@ class SecretInfoRepository(AbstractRepository[SecretInfoORM]):
         result = await self.session.execute(query)
         return result.scalar_one_or_none()
     
+    async def update_phone_number(self, user_id: UUID, phone_number: str) -> None:
+        await self.session.execute(
+            update(SecretInfoORM)
+            .where(SecretInfoORM.id == user_id)
+            .values(phone_number = phone_number)
+        )
+        await self.session.commit()
+        
+    async def update_organization_name(self, user_id: UUID, organization_name: str) -> None:
+        await self.session.execute(
+            update(SecretInfoORM)
+            .where(SecretInfoORM.id == user_id)
+            .values(organization_name = organization_name)
+        )
+        await self.session.commit()
+        
+    async def update_INN(self, user_id: UUID, INN: str) -> None:
+        await self.session.execute(
+            update(SecretInfoORM)
+            .where(SecretInfoORM.id == user_id)
+            .values(INN = INN)
+        )
+        await self.session.commit()
+        
 
 
 class AuthRepository:
@@ -201,3 +235,16 @@ class AuthRepository:
         logger.debug(f"Тип переданного в repositopry extension объекта - {type(extension)}")
         await self.user_repo.set_avatar_extension(user_id, extension)
 
+    async def update_username(self, user_id: UUID, username: str) -> None:
+        await self.user_repo.update_username(user_id, username)
+
+    async def update_phone_number(self, user_id: UUID, phone_number: str) -> None:
+        await self.secret_repo.update_phone_number(user_id, phone_number)
+        
+    async def update_organization_name(self, user_id: UUID, organization_name: str) -> None:
+        await self.secret_repo.update_organization_name(user_id, organization_name)
+
+    async def update_INN(self, user_id: UUID, INN: str) -> None:
+        await self.secret_repo.update_INN(user_id, INN)
+
+    

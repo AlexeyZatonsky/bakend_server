@@ -196,3 +196,19 @@ class AuthService:
         logger.debug(f"Тип объекта {type(image_type)}")
         await self.repository.set_avatar_extension(user_id, image_type)
 
+
+    async def update_username(self, user_id: UUID, username: str) -> None:
+        await self.repository.update_username(user_id, username)
+    
+    async def update_phone_number(self, user_id: UUID, phone_number: str) -> None:
+        await self.repository.update_phone_number(user_id, phone_number)
+    
+    async def update_organization_name(self, user_id: UUID, organization_name: str) -> None:
+        await self.repository.update_organization_name(user_id, organization_name)
+    
+    async def update_INN(self, user_id: UUID, INN: str) -> None:
+        await self.repository.update_INN(user_id, INN)
+    
+    
+    
+

@@ -178,15 +178,7 @@ class UserUpdateSchema(BaseModel):
 
     model_config = ConfigDict(
         title="Данные для обновления пользователя",
-        from_attributes=True,
-        json_schema_extra={
-            "example": {
-                "username": "updated_username",
-                "avatar": "http://example.com/new_avatar.jpg",
-                "phone_number": "+79123456789",
-                "organization_name": "Company Ltd."
-            }
-        }
+        from_attributes=True
     )
 
 class TokenSchema(BaseModel):

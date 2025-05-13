@@ -191,3 +191,36 @@ async def get_users(
     limit:int = 20) :
     """Тетовы метод просто для получения всех пользователей"""
     return await auth_service.get_all_users(limit)
+
+@router.patch("/me/username", status_code=status.HTTP_204_NO_CONTENT)
+async def update_username(
+    username: str,
+    current_user: UserReadSchema = Depends(get_current_user),
+    auth_service: AuthService = Depends(get_auth_service)
+):
+    return await auth_service.update_username(current_user.id, username)
+
+@router.patch("/me/phone_number", status_code=status.HTTP_204_NO_CONTENT)
+async def update_phone_number(
+    phone_number: str,
+    current_user: UserReadSchema = Depends(get_current_user),
+    auth_service: AuthService = Depends(get_auth_service)
+):
+    return await auth_service.update_phone_number(current_user.id, phone_number)    
+
+@router.patch("/me/organization_name", status_code=status.HTTP_204_NO_CONTENT)
+async def update_organization_name(
+    organization_name: str,
+    current_user: UserReadSchema = Depends(get_current_user),
+    auth_service: AuthService = Depends(get_auth_service)
+):  
+    return await auth_service.update_organization_name(current_user.id, organization_name)
+
+@router.patch("/me/INN", status_code=status.HTTP_204_NO_CONTENT)
+async def update_INN(
+    INN: str,
+    current_user: UserReadSchema = Depends(get_current_user),
+    auth_service: AuthService = Depends(get_auth_service)
+):
+    return await auth_service.update_INN(current_user.id, INN)
+
