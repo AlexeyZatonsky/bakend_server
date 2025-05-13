@@ -2,12 +2,18 @@ from typing import List, Optional
 from uuid import UUID
 
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, update
 
 from ..core.AbstractRepository import AbstractRepository
+from ..core.Enums.ExtensionsEnums import ImageExtensionsEnum
 
 from .models import ChannelsORM
 
+import logging
+from ..core.log import configure_logging
+
+logger = logging.getLogger(__name__)
+configure_logging()
 
 
 class ChannelRepository(AbstractRepository[ChannelsORM]):
@@ -35,3 +41,14 @@ class ChannelRepository(AbstractRepository[ChannelsORM]):
         query = select(ChannelsORM).where(ChannelsORM.owner_id == owner_id)
         result = await self.session.execute(query)
         return result.scalars().all()
+        
+    async def set_avatar_extension(self, channel_id: str, extension: ImageExtensionsEnum) -> None:
+        """Устанавливает расширение аватара канала"""
+        logger.debug(f"Передано в avatar_ext: {extension} ({type(extension)}), name={getattr(extension, 'name', None)}, value={getattr(extension, 'value', None)}")
+
+        await self.session.execute(
+            update(ChannelsORM)
+            .where(ChannelsORM.id == channel_id)
+            .values(avatar_ext = extension)
+        )
+        await self.session.commit()
