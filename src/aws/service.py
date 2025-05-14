@@ -1,10 +1,12 @@
 from uuid import UUID
 
 from typing import Any, Dict
-from types_aiobotocore_s3.client import S3Client
+from types_aiobotocore_s3.client import S3Client, Exceptions
 from botocore.exceptions import ClientError
 
 from ..core.Enums.MIMETypeEnums import MimeEnum
+
+from .notify_configs import NOTIFY_RULES
 from .client import get_s3_client
 from .strategies import ObjectKind, build_key
 from .access_policies import AccessPolicy
@@ -23,69 +25,28 @@ logger = logging.getLogger(__name__)
 
 class StorageService:
 
-    async def _ensure_bucket(self, client: S3Client, bucket_name: str) -> None:    
+    async def _ensure_bucket(self, client: S3Client, bucket_name: str) -> None:
         try:
-            await client.create_bucket(Bucket=bucket_name)
-            logger.debug(f"Создан новый бакет: {bucket_name}")
-            
-            # Устанавливаем публичный ACL для бакета
-            try:
-                await client.put_bucket_acl(
-                    Bucket=bucket_name,
-                    ACL='public-read'
-                )
-                logger.debug(f"Установлен публичный ACL для бакета {bucket_name}")
-            except Exception as e:
-                logger.warning(f"Не удалось установить ACL для бакета {bucket_name}: {e}")
-            
-            # Устанавливаем политику доступа для бакета
-            try:
-                # Задаем политику доступа для бакета, чтобы сделать все объекты публично доступными
-                policy = {
-                    "Version": "2012-10-17",
-                    "Statement": [
-                        {
-                            "Effect": "Allow",
-                            "Principal": {"AWS": "*"},
-                            "Action": ["s3:GetObject"],
-                            "Resource": [f"arn:aws:s3:::{bucket_name}/*"]
-                        }
-                    ]
-                }
-                await client.put_bucket_policy(
-                    Bucket=bucket_name,
-                    Policy=str(policy).replace("'", '"')
-                )
-                logger.debug(f"Установлена политика публичного доступа для бакета {bucket_name}")
-            except Exception as e:
-                logger.warning(f"Не удалось установить политику для бакета {bucket_name}: {e}")
-                
-        except (
-            client.exceptions.BucketAlreadyOwnedByYou,  
-            client.exceptions.BucketAlreadyExists,      
-        ):
-            logger.debug(f"Бакет с именем {bucket_name} уже создан")
-        except ClientError:
-            logger.error(f"Ошибка при создании бакета {bucket_name}")
-            raise
-        
-        # Настраиваем уведомления очень простым способом, без фильтров
-        try:
+            current = await client.get_bucket_notification_configuration(Bucket=bucket_name)
+        except client.exceptions.NoSuchBucketNotification:
+            current = {}
+
+        existing_ids = {c["Id"] for c in current.get("QueueConfigurations", [])}
+
+        new_configs = [
+            rule.to_aws() for rule in NOTIFY_RULES
+            if rule.id not in existing_ids
+        ]
+
+        if new_configs:
+            merged = {
+                "QueueConfigurations": current.get("QueueConfigurations", []) + new_configs
+            }
             await client.put_bucket_notification_configuration(
                 Bucket=bucket_name,
-                NotificationConfiguration={
-                    "QueueConfigurations": [
-                        {
-                            "Id": "webhook-config",
-                            "QueueArn": "arn:minio:sqs::user_avatar:webhook",
-                            "Events": ["s3:ObjectCreated:*"]
-                        }
-                    ]
-                }
+                NotificationConfiguration=merged,
             )
-        except Exception as e:
-            logger.warning(f"Не удалось настроить уведомления для бакета {bucket_name}: {e}")
-
+            logger.debug("Добавлены S3-notifications: %s", [r["Id"] for r in new_configs])
 
     async def generate_upload_urls(
         self,
