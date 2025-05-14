@@ -60,7 +60,7 @@ if server_url:
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[API_ENV.frontend_url],
+    allow_origins=[API_ENV.frontend_url, API_ENV.frontend_tester_url],
     allow_headers=["*"],
     allow_credentials=True,
     allow_methods=["*"],

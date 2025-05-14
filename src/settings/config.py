@@ -28,6 +28,7 @@ class APIEnv(BaseSettings):
     API_PATH: str = "api"
     BASE_SERVER_URL: str
     FRONTEND_PORT: str = "5173"
+    FRONTEND_TESTER_IP: str
     
     @property
     def public_url(self) -> str:
@@ -36,7 +37,10 @@ class APIEnv(BaseSettings):
     @property
     def frontend_url(self) -> str:
         return f"{self.BASE_SERVER_URL}:{self.FRONTEND_PORT}"
-
+    
+    @property
+    def frontend_tester_url(self) -> str:
+        return f"{self.frontend_tester_url}:{self.FRONTEND_PORT}"
 
 class S3Env(BaseSettings):
     S3_URL: str
