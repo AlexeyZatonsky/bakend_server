@@ -27,10 +27,15 @@ class APIEnv(BaseSettings):
     SERVER_PORT: int
     API_PATH: str = "api"
     BASE_SERVER_URL: str
+    FRONTEND_PORT: str = "5173"
     
     @property
     def public_url(self) -> str:
         return f"{self.BASE_SERVER_URL}/{self.API_PATH}"
+    
+    @property
+    def frontend_url(self) -> str:
+        return f"{self.BASE_SERVER_URL}:{self.FRONTEND_PORT}"
 
 
 class S3Env(BaseSettings):

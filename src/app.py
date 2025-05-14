@@ -60,10 +60,10 @@ if server_url:
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[API_ENV.frontend_url],
+    allow_headers=["*"],
     allow_credentials=True,
     allow_methods=["*"],
-    
 )
 
 # Регистрируем роутеры
