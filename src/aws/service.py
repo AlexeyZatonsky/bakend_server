@@ -1,5 +1,7 @@
 from uuid import UUID
 
+import json
+
 from typing import Any, Dict
 from types_aiobotocore_s3.client import S3Client, Exceptions
 from botocore.exceptions import ClientError
@@ -9,7 +11,7 @@ from ..core.Enums.MIMETypeEnums import MimeEnum
 from .notify_configs import NOTIFY_RULES
 from .client import get_s3_client
 from .strategies import ObjectKind, build_key
-from .access_policies import AccessPolicy
+from .access_policies import AccessPolicy, get_public_policy
 
 from ..settings.config import S3_ENV
 
@@ -25,28 +27,62 @@ logger = logging.getLogger(__name__)
 
 class StorageService:
 
-    async def _ensure_bucket(self, client: S3Client, bucket_name: str) -> None:
+    async def _create_bucket(self, client: S3Client, bucket_name: str) -> None:
+        try:
+            await client.create_bucket(Bucket=bucket_name)
+            logger.debug("Создан бакет %s", bucket_name)
+        except (
+            client.exceptions.BucketAlreadyOwnedByYou,
+            client.exceptions.BucketAlreadyExists,
+        ):
+            logger.debug("Бакет %s уже существует", bucket_name)
+        except ClientError:
+            logger.exception("Не удалось создать бакет")
+            raise
+    
+    
+    async def _set_bucket_policy(self, client: S3Client, bucket_name: str) -> None:
+        try:
+            await client.put_bucket_policy(
+                Bucket=bucket_name,
+                Policy=json.dumps(get_public_policy(bucket_name))
+            )
+            logger.debug("Установлена публичная политика доступа на бакет %s", bucket_name)
+        except ClientError:
+            logger.warning("Не удалось установить политику на бакет %s", bucket_name, exc_info=True)
+    
+    
+    async def _sync_notifications(self, client: S3Client, bucket_name: str) -> None:
         try:
             current = await client.get_bucket_notification_configuration(Bucket=bucket_name)
-        except client.exceptions.NoSuchBucketNotification:
+        except ClientError:
+            logger.warning("Ошибка получения конфигурации уведомлений для %s, продолжаем с пустой", bucket_name)
             current = {}
 
         existing_ids = {c["Id"] for c in current.get("QueueConfigurations", [])}
-
         new_configs = [
             rule.to_aws() for rule in NOTIFY_RULES
             if rule.id not in existing_ids
         ]
 
-        if new_configs:
-            merged = {
-                "QueueConfigurations": current.get("QueueConfigurations", []) + new_configs
-            }
-            await client.put_bucket_notification_configuration(
-                Bucket=bucket_name,
-                NotificationConfiguration=merged,
-            )
-            logger.debug("Добавлены S3-notifications: %s", [r["Id"] for r in new_configs])
+        if not new_configs:
+            logger.debug("S3-уведомления уже актуальны для %s", bucket_name)
+            return
+
+        merged = {
+            "QueueConfigurations": current.get("QueueConfigurations", []) + new_configs
+        }
+        await client.put_bucket_notification_configuration(
+            Bucket=bucket_name,
+            NotificationConfiguration=merged,
+        )
+        logger.debug("Добавлены S3-уведомления: %s", [r["Id"] for r in new_configs])
+
+
+    async def _ensure_bucket(self, client: S3Client, bucket_name: str) -> None:
+        await self._create_bucket(client, bucket_name)
+        await self._set_bucket_policy(client, bucket_name)
+        await self._sync_notifications(client, bucket_name)
 
     async def generate_upload_urls(
         self,
