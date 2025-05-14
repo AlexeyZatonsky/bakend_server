@@ -60,10 +60,10 @@ if server_url:
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[API_ENV.frontend_url, API_ENV.frontend_tester_url, "http://localhost:5173"],
-    allow_headers=["*"],
-    allow_credentials=True,
+    allow_origin_regex=".*",             # ← разрешаем все Origin-ы
+    allow_credentials=True,              # куки / HTTP-auth разрешены
     allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # Регистрируем роутеры
