@@ -52,6 +52,7 @@ async def login(
     form_data: OAuth2PasswordRequestForm = Depends(),
     auth_service: AuthService = Depends(get_auth_service)
 ):
+    logger.warning(f"response - {response}\nform_data:{form_data}")
     """
     Аутентификация пользователя и получение токена
     
