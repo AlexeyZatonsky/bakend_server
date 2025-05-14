@@ -36,11 +36,11 @@ class APIEnv(BaseSettings):
     
     @property
     def frontend_url(self) -> str:
-        return f"{self.BASE_SERVER_URL}:{self.FRONTEND_PORT}"
+        return f"http://{self.BASE_SERVER_URL}:{self.FRONTEND_PORT}"
     
     @property
     def frontend_tester_url(self) -> str:
-        return f"{self.frontend_tester_url}:{self.FRONTEND_PORT}"
+        return f"http://{self.frontend_tester_url}:{self.FRONTEND_PORT}"
 
 class S3Env(BaseSettings):
     S3_URL: str
