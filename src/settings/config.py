@@ -20,7 +20,7 @@ class DBEnv(BaseSettings):
 
 class AuthEnv(BaseSettings):
     SECRET_AUTH: str
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 999999
 
 class APIEnv(BaseSettings):
     SERVER_HOST: str
