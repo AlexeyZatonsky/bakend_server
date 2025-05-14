@@ -1,3 +1,5 @@
+import json
+
 from enum import StrEnum, unique
 from typing import Dict, Final
 
@@ -31,3 +33,20 @@ def header_for(policy: AccessPolicy) -> Dict[str, str]:
         Dict[str, str]: Словарь с заголовком и значением политики
     """
     return {ACL_HEADER: policy.value}
+
+
+
+def get_public_policy(bucket_name: str):
+    policy = {
+        "Version": "2012-10-17",
+        "Statement": [
+            {
+                "Effect": "Allow",
+                "Principal": {"AWS": "*"},
+                "Action": ["s3:GetObject"],
+                "Resource": [f"arn:aws:s3:::{bucket_name}/*"]
+            }
+        ]
+    }
+
+    return policy
