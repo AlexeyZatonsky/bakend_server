@@ -89,6 +89,18 @@ services:
       - edustream
 
 
+  frontend:                       #  ←  новый контейнер
+    build:
+      context: ../webHosting       #  каталог с package.json / vite.config.*
+      dockerfile: Dockerfile      #  см. ниже
+    container_name: edustream-frontend
+    restart: unless-stopped
+    expose:
+      - "80"                      #  фронт будет слушать 80-й порт внутри контейнера
+    networks:
+      - edustream 
+
+
   proxy:
     image: nginx:latest
     container_name: proxy
@@ -108,9 +120,11 @@ services:
       - edustream
 
 
+
 volumes:
   minio-data:
   postgres-data:
 
 networks:
   edustream:
+    external: false
