@@ -12,6 +12,11 @@ from .dependencies import get_storage_service
 from .strategies import ObjectKind
 from .access_policies import AccessPolicy
 
+import logging
+from ..core.log import configure_logging
+
+logger = logging.getLogger(__name__)
+configure_logging()
 
 
 
@@ -33,6 +38,7 @@ async def get_user_profile_preview_url(
     user_data: UserReadSchema = Depends(get_current_user),
     storage_service: StorageService = Depends(get_storage_service) 
 ):
+    logger.debug("Вызван upload/avatar")
     presign = await storage_service.generate_upload_urls(
         owner_id=user_data.id,
         object_kind=ObjectKind.PROFILE_AVATAR,
