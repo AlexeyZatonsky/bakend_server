@@ -58,7 +58,7 @@ class ProfileAvatarKeyStrategy(KeyBuildingStrategy):
 class ChannelAvatarKeyStrategy(KeyBuildingStrategy):
     """`channels/{channel_id}/avatar.<ext>` — ключ аватара канала."""
 
-    def build_key(self, *, channel_id: UUID, source_filename: str, **_: Any) -> str:  
+    def build_key(self, *, channel_id: str, source_filename: str, **_: Any) -> str:  
         extension: str = (
             Path(source_filename).suffix
             or mimetypes.guess_extension(mimetypes.guess_type(source_filename)[0] or "")

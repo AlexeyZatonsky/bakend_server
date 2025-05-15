@@ -6,9 +6,11 @@ from pydantic import BaseModel, field_validator
 from .strategies import ObjectKind, build_key
 
 
+
+
 class UploadKey(BaseModel):
     user_id: UUID
-    channel_id: Optional[UUID] = None
+    channel_id: Optional[str] = None
     course_id: Optional[UUID] = None
 
     kind: ObjectKind
@@ -51,7 +53,7 @@ class UploadKey(BaseModel):
         if len(parts) >= 3 and parts[2].startswith("avatar"):
             return cls(
                 user_id=user_id,
-                channel_id=UUID(parts[1]),
+                channel_id=parts[1],
                 kind=ObjectKind.CHANNEL_AVATAR,
                 key=key,
                 ext=ext
