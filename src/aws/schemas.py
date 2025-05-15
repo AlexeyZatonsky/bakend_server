@@ -13,21 +13,31 @@ class BaseUploadRequestSchema(BaseModel):
 class UserAvatarUploadRequestSchema(BaseUploadRequestSchema):
     content_type: ImageMimeEnum = Field(alias="contentType")
 
-class UserAvatarUploadResponseSchema(BaseModel):
+
+class ChannelAvatarUploadRequestSchema(BaseUploadRequestSchema):
+    pass
+
+class VideoUploadRequestSchema(BaseUploadRequestSchema):
+    channel_id: str
+    video_id: UUID = Field(alias="videoID")
+
+
+
+
+
+class BaseUploadResponseSchema(BaseModel):
     upload_url: str
     key: str
     public_url: str
 
 
-class UploadURLResponseSchema(BaseModel):
-    upload_url: str
-    key: str
+class UserAvatarUploadResponseSchema(BaseUploadResponseSchema):
+    pass
+
+class ChannelAvatarUploadResponseSchema(BaseUploadResponseSchema):
+    pass
 
 
-class ChannelAvatarUploadRequestSchema(BaseUploadRequestSchema):
-    channel_id: str = Field(alias="channelID")
 
 
-class VideoUploadRequestSchema(BaseUploadRequestSchema):
-    channel_id: str
-    video_id: UUID = Field(alias="videoID")
+
