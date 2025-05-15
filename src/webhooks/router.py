@@ -10,6 +10,10 @@ from ..settings.config import WEBHOOK_ENV
 from ..auth.service import AuthService
 from ..auth.dependencies import get_auth_service
 
+from ..channels.service import ChannelService
+from ..channels.dependencies import get_channel_service
+
+
 from .service import WebhooksService
 from .schemas import MinioWebhookPayloadSchema
 from .dependencies import get_webhooks_service
@@ -47,7 +51,7 @@ async def channel_avatar_uploaded_webhook(
     payload: MinioWebhookPayloadSchema,
     request: Request,
     webhooks_service: WebhooksService = Depends(get_webhooks_service),
-    auth_service: AuthService = Depends(get_auth_service),
+    channel_service: ChannelService = Depends(get_channel_service),
 ):
-    #await webhooks_service.channel_avatar_uploaded(payload, request, auth_service)
+    await webhooks_service.channel_avatar_uploaded(payload, request, channel_service)
     logger.debug("Вызван вебхук channel_avata")
