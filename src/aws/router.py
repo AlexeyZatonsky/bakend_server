@@ -1,7 +1,7 @@
-from uuid import UUID
+from uuid import UUID, uuid4
+from pathlib import Path
 
-
-from fastapi import APIRouter, Depends,status
+from fastapi import APIRouter, Depends,status, HTTPException
 
 from ..auth.schemas import UserReadSchema
 from ..auth.dependencies import get_current_user
@@ -9,11 +9,19 @@ from ..auth.dependencies import get_current_user
 from ..channels.schemas import ChannelReadSchema
 from ..channels.dependencies import get_current_channel
 
+from ..videos.schemas import VideoDataReadSchema
+from ..videos.dependencies import get_video_service
+from ..videos.service import VideoService
+
 from .schemas import (
     UserAvatarUploadRequestSchema, 
     UserAvatarUploadResponseSchema,
     ChannelAvatarUploadRequestSchema,
-    ChannelAvatarUploadResponseSchema    
+    ChannelAvatarUploadResponseSchema,
+    VideoUploadRequestSchema,
+    VideoUploadResponseSchema,
+    VideoPreviewUploadRequestSchema,
+    VideoPreviewUploadResponseSchema,
 )
 from .service  import StorageService
 from .dependencies import get_storage_service
@@ -87,4 +95,43 @@ async def get_channel_upload_url(
         upload_url=presign["upload_url"], 
         key=presign["key"],
         public_url=presign["public_url"]
+    )
+
+@router.post(
+    "/video",
+    response_model=VideoUploadResponseSchema,
+    status_code=status.HTTP_201_CREATED,
+    summary="Получение ссылки для загрузки видео"
+)
+async def get_video_upload_url(
+    payload: VideoUploadRequestSchema,
+    channel: ChannelReadSchema      = Depends(get_current_channel),
+    storage: StorageService         = Depends(get_storage_service),
+    videos: VideoService            = Depends(get_video_service),
+):
+    # 1) создаём «черновик» видео в БД (is_public=False) и получаем объект
+    video_obj = await videos.create_initial_video(
+        user_id=    channel.owner_id,
+        channel_id= channel.id,
+    )
+    video_id = video_obj.id
+
+    # 2) формируем presigned URL
+    ext = Path(payload.file_name).suffix.lstrip(".").lower()
+    presign = await storage.generate_upload_urls(
+        owner_id=        channel.owner_id,
+        object_kind=     ObjectKind.VIDEO,
+        content_type=    payload.content_type,
+        source_filename= payload.file_name,
+        access=          AccessPolicy.PUBLIC_READ,
+        channel_id=      channel.id,
+        video_id=        video_id,
+    )
+
+    # 3) возвращаем ответ
+    return VideoUploadResponseSchema(
+        upload_url= presign["upload_url"],
+        key=        presign["key"],
+        public_url= presign["public_url"],
+        video_id=   video_id,
     )

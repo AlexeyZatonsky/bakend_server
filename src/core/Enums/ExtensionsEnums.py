@@ -8,4 +8,5 @@ class ImageExtensionsEnum(Enum):
     SVG = "svg"
 
 
-class VideoExtensionsEnum(Enum): pass
+class VideoExtensionsEnum(Enum):
+    MP4 = "mp4"
