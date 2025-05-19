@@ -14,7 +14,7 @@ from .courses_structure.router import router as courses_structure_router
 from .aws.router import router as storage_router
 
 from .webhooks.router import router as minio_webhook_router
-# from .videos.router import router as video_router
+from .videos.router import router as video_router
 
 from .settings.config import API_ENV, MODE_ENV
 
@@ -75,7 +75,7 @@ app.include_router(courses_structure_router)
 app.include_router(storage_router)
 
 app.include_router(minio_webhook_router)
-# app.include_router(video_router)
+app.include_router(video_router)
 
 @app.get('/')
 async def root():
