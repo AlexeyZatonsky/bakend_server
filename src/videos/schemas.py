@@ -1,89 +1,76 @@
-from pydantic import  BaseModel, HttpUrl ,Field, ConfigDict
-
-from uuid import UUID, uuid4
 from datetime import datetime
+from typing import Optional
+
+from pydantic import BaseModel, Field, ConfigDict
+from uuid import UUID
+
+from ..core.Enums.ExtensionsEnums import ImageExtensionsEnum, VideoExtensionsEnum
 
 
+class BaseVideoDataSchema(BaseModel):
+    id: UUID
+    user_id: UUID = Field(description="ID пользователя")
+    course_id: Optional[UUID] = Field(description="ID курса")
+    channel_id: str = Field(description="ID канала")
+    
+    video_ext: VideoExtensionsEnum = Field(description="Расширение видео")
+    preview_ext: Optional[ImageExtensionsEnum] = Field(description="Расширение превью видео")
+    
+    description: str = Field(description="Описание видео")
+    is_free: bool = Field(description="Доступно для всех")
+    is_public: bool = Field(description="Публичное видео")
+    timeline: int = Field(description="Временная шкала видео")
+    upload_date: datetime = Field(description="Дата загрузки видео")
+    
+    
+class VideoDataCreateSchema(BaseVideoDataSchema): pass
 
-
-class CategoryRead(BaseModel):
-    id: int
-    name: str
-
+class VideoDataReadSchema(BaseVideoDataSchema): 
     model_config = ConfigDict(from_attributes=True)
+    
 
-class CategoryCreate(BaseModel):
-    name: str = Field(max_length=255)
+class VideoDataUpdateSchema(BaseModel):
+    name: str = Field(description="Название видео")
+    description: str = Field(description="Описание видео")
+    is_free: bool = Field(description="Доступно для всех", default=True)
+    is_public: bool = Field(description="Публичное видео", default=True)
+    timeline: int = Field(description="Временная шкала видео")
 
 
 
-class TagRead(BaseModel):
+class TagBaseSchema(BaseModel):
     id: int
     name: str
     
-    model_config = ConfigDict(from_attributes=True)
+class TagCreateSchema(TagBaseSchema): pass
+class TagReadSchema(TagBaseSchema):
+    model_config = ConfigDict(from_attributes=True)    
 
-class TagCreate(BaseModel):
-    name: str = Field(max_length=255)
-
+class TagUpdateSchema(TagBaseSchema): pass
     
 
-class BaseVideo(BaseModel):
-    id: UUID
-    title: str = Field(max_length=255)
-    description: str = Field(max_length=1000)
-    url: HttpUrl
-    upload_date: datetime
-    views: int | None = 0
-    likes: int | None = 0
-    dislikes: int | None = 0
-    user_id: UUID
-    category_id: int
 
-    model_config = ConfigDict(from_attributes=True)
-
-class VidoeUpload(BaseModel):
-    title: str = Field(max_length=255)
-    description: str = Field(max_length=1000)
-    category_id: str = '1'
-
-
-class AboutVideo(BaseModel):
-    id: UUID
-    title: str
-    description: str
-    path: str
-    upload_date: datetime
-    views: int
-    likes: int
-    dislikes: int
-    user_id: UUID
-    category_id: int
-
-    model_config = ConfigDict(
-        from_attributes=True,
-        json_schema_extra = {
-            "example": {
-                "id": "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
-                "title": "My Video",
-                "description": "Video description",
-                "path": "/videos/my-video.mp4",
-                "upload_date": "2024-03-14T12:00:00",
-                "views": 0,
-                "likes": 0,
-                "dislikes": 0,
-                "user_id": "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
-                "category_id": 1
-            }
-        }
-    )
-
-
-class BaseVideoTag(BaseModel):
+class VideoTagBaseSchema(BaseModel):
+    id: int
     video_id: UUID
     tag_id: int
+    
 
+class VideoMetadataBaseSchema(BaseModel):
+    id: UUID
+    views: int
+    likes: int
+    dislikes: int 
+    updated_at: datetime
+    
+
+class VideoMetadataCreateSchema(VideoMetadataBaseSchema): pass
+class VideoMetadataReadSchema(VideoMetadataBaseSchema):
     model_config = ConfigDict(from_attributes=True)
+    
+    
+
+
 
 
 

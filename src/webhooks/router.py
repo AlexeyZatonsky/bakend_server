@@ -13,6 +13,8 @@ from ..auth.dependencies import get_auth_service
 from ..channels.service import ChannelService
 from ..channels.dependencies import get_channel_service
 
+from ..videos.service import VideoService
+from ..videos.dependencies import get_video_service
 
 from .service import WebhooksService
 from .schemas import MinioWebhookPayloadSchema
@@ -55,3 +57,22 @@ async def channel_avatar_uploaded_webhook(
 ):
     await webhooks_service.channel_avatar_uploaded(payload, request, channel_service)
     logger.debug("Вызван вебхук channel_avata")
+
+@router.post("/video")
+async def video_uploaded_webhook(
+    payload: MinioWebhookPayloadSchema,
+    request: Request,
+    ws: WebhooksService = Depends(get_webhooks_service),
+    vs: VideoService    = Depends(get_video_service),
+):
+    return await ws.video_uploaded(payload, request, vs)
+
+
+@router.post("/video_preview")
+async def video_preview_uploaded_webhook(
+    payload: MinioWebhookPayloadSchema,
+    request: Request,
+    ws: WebhooksService = Depends(get_webhooks_service),
+    vs: VideoService    = Depends(get_video_service),
+):
+    return await ws.video_preview_uploaded(payload, request, vs)

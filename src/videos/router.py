@@ -1,56 +1,57 @@
-from fastapi import APIRouter, Depends, UploadFile
+from fastapi import APIRouter, Depends, UploadFile, Query
 from sqlalchemy.ext.asyncio import AsyncSession
+from uuid import UUID
+from typing import List
 
-from .services import BaseVideoServices
-from ..database import get_async_session
+from ..auth.schemas import UserReadSchema
 from ..auth.dependencies import get_current_user
-from ..auth.models import Users
 
-from .schemas import CategoryRead, CategoryCreate, \
-TagRead, TagCreate, VidoeUpload, AboutVideo, BaseVideoTag
+from .dependencies import get_video_service, validate_video_access
+from .service import VideoService
+from .schemas import VideoDataReadSchema, VideoDataUpdateSchema
 
+import logging
+from ..core.log import configure_logging
+
+logger = logging.getLogger(__name__)
+configure_logging()
 
 
 router = APIRouter(
-    prefix='/Videos',
+    prefix='/videos',
     tags=['videos']
 )
 
-@router.post('/category/create', response_model=CategoryRead, status_code=201)
-async def category_create(
-    category_data: CategoryCreate, 
-    session: AsyncSession = Depends(get_async_session)
+
+@router.post("/publish/{video_id}", response_model=VideoDataReadSchema)
+async def publish_video(
+    video_id: UUID,
+    payload: VideoDataUpdateSchema,
+    service: VideoService = Depends(get_video_service),
 ):
-    service = BaseVideoServices(session)
-    return await service.category_create(category_data)
-    
+    return await service.publish_video(video_id, payload)
 
-   
 
-@router.post('/upload/', response_model=AboutVideo, status_code=210)
-async def video_upload(
-    title: str,
-    description: str,
-    category_id: str, 
-    video_file: UploadFile,
-    session: AsyncSession = Depends(get_async_session),
-    current_user: Users = Depends(get_current_user)
+@router.patch("", response_model=VideoDataReadSchema)
+async def update_video(
+    new_data: VideoDataUpdateSchema,
+    video_data: VideoDataReadSchema = Depends(validate_video_access),
+    service: VideoService = Depends(get_video_service),
 ):
-    service = BaseVideoServices(session)
-    return await service.video_upload(title, description, category_id, video_file)
+    return await service.update_video(video_data.id, new_data)
 
-@router.delete('/delete', response_model=None, status_code=200)
-async def video_delete(
-    title: str, 
-    session: AsyncSession = Depends(get_async_session)
+@router.get("/my", response_model=List[VideoDataReadSchema], status_code=200)
+async def get_my_videos(
+    service: VideoService = Depends(get_video_service),
+    user: UserReadSchema = Depends(get_current_user),
 ):
-    service = BaseVideoServices(session)
-    return await service.video_remove(title)
+    return await service.get_videos_by_user_id(user.id)
 
 
-@router.get('/category/read', response_model=list[CategoryRead], status_code=200)
-async def category_read(
-    session: AsyncSession = Depends(get_async_session)
+@router.get("/", response_model=List[VideoDataReadSchema], status_code=200)
+async def get_videos(
+    service: VideoService = Depends(get_video_service),
+    # limit: int = Query(default=20, ge=1, le=100),
+    # offset: int = Query(default=0, ge=0),
 ):
-    service = BaseVideoServices(session)
-    return await service.category_read()
+    return await service.get_all_video_datas()
