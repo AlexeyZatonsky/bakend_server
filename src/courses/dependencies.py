@@ -75,8 +75,8 @@ async def course_is_open(
     """
     logger.debug("course_is_open")
 
-    course_DTO = await course_service.get_courses_by_id(course_id)
-    if course_DTO.is_public == False:
-        return False
+    # course_DTO = await course_service.get_courses_by_id(course_id)
+    # if course_DTO.is_public == False:
+    #     return False
 
     return True

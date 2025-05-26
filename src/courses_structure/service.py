@@ -23,7 +23,7 @@ class CourseStructureService:
         body: FullStructureCreateSchema
     ) -> FullStructureReadSchema:
         orm_obj = CoursesStructureORM(
-            course_id=course_id,
+            id=course_id,
             structure=body.model_dump(mode="python")  # raw dict → JSONB
         )
         created = await self.repository.create(orm_obj)

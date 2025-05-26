@@ -1,5 +1,5 @@
 from typing import Optional, List, Union
-from pydantic import BaseModel, Field, ConfigDict, field_validator
+from pydantic import BaseModel, Field, ConfigDict, model_validator
 
 
 
@@ -46,12 +46,28 @@ class StructureModuleReadSchema(StructureModuleBaseSchema):
     model_config = ConfigDict(from_attributes=True)
 
 
+
+class StructureItemSchema(BaseModel):
+    """Обёртка для элементов структуры курса: модуль, подмодуль или урок"""
+    module: Optional[StructureModuleReadSchema] = None
+    submodule: Optional[StructureSubModuleReadSchema] = None
+    lesson: Optional[StructureLessonReadSchema] = None
+
+    @model_validator(mode="before")
+    @classmethod
+    def check_only_one(cls, values):
+        set_fields = [k for k in ["module", "submodule", "lesson"] if values.get(k) is not None]
+        if len(set_fields) != 1:
+            raise ValueError("Ровно одно из полей [module, submodule, lesson] должно быть задано")
+        return values
+
+
 class StructureBaseSchema(BaseModel):
-    structure: (
-    List[StructureModuleReadSchema] | 
-    List[StructureSubModuleReadSchema] | 
-    List[StructureLessonReadSchema]
-    ) = Field(..., description="Структура содержания курса - List[Модуль] -> List[Пододуль] -> List[Урок] | List[Подмодль] -> List[Урок] | List[Урок]")
+    content: List[StructureItemSchema] = Field(
+        ..., 
+        description="Вариативная структура курса — список модулей, подмодулей или уроков. Можно смешивать."
+    )
+
 
 class StructureCreateSchema(StructureBaseSchema): pass
 class StructureReadSchema(StructureBaseSchema): pass
@@ -60,7 +76,7 @@ class StructureUpdateSchema(StructureBaseSchema): pass
 
 class FullStructureBaseSchema(BaseModel):
     """Полная схема структуры курса, состоящая из модулей."""
-    content : StructureBaseSchema
+    structure : StructureBaseSchema
 
 class FullStructureCreateSchema(FullStructureBaseSchema):pass
 class FullStructureUpdateSchema(FullStructureBaseSchema):pass
