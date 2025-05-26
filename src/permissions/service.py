@@ -31,7 +31,6 @@ class PermissionsService:
         
         return PermissionReadSchema.model_validate(permission_entity)
 
-
     async def set_user_permission(
         self,
         course_id: UUID,
@@ -39,11 +38,6 @@ class PermissionsService:
     ) -> PermissionReadSchema:
         
         logger.debug(f"Метод set_user-permission({course_id}, для {data.user_id})")
-
-        """
-        Выдает пользователю право на курс до data.expiration_date.
-        Если запись уже есть — обновляет её.
-        """
         now = datetime.now(UTC)
 
 
@@ -80,6 +74,6 @@ class PermissionsService:
         access_level: PermissionsEnum) -> bool:
         
         permission = await self.get_course_permission_for_user(user_id, course_id)
-        
-        
+    
         return bool(permission) and permission.access_level == access_level
+    

@@ -24,7 +24,7 @@ configure_logging()
 class ChannelService:
     def __init__(self, repository: ChannelRepository, http_exceptions: ChannelsHTTPExceptions):
         self.repository = repository
-        self.http_exceptions = ChannelsHTTPExceptions()
+        self.http_exceptions = http_exceptions
         
 
     async def create_channel(self, channel_data: ChannelCreateSchema, user_data: UserReadSchema) -> ChannelReadSchema | HTTPException:

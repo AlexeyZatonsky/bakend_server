@@ -124,3 +124,12 @@ class VideoTagOrm(Base):
     )
 
 
+class VideoCategoryORM(Base):
+    __tablename__ = "video_categories"
+
+    video_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey(VideoORM.id, ondelete='CASCADE'), primary_key=True
+    )
+    category_id: Mapped[Integer] = mapped_column(
+        Integer, ForeignKey(CategoryORM.id, ondelete='CASCADE'), primary_key=True
+    )

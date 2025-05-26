@@ -14,7 +14,7 @@ from ..permissions.dependencies import require_permission
 
 from .dependencies import get_course_structure_service
 from .service import CourseStructureService
-from .schemas import StructureCreateSchema, StructureReadSchema
+from .schemas import FullStructureReadSchema, FullStructureCreateSchema
 
 
 from ..courses.schemas import CourseReadSchema
@@ -31,7 +31,7 @@ router = APIRouter(
 
 @router.get(
     "/",
-    response_model=StructureReadSchema,
+    response_model=FullStructureReadSchema,
     status_code=status.HTTP_200_OK,
 )
 async def get_course_structure(
@@ -52,7 +52,7 @@ async def get_course_structure(
 
 @router.post(
     "/", 
-    response_model=StructureReadSchema, 
+    response_model=FullStructureReadSchema, 
     status_code=status.HTTP_201_CREATED
 )
 async def create_structure(
@@ -63,7 +63,7 @@ async def create_structure(
             skip_if_public=False,
         )
     ),
-    structure_data: StructureCreateSchema = Body(...),        # <‑‑ Body, а не Depends()
+    structure_data: FullStructureCreateSchema = Body(...),        # <‑‑ Body, а не Depends()
     service: CourseStructureService = Depends(get_course_structure_service),
 ):
     return await service.create_structure_for_course(course_id, structure_data.structure)
