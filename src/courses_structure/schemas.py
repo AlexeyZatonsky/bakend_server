@@ -1,5 +1,5 @@
-from typing import Optional, List
-from pydantic import BaseModel, Field, ConfigDict
+from typing import Optional, List, Union
+from pydantic import BaseModel, Field, ConfigDict, field_validator
 
 
 
@@ -46,14 +46,21 @@ class StructureModuleReadSchema(StructureModuleBaseSchema):
     model_config = ConfigDict(from_attributes=True)
 
 
+class StructureBaseSchema(BaseModel):
+    structure: (
+    List[StructureModuleReadSchema] | 
+    List[StructureSubModuleReadSchema] | 
+    List[StructureLessonReadSchema]
+    ) = Field(..., description="Структура содержания курса - List[Модуль] -> List[Пододуль] -> List[Урок] | List[Подмодль] -> List[Урок] | List[Урок]")
+
+class StructureCreateSchema(StructureBaseSchema): pass
+class StructureReadSchema(StructureBaseSchema): pass
+class StructureUpdateSchema(StructureBaseSchema): pass
+
 
 class FullStructureBaseSchema(BaseModel):
     """Полная схема структуры курса, состоящая из модулей."""
-    modules: (
-        List[StructureModuleReadSchema] | 
-        List[StructureSubModuleReadSchema] | 
-        List[StructureLessonReadSchema]
-    ) = Field(..., description="Структура содержания курса - List[Модуль] -> List[Пододуль] -> List[Урок] | List[Подмодль] -> List[Урок] | List[Урок]")
+    content : StructureBaseSchema
 
 class FullStructureCreateSchema(FullStructureBaseSchema):pass
 class FullStructureUpdateSchema(FullStructureBaseSchema):pass
