@@ -71,10 +71,11 @@ class CourseService:
         return [CourseReadSchema.model_validate(course) for course in courses]
     
 
-    async def get_courses_by_id(self, course_id:UUID) -> CourseReadSchema:
-        course_orm = self.repository.get_by_id(course_id)
+    async def get_course_by_id(self, course_id:UUID) -> CourseReadSchema:
+        course_orm = await self.repository.get_by_id(course_id)
         if course_orm is None: 
             raise self.http_exceptions.not_found_404()
         
         return CourseReadSchema.model_validate(course_orm)
     
+

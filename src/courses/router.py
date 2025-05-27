@@ -31,7 +31,8 @@ async def get_course_by_id(
     course_id: UUID,
     course_service: CourseService = Depends(get_course_service)
     ):
-    return await course_service.get_courses_by_id(course_id)
+
+    return await course_service.get_course_by_id(course_id)
 
 
 # 🔹 Курсы всех каналов пользователя

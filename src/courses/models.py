@@ -17,7 +17,7 @@ class CoursesORM(Base):
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     channel_id: Mapped[str] = mapped_column(String, ForeignKey(ChannelsORM.id, ondelete="CASCADE"))
-    owner_id: Mapped[str] = mapped_column(UUID, ForeignKey(UsersORM.id, ondelete="CASCADE"))
+    owner_id: Mapped[UUID] = mapped_column(UUID, ForeignKey(UsersORM.id, ondelete="CASCADE"))
     name: Mapped[str] = mapped_column(String(255))
     is_public: Mapped[bool] = mapped_column(Boolean, default=True)
     student_count: Mapped[int] = mapped_column(Integer, default=0)
