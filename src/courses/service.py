@@ -38,8 +38,8 @@ class CourseService:
         saved_course = await self.repository.create(new_course)
         return CourseReadSchema.model_validate(saved_course)
 
-    async def delete_course(self, course: CourseReadSchema) -> None:
-        course_orm = CoursesORM(**course.model_dump())
+    async def delete_course(self, course_id: UUID) -> None:
+        course_orm = await self.repository.get_by_id(course_id)
         await self.repository.delete(course_orm)
 
     async def update_course(self, course: CourseReadSchema, update_data: CourseUpdateSchema) -> CourseReadSchema:

@@ -59,7 +59,7 @@ async def delete_course(
     course: CourseReadSchema = Depends(get_current_course_with_owner_validate),  
     course_service: CourseService = Depends(get_course_service),
 ):
-    await course_service.delete_course(course)
+    return await course_service.delete_course(course.id)
 
 
 @router.patch("/channels/{channel_id}/courses/{course_id}", response_model=CourseReadSchema)
