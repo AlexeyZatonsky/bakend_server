@@ -30,4 +30,16 @@ class ChannelsORM(Base):
         nullable=True,
         default=None
     )
+
+    preview_ext: Mapped[ImageExtensionsEnum] = mapped_column(
+        PgEnum(
+            ImageExtensionsEnum,
+            name="image_extensions_enum",
+            value_callable = lambda e: e.value,
+            nullable = True
+        ),
+        nullable=True,
+        default=None
+    )
+    
     subscribers_count : Mapped[int] = mapped_column(Integer, default=0, nullable=False)
