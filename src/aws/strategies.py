@@ -11,6 +11,8 @@ class ObjectKind(Enum):
     CHANNEL_AVATAR = auto()
     VIDEO = auto()
     VIDEO_PREVIEW = auto()
+    CHANNEL_PREVIEW = auto()
+    COURSE_PREVIEW = auto()
 
 
 class KeyBuildingStrategy(Protocol):
@@ -37,26 +39,32 @@ def _ext(fname: str) -> str:
 @register_strategy(ObjectKind.PROFILE_AVATAR)
 class ProfileAvatarKeyStrategy(KeyBuildingStrategy):
     def build_key(self, *, source_filename: str, **_: Any) -> str:
-        return f"other/avatar{_ext(source_filename)}"
+        return f"other/user_avatar{_ext(source_filename)}"
 
 
 @register_strategy(ObjectKind.CHANNEL_AVATAR)
 class ChannelAvatarKeyStrategy(KeyBuildingStrategy):
     def build_key(self, *, channel_id: str, source_filename: str, **_: Any) -> str:
-        return f"channels/{channel_id}/avatar{_ext(source_filename)}"
+        return f"channels/{channel_id}/channel_avatar{_ext(source_filename)}"
 
 
-# ─── Видео ────────────────────────────────────────────────────────────────────
+@register_strategy(ObjectKind.CHANNEL_PREVIEW)
+class ChannelPreviewKeyStrategy(KeyBuildingStrategy):
+    def build_key(self, *, channel_id: str, source_filename: str, **_: Any) -> str:
+        return f"channels/{channel_id}/channel_preview{_ext(source_filename)}"
+
+
+
 @register_strategy(ObjectKind.VIDEO)
 class VideoKeyStrategy(KeyBuildingStrategy):
     def build_key(self, *, channel_id: str, video_id: UUID, source_filename: str, **_: Any) -> str:
-        return f"channels/{channel_id}/{video_id}/video{_ext(source_filename)}"
+        return f"channels/{channel_id}/videos/{video_id}/video{_ext(source_filename)}"
 
 
 @register_strategy(ObjectKind.VIDEO_PREVIEW)
 class VideoPreviewKeyStrategy(KeyBuildingStrategy):
     def build_key(self, *, channel_id: str, video_id: UUID, source_filename: str, **_: Any) -> str:
-        return f"channels/{channel_id}/{video_id}/preview{_ext(source_filename)}"
+        return f"channels/{channel_id}/videos/{video_id}/video_preview{_ext(source_filename)}"
 
 
 def build_key(object_kind: ObjectKind, **context: Any) -> str:
@@ -65,3 +73,8 @@ def build_key(object_kind: ObjectKind, **context: Any) -> str:
     except KeyError as exc:
         raise ValueError(f"No strategy registered for {object_kind!r}") from exc
     return strategy.build_key(**context)
+
+@register_strategy(ObjectKind.COURSE_PREVIEW)
+class CoursePreviewKeyStrategy(KeyBuildingStrategy):
+    def build_key(self, channel_id: str, course_id: str, source_filename: str, **_: Any) -> str:
+        return f"channels/{channel_id}/courses/{course_id}/course_preview{_ext(source_filename)}"

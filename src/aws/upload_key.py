@@ -11,12 +11,12 @@ class UploadKey(BaseModel):
     user_id: UUID
     channel_id: Optional[str] = None
     video_id: Optional[UUID] = None
+    course_id: Optional[UUID] = None
 
     kind: ObjectKind
     key: str
     ext: str
 
-    # ---------- helpers ----------
     @classmethod
     def from_context(
         cls,
@@ -35,6 +35,7 @@ class UploadKey(BaseModel):
             ext=ext,
             channel_id=context.get("channel_id"),
             video_id=context.get("video_id"),
+            course_id=context.get("course_id"),
         )
 
     @classmethod
@@ -42,44 +43,38 @@ class UploadKey(BaseModel):
         parts = key.split("/")
         ext = Path(key).suffix.lstrip(".").lower()
 
-        # user avatar
-        if parts == ["other", f"avatar.{ext}"]:
+        # user_avatar
+        if parts == ["other", f"user_avatar.{ext}"]:
             return cls(user_id=user_id, kind=ObjectKind.PROFILE_AVATAR, key=key, ext=ext)
 
-        # channel avatar
-        if len(parts) == 3 and parts[0] == "channels" and parts[2].startswith("avatar"):
+        # channels/{channel_id}/channel_avatar.*
+        if len(parts) == 3 and parts[0] == "channels" and parts[2].startswith("channel_avatar"):
             return cls(user_id=user_id, channel_id=parts[1],
                        kind=ObjectKind.CHANNEL_AVATAR, key=key, ext=ext)
 
-        # channels/{channel_id}/{video_id}/video.{ext}
-        if (
-            len(parts) == 4
-            and parts[0] == "channels"
-            and parts[3].startswith("video")
-        ):
-            return cls(user_id=user_id,
-                       channel_id=parts[1],
-                       video_id=UUID(parts[2]),
-                       kind=ObjectKind.VIDEO,
-                       key=key,
-                       ext=ext)
+        # channels/{channel_id}/channel_preview.*
+        if len(parts) == 3 and parts[0] == "channels" and parts[2].startswith("channel_preview"):
+            return cls(user_id=user_id, channel_id=parts[1],
+                       kind=ObjectKind.CHANNEL_PREVIEW, key=key, ext=ext)
 
-        # channels/{channel_id}/{video_id}/preview.{ext}
-        if (
-            len(parts) == 4
-            and parts[0] == "channels"
-            and parts[3].startswith("preview")
-        ):
-            return cls(user_id=user_id,
-                       channel_id=parts[1],
-                       video_id=UUID(parts[2]),
-                       kind=ObjectKind.VIDEO_PREVIEW,
-                       key=key,
-                       ext=ext)
+        # channels/{channel_id}/videos/{video_id}/video*.*
+        if len(parts) == 5 and parts[0] == "channels" and parts[2] == "videos":
+            video_id = UUID(parts[3])
+            if parts[4].startswith("video."):
+                return cls(user_id=user_id, channel_id=parts[1],
+                           video_id=video_id, kind=ObjectKind.VIDEO, key=key, ext=ext)
+            if parts[4].startswith("video_preview"):
+                return cls(user_id=user_id, channel_id=parts[1],
+                           video_id=video_id, kind=ObjectKind.VIDEO_PREVIEW, key=key, ext=ext)
+
+        # channels/{channel_id}/courses/{course_id}/course_preview.*
+        if (len(parts) == 5 and parts[0] == "channels" and parts[2] == "courses"
+                and parts[4].startswith("course_preview")):
+            return cls(user_id=user_id, channel_id=parts[1],
+                       course_id=UUID(parts[3]), kind=ObjectKind.COURSE_PREVIEW, key=key, ext=ext)
 
         return None
 
-    # ---------- validators ----------
     @field_validator("ext")
     @classmethod
     def _lower(cls, v: str) -> str:
