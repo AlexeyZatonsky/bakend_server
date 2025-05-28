@@ -1,16 +1,22 @@
 from uuid import UUID
 from typing import List, Optional
-from enum import Enum
 
 from sqlalchemy import update,select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from ..core.AbstractRepository import AbstractRepository
 from .models import CoursesORM
 
+from ..core.AbstractRepository import AbstractRepository
 from ..core.Enums.PermissionsEnum import PermissionsEnum
+from ..core.Enums.ExtensionsEnums import ImageExtensionsEnum
+
 from ..permissions.models import PermissionsORM
 
+import logging
+from ..core.log import configure_logging
+
+logger = logging.getLogger(__name__)
+configure_logging()
 
 
 class CourseRepository(AbstractRepository[CoursesORM]):
@@ -61,3 +67,14 @@ class CourseRepository(AbstractRepository[CoursesORM]):
         )
         result = await self.session.execute(query)
         return result.scalar_one_or_none()
+
+    async def set_preview_extension(self, course_id: UUID, extension: ImageExtensionsEnum):
+        """Устанавливает расширение превью канала"""
+        logger.debug(f"Передано в preview_ext: {extension} ({type(extension)}), name={getattr(extension, 'name', None)}, value={getattr(extension, 'value', None)}")
+
+        await self.session.execute(
+            update(CoursesORM)
+            .where(CoursesORM.id == course_id)
+            .values(preview_ext = extension)
+        )
+        await self.session.commit()

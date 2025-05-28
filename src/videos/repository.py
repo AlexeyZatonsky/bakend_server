@@ -96,11 +96,12 @@ class VideoDataRepository(AbstractRepository[VideoORM]):
         """
         Обновляет в БД расширение превью для уже существующего видео.
         """
-        video = await self.get_by_id(video_id)
-        if not video:
-            raise ValueError(f"Видео {video_id!r} не найдено")
-        video.preview_ext = extension
-        await self.update(video)
+        await self.session.execute(
+            update(VideoORM)
+            .where(VideoORM.id == video_id)
+            .values(preview_ext = extension)
+        )
+        await self.session.commit()
         
         
     async def update_video_name(self, video_id: UUID, name: str) -> None:

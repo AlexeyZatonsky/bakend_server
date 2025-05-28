@@ -46,9 +46,22 @@ class ChannelRepository(AbstractRepository[ChannelsORM]):
         """Устанавливает расширение аватара канала"""
         logger.debug(f"Передано в avatar_ext: {extension} ({type(extension)}), name={getattr(extension, 'name', None)}, value={getattr(extension, 'value', None)}")
 
+        logger.debug(f"Обновление расширения для канала {channel_id} с расширением {extension}")
         await self.session.execute(
             update(ChannelsORM)
             .where(ChannelsORM.id == channel_id)
             .values(avatar_ext = extension)
+        )
+        await self.session.commit()
+
+    async def set_preview_extension(self, channel_id: str, extension: ImageExtensionsEnum) -> None:
+        """Устанавливает расширение превью канала"""
+        logger.debug(f"Передано в preview_ext: {extension} ({type(extension)}), name={getattr(extension, 'name', None)}, value={getattr(extension, 'value', None)}")
+
+        logger.debug(f"Обновление расширения для канала {channel_id} с расширением {extension}")
+        await self.session.execute(
+            update(ChannelsORM)
+            .where(ChannelsORM.id == channel_id)
+            .values(preview_ext = extension)
         )
         await self.session.commit()
