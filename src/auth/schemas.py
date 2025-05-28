@@ -79,7 +79,7 @@ class UserReadPublicSchema(BaseModel):
                 ext_value = self.avatar_ext
             
             base_url = S3_ENV.BASE_SERVER_URL
-            return f"{base_url}/minio/{self.id}/other/avatar.{ext_value}"
+            return f"{base_url}/minio/{self.id}/other/user_avatar.{ext_value}"
         
         return None
 
@@ -138,7 +138,7 @@ class UserReadSchema(BaseModel):
                 ext_value = self.avatar_ext
             
             base_url = S3_ENV.BASE_SERVER_URL
-            return f"{base_url}/minio/{self.id}/other/avatar.{ext_value}"
+            return f"{base_url}/minio/{self.id}/other/user_avatar.{ext_value}"
         
         return None
 

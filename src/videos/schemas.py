@@ -49,7 +49,7 @@ class VideoDataReadSchema(BaseVideoDataSchema):
         
         ext_value = self.video_ext.value # mp4
         base_url = S3_ENV.BASE_SERVER_URL
-        return f"{base_url}/minio/{self.user_id}/channels/{self.channel_id}/{self.id}/video.{ext_value}"
+        return f"{base_url}/minio/{self.user_id}/channels/{self.channel_id}/videos/{self.id}/video.{ext_value}"
     
     @field_serializer("preview_url", when_used="json")
     def _get_full_preview_url(self, preview_url) -> str | None:
@@ -63,7 +63,7 @@ class VideoDataReadSchema(BaseVideoDataSchema):
                 ext_value = self.preview_ext
             
             base_url = S3_ENV.BASE_SERVER_URL
-            return f"{base_url}/minio/{self.user_id}/channels/{self.channel_id}/{self.id}/preview.{ext_value}"
+            return f"{base_url}/minio/{self.user_id}/channels/{self.channel_id}/videos/{self.id}/video_preview.{ext_value}"
         
         return None
     
