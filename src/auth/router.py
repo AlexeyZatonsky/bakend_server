@@ -25,19 +25,6 @@ async def register_user(
     user_data: UserCreateSchema,
     auth_service: AuthService = Depends(get_auth_service)
 ):
-    """
-    Регистрация нового пользователя
-    
-    Args:
-        user_data: Данные для создания пользователя (email и пароль)
-        auth_service: Сервис аутентификации
-        
-    Returns:
-        UserReadSchema: Данные созданного пользователя
-        
-    Raises:
-        HTTPException: 409 Conflict, если пользователь с таким email уже существует
-    """
     logger.info(f"Registering new user with email: {user_data.email}")
     return await auth_service.create_user(user_data)
 
@@ -53,20 +40,6 @@ async def login(
     auth_service: AuthService = Depends(get_auth_service)
 ):
     logger.warning(f"response - {response}\nform_data:{form_data}")
-    """
-    Аутентификация пользователя и получение токена
-    
-    Args:
-        response: Объект ответа FastAPI
-        form_data: Форма с данными для входа (username = email, password)
-        auth_service: Сервис аутентификации
-        
-    Returns:
-        TokenSchema: Токен доступа и его тип
-        
-    Raises:
-        HTTPException: 401 Unauthorized, если учетные данные неверны
-    """
     logger.info(f"Login attempt for user: {form_data.username}")
     
     user = await auth_service.authenticate_user(form_data.username, form_data.password)
@@ -190,7 +163,7 @@ async def delete_user_me(
 async def get_users( 
     auth_service: AuthService = Depends(get_auth_service), 
     limit:int = 20) :
-    """Тетовы метод просто для получения всех пользователей"""
+    """Получение списка всех пользователей"""
     return await auth_service.get_all_users(limit)
 
 @router.patch("/me/username", status_code=status.HTTP_204_NO_CONTENT)
