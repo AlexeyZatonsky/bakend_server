@@ -112,29 +112,23 @@ class ChannelService:
 
         await self.repository.delete(channel)
         
+
     async def set_avatar_extension(
             self,
             channel_id: str,
             mime: ImageMimeEnum,      
     ) -> None:
-        """
-        Устанавливает расширение аватара канала
-        
-        Args:
-            channel_id: ID канала
-            mime: MIME-тип загруженного изображения
-        """
-        # Проверяем существование канала
-        channel = await self.repository.get_by_id(channel_id)
-        if not channel:
-            raise self.http_exceptions.not_found_404()
-        
-        logger.debug(f"Для канала {channel_id} создаётся запись с типом аватара {mime.value}") 
-        
         image_type_ref = ImageTypeReference.from_mime(mime)
         image_type: ImageExtensionsEnum = image_type_ref.ext
-
-        logger.debug(f"Тип преобразован в {image_type.value}")
-        logger.debug(f"Тип объекта {type(image_type)}")
         
-        await self.repository.set_avatar_extension(channel_id, image_type)
+        return await self.repository.set_avatar_extension(channel_id, image_type)
+
+    async def set_preview_extension(
+            self,
+            channel_id: str,
+            mime: ImageMimeEnum,      
+    ) -> None:
+        image_type_ref = ImageTypeReference.from_mime(mime)
+        image_type: ImageExtensionsEnum = image_type_ref.ext
+        
+        return await self.repository.set_preview_extension(channel_id, image_type)

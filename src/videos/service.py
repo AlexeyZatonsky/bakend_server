@@ -7,6 +7,9 @@ from .models     import VideoORM
 from .schemas    import VideoDataReadSchema, VideoDataUpdateSchema
 
 from ..core.Enums.ExtensionsEnums import VideoExtensionsEnum, ImageExtensionsEnum
+from ..core.Enums.MIMETypeEnums import ImageMimeEnum
+from ..core.Enums.TypeReferencesEnums import ImageTypeReference
+
 
 import logging
 from ..core.log import configure_logging
@@ -114,3 +117,13 @@ class VideoService:
     async def get_all_video_datas(self) -> List[VideoDataReadSchema]:
         videos = await self.repository.get_all_video_datas()
         return [VideoDataReadSchema.model_validate(video) for video in videos]
+
+    
+    async def set_preview_extension(
+           self,
+            video_id: UUID,
+            mime: ImageMimeEnum,    
+    ) -> None:
+        image_type_ref = ImageTypeReference.from_mime(mime)
+        image_type: ImageExtensionsEnum = image_type_ref.ext
+        return await self.repository.set_preview_extension(video_id, image_type)

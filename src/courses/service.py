@@ -1,17 +1,16 @@
 import logging
 from ..core.log import configure_logging
 
-from typing import List, Optional
+from typing import List
 from uuid import UUID
 
-from fastapi import HTTPException, status
-
 from ..channels.service import ChannelService
-
-from ..auth.schemas import UserReadSchema
-
 from ..channels.schemas import ChannelReadSchema
 from ..channels.service import ChannelService
+
+from ..core.Enums.MIMETypeEnums import ImageMimeEnum
+from ..core.Enums.ExtensionsEnums import ImageExtensionsEnum
+from ..core.Enums.TypeReferencesEnums import ImageTypeReference
 
 from .models import CoursesORM
 from .repository import CourseRepository
@@ -24,7 +23,7 @@ configure_logging()
 
 
 
-#TODO_redis: Сохранять в кэше данные о курсах, если данные меняются каллбэкать запись
+
 class CourseService:
     def __init__(self, repository: CourseRepository, http_exceptions: CoursesHTTPExceptions):
         self.repository = repository
@@ -77,5 +76,15 @@ class CourseService:
             raise self.http_exceptions.not_found_404()
         
         return CourseReadSchema.model_validate(course_orm)
+    
+    async def set_preview_extension(
+           self,
+            course_id: UUID,
+            mime: ImageMimeEnum,    
+    ) -> None:
+        image_type_ref = ImageTypeReference.from_mime(mime) 
+        image_type: ImageExtensionsEnum = image_type_ref.ext
+        return await self.repository.set_preview_extension(course_id, image_type)
+
     
 
