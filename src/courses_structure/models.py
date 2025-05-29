@@ -19,7 +19,8 @@ class CoursesStructureORM(Base):
     id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),
         ForeignKey("courses.id", ondelete="CASCADE"),
-        primary_key=True
+        primary_key=True,
+        unique=True
     )
     structure: Mapped[dict] = mapped_column(JSONB, nullable=False)
 

@@ -16,7 +16,8 @@ class UsersORM(Base):
     id:         Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), 
         default=uuid.uuid4, 
-        primary_key=True
+        primary_key=True,
+        unique=True
     )
     username:   Mapped[str] = mapped_column(
         String(255), 
@@ -61,7 +62,8 @@ class SecretInfoORM(Base):
     id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), 
         ForeignKey(UsersORM.id, ondelete='CASCADE'), 
-        primary_key=True
+        primary_key=True,
+        unique=True
     )
     email: Mapped[str] = mapped_column(
         String(320), 

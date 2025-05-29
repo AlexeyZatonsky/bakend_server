@@ -28,7 +28,7 @@ class VideoORM(Base):
     __tablename__ = 'videos'
     
     id:         Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), default=uuid.uuid4, primary_key=True
+        UUID(as_uuid=True), default=uuid.uuid4, primary_key=True, unique= True
     )
     user_id:    Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey(UsersORM.id, ondelete='CASCADE'), nullable=False
@@ -98,7 +98,10 @@ class VideoMetadatasORM(Base):
     __tablename__ = 'video_metadatas'
 
     id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey(VideoORM.id, ondelete='CASCADE'), primary_key=True
+        UUID(as_uuid=True), 
+        ForeignKey(VideoORM.id, ondelete='CASCADE'), 
+        primary_key=True, 
+        unique=True
     ) 
 
     views: Mapped[int] = mapped_column(Integer, default=0) 
