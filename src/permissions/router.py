@@ -26,13 +26,12 @@ router = APIRouter(
 
 
 @router.post(
-    "courses/{course_id}/permissions",
+    "/courses/{course_id}/permissions",
     response_model=PermissionReadSchema,
     status_code=status.HTTP_201_CREATED
 )
 async def grant_course_permission(
-
-    data: PermissionCreateSchema = Depends(),
+    data: PermissionCreateSchema,
     service: PermissionsService = Depends(get_permissions_service),
     current_course: CourseReadSchema = Depends(get_current_course_with_owner_validate)
 ):
@@ -41,7 +40,7 @@ async def grant_course_permission(
 
 
 @router.get(
-    "courses/{course_id}/permissions",
+    "/courses/{course_id}/permissions",
     response_model=PermissionReadSchema,
     status_code=status.HTTP_200_OK
 )
