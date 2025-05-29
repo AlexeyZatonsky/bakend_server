@@ -12,7 +12,7 @@ class CourseStructureHTTPExceptions(AbstractHTTPExceptions):
         )
     
     
-    def conflict_409(self, detail: str = "There's already a course with that name on your channel.") -> HTTPException:
+    def conflict_409(self, detail: str = "The sructure for this course already exists") -> HTTPException:
         return HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail=detail

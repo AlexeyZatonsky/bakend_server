@@ -53,7 +53,8 @@ async def get_course_structure(
 @router.post(
     "/", 
     response_model=FullStructureReadSchema, 
-    status_code=status.HTTP_201_CREATED
+    status_code=status.HTTP_201_CREATED,
+    summary="Используется только для первичного создания структуры"
 )
 async def create_structure(
     course_id: UUID = Path(..., alias="course_id"),
@@ -63,7 +64,26 @@ async def create_structure(
             skip_if_public=False,
         )
     ),
-    structure_data: FullStructureCreateSchema = Body(...),        # <‑‑ Body, а не Depends()
+    structure_data: FullStructureCreateSchema = Body(...),
     service: CourseStructureService = Depends(get_course_structure_service),
 ):
     return await service.create_structure_for_course(course_id, structure_data.structure)
+
+@router.post(
+    "/", 
+    response_model=FullStructureReadSchema, 
+    status_code=status.HTTP_201_CREATED,
+    summary="Исапользуется для обновления структуры"
+)
+async def update_structure(
+    course_id: UUID = Path(..., alias="course_id"),
+    _: PermissionReadSchema = Depends(
+        require_permission(
+            access_level={PermissionsEnum.OWNER, PermissionsEnum.HIGH_MODERATOR},
+            skip_if_public=False,
+        )
+    ),
+    structure_data: FullStructureCreateSchema = Body(...),
+    service: CourseStructureService = Depends(get_course_structure_service),
+):
+    return await service.update_structure_for_course(course_id, structure_data.structure)

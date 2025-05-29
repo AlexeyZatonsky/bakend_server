@@ -36,7 +36,7 @@ class CourseStructureRepository(AbstractRepository[CoursesStructureORM]):
     ) -> Optional[CoursesStructureORM]:
         query = (
             update(self.model)
-            .where(self.model.course_id == old_entity.course_id)
+            .where(self.model.id == old_entity.id)
             .values(structure=new_entity.structure)
             .returning(self.model)
         )

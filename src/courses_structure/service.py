@@ -26,6 +26,9 @@ class CourseStructureService:
             id=course_id,
             structure=body.model_dump(mode="python")  # raw dict → JSONB
         )
+        if await self.repository.get_by_id(course_id) != None:
+            raise self.http_exceptions.conflict_409()
+
         created = await self.repository.create(orm_obj)
         return FullStructureReadSchema(**created.__dict__)
 
@@ -39,6 +42,21 @@ class CourseStructureService:
             raise self.http_exceptions.not_found_404()
         
         return FullStructureReadSchema(**orm_obj.__dict__)
+    
+    async def update_structure_for_course(
+        self,
+        course_id: UUID,
+        body: FullStructureCreateSchema
+    ) -> FullStructureReadSchema:
+        orm_obj = CoursesStructureORM(
+            id=course_id,
+            structure=body.model_dump(mode="python")  # raw dict → JSONB
+        )
+        if await self.repository.get_by_id(course_id) != None:
+            raise self.http_exceptions.conflict_409()
+
+        created = await self.repository.update_structure(orm_obj)
+        return FullStructureReadSchema(**created.__dict__)
 
     async def open_module(self, course_id: UUID, module_id: UUID): pass
 

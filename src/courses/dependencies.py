@@ -50,12 +50,12 @@ async def get_current_course_with_owner_validate(
     # 1. Находим курс
     course_orm = await course_service.repository.get_by_id(course_id)
     if not course_orm:
-        raise course_service.http_exceptions.not_found_404()
+        raise course_service.http_exceptions.not_found_404(detail="Ошибка в поиске курса")
 
     # 2. Проверяем, что пользователь владелец канала курса
     channel_orm = await channel_service.repository.get_by_id(course_orm.channel_id)
     if not channel_orm:
-        raise channel_service.http_exceptions.not_found_404()
+        raise channel_service.http_exceptions.not_found_404(detail="Пользователь не владелец канала курса")
 
     if channel_orm.owner_id != user.id:
         raise course_service.http_exceptions.forbidden_403()
@@ -69,7 +69,7 @@ async def get_current_course_with_owner_validate(
 async def course_is_open(
     course_id: UUID,
     course_service: CourseService = Depends(get_course_service),
-) -> CourseReadSchema:
+) -> bool:
     """
     Проверяет, что курс **открыт** 
     """

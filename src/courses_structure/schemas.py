@@ -1,23 +1,18 @@
-from typing import Optional, List, Union
+from typing import Optional, List
 from pydantic import BaseModel, Field, ConfigDict, model_validator
 
 
-
-
-
-
 class StructureLessonBaseSchema(BaseModel):
-    """Урок в курсе - подразумевате в себе страницу в которой содержится контент в формате MD + что-то ещё (видео, фото)"""
+    """Урок в курсе"""
 
     name: str = Field(..., min_length=1, max_length=100, description="Название урока")
-    homework: bool = Field(default=False, description="Является ли страница урока домашним заданием (меняет только отображдение на фронте)")
-    content: Optional[List[str]] = Field(None, description="Контент урока (ссылки на видео, PDF и т.д.)")
+    homework: bool = Field(default=False, description="Является ли страница урока домашним заданием")
+    content: Optional[List[str]] = Field(None, description="Контент урока (ссылки на видео, md и т.д.)")
 
 class StructureLessonCreateSchema(StructureLessonBaseSchema): pass
 class StructureLessonUpdateSchema(StructureLessonBaseSchema): pass
 class StructureLessonReadSchema(StructureLessonBaseSchema): 
     model_config = ConfigDict(from_attributes=True)
-
 
 
 class StructureSubModuleBaseSchema(BaseModel):
@@ -32,19 +27,17 @@ class StructureSubModuleReadSchema(StructureSubModuleBaseSchema):
     model_config = ConfigDict(from_attributes=True)
 
 
-
 class StructureModuleBaseSchema(BaseModel):
     """Схема модуля курса, который может включать подмодули и уроки."""
 
     name: str = Field(..., min_length=1, max_length=100, description="Название модуля")
     is_active: bool = Field(True, description="Активность модуля (доступность для студентов)")
-    submodules: Optional[List["StructureSubModuleReadSchema"]] = Field(None, description="Подмодули данного модуля !Сам модуль не может содержать в себе уроки - только подмодули")
+    submodules: Optional[List["StructureSubModuleReadSchema"]] = Field(None, description="Подмодули модуля")
 
 class StructureModuleCreateSchema(StructureModuleBaseSchema): pass
 class StructureModuleUpdateSchema(StructureModuleBaseSchema): pass
 class StructureModuleReadSchema(StructureModuleBaseSchema): 
     model_config = ConfigDict(from_attributes=True)
-
 
 
 class StructureItemSchema(BaseModel):
@@ -65,7 +58,7 @@ class StructureItemSchema(BaseModel):
 class StructureBaseSchema(BaseModel):
     content: List[StructureItemSchema] = Field(
         ..., 
-        description="Вариативная структура курса — список модулей, подмодулей или уроков. Можно смешивать."
+        description="Вариативная структура курса — список модулей, подмодулей или уроков"
     )
 
 
