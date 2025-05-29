@@ -62,7 +62,9 @@ async def delete_course(
     return await course_service.delete_course(course.id)
 
 
-@router.patch("/channels/{channel_id}/courses/{course_id}", response_model=CourseReadSchema)
+@router.patch("/channels/{channel_id}/courses/{course_id}",
+               status_code=status.HTTP_204_NO_CONTENT 
+            )
 async def patch_course(
     update_data: CourseUpdateSchema,
     course: CourseReadSchema = Depends(get_current_course_with_owner_validate),  
@@ -76,3 +78,16 @@ async def get_channel_courses(
     course_service: CourseService = Depends(get_course_service),
 ):
     return await course_service.get_courses_by_channel(channel)
+
+# @router.get("/courses/my",
+#             response_model=List[CourseReadSchema],
+#             status_code=status.HTTP_200_OK,
+#             summary="Получение всех курсов пользователя",
+#             description="Получение всех курсов пользователя",
+#             )
+# async def get_my_courses(
+#     course_service: CourseService = Depends(get_course_service),
+#     user: UserReadSchema = Depends(get_current_user),
+# ):
+#     return await course_service.get_my_courses(user.id)
+            

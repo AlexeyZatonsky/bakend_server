@@ -41,14 +41,17 @@ class CourseService:
         course_orm = await self.repository.get_by_id(course_id)
         await self.repository.delete(course_orm)
 
-    async def update_course(self, course: CourseReadSchema, update_data: CourseUpdateSchema) -> CourseReadSchema:
-        course_orm = CoursesORM(**course.model_dump())
-        for field, value in update_data.model_dump(exclude_unset=True).items():
-            setattr(course_orm, field, value)
+    async def update_course(self, course: CourseReadSchema, update_data: CourseUpdateSchema) -> None:
+        course_orm = self.repository.get_by_id(course.id)
+        if course_orm is None:
+            raise self.http_exceptions.not_found_404()
+        
+        if update_data.name is not None:
+            await self.repository.update_name(course.id, update_data.name)
 
-        await self.repository.session.commit()
-        await self.repository.session.refresh(course_orm)
-        return CourseReadSchema.model_validate(course_orm)
+        if update_data.is_public is not None:
+            await self.repository.update_is_public(course.id, update_data.is_public)
+
 
     async def get_all_public_courses(self, limit: int = 20) -> List[CourseReadSchema]:
         courses = await self.repository.get_all(limit)
@@ -85,6 +88,14 @@ class CourseService:
         image_type_ref = ImageTypeReference.from_mime(mime) 
         image_type: ImageExtensionsEnum = image_type_ref.ext
         return await self.repository.set_preview_extension(course_id, image_type)
+
+    async def get_my_courses(self, user_id: UUID) -> List[CourseReadSchema]:
+        courses = await self.repository.get_by_user_id(user_id)
+        
+        if not courses:
+            raise self.http_exceptions.not_found_404()
+        
+        return [CourseReadSchema.model_validate(course) for course in courses]
 
     
 

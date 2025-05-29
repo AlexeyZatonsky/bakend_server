@@ -78,3 +78,38 @@ class CourseRepository(AbstractRepository[CoursesORM]):
             .values(preview_ext = extension)
         )
         await self.session.commit()
+        
+    async def get_by_user_id(self, user_id: UUID) -> List[CoursesORM]:
+        query = select(CoursesORM).where(CoursesORM.owner_id == user_id)
+        result = await self.session.execute(query)
+        return result.scalars().all()
+    
+    async def update_name(self, course_id: UUID, name: str):
+        await self.session.execute(
+            update(CoursesORM)
+            .where(CoursesORM.id == course_id)
+            .values(name = name)
+        )
+        await self.session.commit()
+
+    async def update_is_public(self, course_id: UUID, is_public: bool):
+        await self.session.execute(
+            update(CoursesORM)
+            .where(CoursesORM.id == course_id)
+            .values(is_public = is_public)
+        )
+        await self.session.commit()  
+
+    async def update(
+            self, course_id: UUID, 
+            name: Optional[str] = None, 
+            is_public: Optional[bool] = None
+        ) -> CoursesORM:
+        
+        if name != None:
+            await self.update_name(course_id, name)
+
+        if is_public != None:
+            await self.update_is_public(course_id, name)
+
+        return self.get_by_id(course_id)

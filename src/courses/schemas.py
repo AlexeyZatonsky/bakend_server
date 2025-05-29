@@ -25,7 +25,11 @@ class CourseCreateSchema(CourseBaseSchema):
     is_public: bool = Field(default=True, description="Является ли курс общедоступным")
 
 
-class CourseUpdateSchema(CourseBaseSchema): pass
+class CourseUpdateSchema(CourseBaseSchema):
+    name: Optional[str] = Field(default = None, min_length=1, max_length=100, description="Название курса")
+    is_public: Optional[bool] = Field(default=True, description="Является ли курс общедоступным")
+
+
 class CourseReadSchema(CourseBaseSchema):
     id: UUID = Field(description="Уникальный идентификатор курса")
     channel_id: str = Field(description="Идентификатор канала, к которому привязан курс")
