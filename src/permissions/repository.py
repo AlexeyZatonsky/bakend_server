@@ -8,7 +8,12 @@ from ..core.AbstractRepository import AbstractRepository
 
 from .models import PermissionsEnum, PermissionsORM
 
+import logging
+from ..core.log import configure_logging
 
+
+logger = logging.getLogger(__name__)
+configure_logging()
 
 class PermissionRepository(AbstractRepository[PermissionsORM]):
     def __init__(self, session: AsyncSession):
@@ -22,7 +27,9 @@ class PermissionRepository(AbstractRepository[PermissionsORM]):
                 PermissionsORM.course_id == course_id,
             )
         )
+        logger.debug("Выполняется метод слоя Repository для получения прав пользователя")
         res = await self.session.execute(stmt)
+        logger.debug("Выполнен запрос на получение прав")
         return res.scalar_one_or_none()
 
     async def get_all(self, limit: int = 20) -> List[PermissionsORM]:

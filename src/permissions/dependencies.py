@@ -44,18 +44,6 @@ def require_permission(
     *,
     skip_if_public: bool = True,
 ):
-    """
-    Возвращает **dependency‑функцию**, проверяющую наличие права пользователя
-    на курс.
-
-    * `access_level=None`  → достаточно *любого* актуального права;  
-      иначе — нужно хотя бы одно из переданных уровней.
-    * `skip_if_public=True` — если курс `is_public`, проверка прав пропускается.
-
-    Возвращает `PermissionReadSchema` или `None` (когда проверку пропустили).
-    Бросает HTTP‑403, если право не найдено / просрочено / уровень не подходит.
-    """
-    # ─── 0. Предварительно нормализуем требуемые уровни доступа ───
     if access_level is None:
         required_levels: set[str] | None = None
     elif isinstance(access_level, PermissionsEnum):
@@ -63,12 +51,11 @@ def require_permission(
     else:  # iterable of enums
         required_levels = {lv.value for lv in access_level}
 
-    # ─── helpers ──────────────────────────────────────────────────
     def _expired(expiration: datetime | None) -> bool:
         return bool(expiration and expiration < datetime.now(tz=UTC))
 
     def _is_allowed(level: str) -> bool:
-        # если конкретных уровней не задано — подходит любой
+
         return required_levels is None or level in required_levels
 
     # ─── dependency‑функция ──────────────────────────────────────
@@ -84,7 +71,7 @@ def require_permission(
             logger.debug("Course is public → permission check skipped")
             return None
 
-        # 2. Ищем право
+        logger.debug("Проеверка прав get_course_permissions_for_user")
         perm = await permissions_service.get_course_permission_for_user(
             user.id, course_id
         )

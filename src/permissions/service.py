@@ -25,6 +25,7 @@ class PermissionsService:
             self, 
             user_id: UUID, 
             course_id: UUID) -> Optional[PermissionReadSchema]:
+        logger.debug("Провалились в меотод получения прав пользователя")
         permission_entity = await self.repository.get_by_id(user_id, course_id)
         if permission_entity is None: 
             return None

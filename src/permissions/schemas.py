@@ -21,7 +21,6 @@ def plus_month() -> datetime:
 
 class PermissionBaseSchema(BaseModel):
     user_id: UUID = Field(..., description="ID пользователя которому выдаются права на курс")
-    #course_id: UUID = Field(..., description="ID курса")
 
 
 class PermissionCreateSchema(PermissionBaseSchema):
