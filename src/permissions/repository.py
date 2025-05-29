@@ -23,9 +23,9 @@ class PermissionRepository(AbstractRepository[PermissionsORM]):
         stmt = (
             select(PermissionsORM)
             .where(
-                PermissionsORM.user_id == user_id,
-                PermissionsORM.course_id == course_id,
-            )
+                PermissionsORM.user_id == user_id and
+                PermissionsORM.course_id == course_id
+            ).limit(1)
         )
         logger.debug("Выполняется метод слоя Repository для получения прав пользователя")
         res = await self.session.execute(stmt)
