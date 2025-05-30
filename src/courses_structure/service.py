@@ -52,9 +52,6 @@ class CourseStructureService:
             id=course_id,
             structure=body.model_dump(mode="python")  # raw dict → JSONB
         )
-        if await self.repository.get_by_id(course_id) != None:
-            raise self.http_exceptions.conflict_409()
-
         created = await self.repository.update_structure(orm_obj)
         return FullStructureReadSchema(**created.__dict__)
 
