@@ -31,12 +31,12 @@ class CourseStructureRepository(AbstractRepository[CoursesStructureORM]):
 
     async def update_structure(
         self,
-        old_entity: CoursesStructureORM,
+        course_id: UUID,
         new_entity: CoursesStructureORM
     ) -> Optional[CoursesStructureORM]:
         query = (
             update(self.model)
-            .where(self.model.id == old_entity.id)
+            .where(self.model.id == course_id)
             .values(structure=new_entity.structure)
             .returning(self.model)
         )

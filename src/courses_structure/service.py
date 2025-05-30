@@ -52,7 +52,7 @@ class CourseStructureService:
             id=course_id,
             structure=body.model_dump(mode="python")  # raw dict → JSONB
         )
-        created = await self.repository.update_structure(orm_obj)
+        created = await self.repository.update_structure(course_id, new_entity=orm_obj)
         return FullStructureReadSchema(**created.__dict__)
 
     async def open_module(self, course_id: UUID, module_id: UUID): pass
