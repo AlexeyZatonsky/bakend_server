@@ -69,7 +69,7 @@ async def create_structure(
 ):
     return await service.create_structure_for_course(course_id, structure_data.structure)
 
-@router.post(
+@router.patch(
     "/", 
     response_model=FullStructureReadSchema, 
     status_code=status.HTTP_201_CREATED,
