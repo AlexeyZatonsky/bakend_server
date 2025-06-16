@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from fastapi import HTTPException, status
+from fastapi import HTTPException
 
 
 class AbstractHTTPExceptions(ABC):

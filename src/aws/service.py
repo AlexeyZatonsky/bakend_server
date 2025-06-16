@@ -22,7 +22,7 @@ import logging
 from ..core.log import configure_logging
 
 logger = logging.getLogger(__name__)
-
+configure_logging()
 
 
 class StorageService:
@@ -114,23 +114,19 @@ class StorageService:
             ExpiresIn=expires_in_second,
         )
         
-        # Формируем публичный URL для доступа к объекту
         public_url = f"{S3_ENV.public_url}/{bucket}/{object_key}"
         logger.debug(f" публичный URL для доступа к объекту - {public_url}")
 
         url_parts = internal_url.split('/', 3)
         if len(url_parts) < 4:
             logger.error(f"Неверный формат URL: {internal_url}")
-            # Возвращаем оригинальный URL в случае ошибки
             external_upload_url = internal_url.replace(S3_ENV.S3_URL, S3_ENV.BASE_SERVER_URL)
         else:
-            # url_parts[3] содержит bucket/key?params...
             path_params = url_parts[3]
-            # Формируем новый URL через наш прокси
             external_upload_url = f"{S3_ENV.BASE_SERVER_URL}/s3proxy/{path_params}"
         
         return {
-            "upload_url": external_upload_url,  # URL для внешнего доступа
+            "upload_url": external_upload_url,
             "public_url": public_url,
             "bucket": bucket,
             "key": object_key,

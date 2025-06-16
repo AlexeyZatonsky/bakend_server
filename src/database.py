@@ -6,8 +6,6 @@ from sqlalchemy.orm import DeclarativeBase, sessionmaker
 
 from .settings.config import DB_ENV
 
-
-
 DATABASE_URL = DB_ENV.database_url
 
 class Base(DeclarativeBase):

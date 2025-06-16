@@ -13,7 +13,7 @@ from src.app import app
 from src.channels.schemas import ChannelReadSchema
 from src.courses.schemas import CourseCreateSchema, CourseReadSchema
 from src.permissions.schemas import PermissionCreateSchema, PermissionReadSchema
-from src.permissions.permissionsEnum import PermissionsEnum
+from core.Enums.permissionsEnum import PermissionsEnum
 
 fake = Faker("ru_RU")
 

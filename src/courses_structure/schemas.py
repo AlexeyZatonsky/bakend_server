@@ -57,7 +57,6 @@ class StructureItemSchema(BaseModel):
 
 class StructureBaseSchema(BaseModel):
     content: List[StructureItemSchema] = Field(
-        ..., 
         description="Вариативная структура курса — список модулей, подмодулей или уроков"
     )
 

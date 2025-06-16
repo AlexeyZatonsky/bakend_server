@@ -2,7 +2,7 @@ import mimetypes
 from abc import abstractmethod
 from enum import Enum, auto
 from pathlib import Path
-from typing import Any, Protocol
+from typing import Any, Protocol, Optional
 from uuid import UUID
 
 
@@ -13,6 +13,7 @@ class ObjectKind(Enum):
     VIDEO_PREVIEW = auto()
     CHANNEL_PREVIEW = auto()
     COURSE_PREVIEW = auto()
+    LESSON_MARKDOWN = auto()
 
 
 class KeyBuildingStrategy(Protocol):
@@ -78,3 +79,35 @@ def build_key(object_kind: ObjectKind, **context: Any) -> str:
 class CoursePreviewKeyStrategy(KeyBuildingStrategy):
     def build_key(self, channel_id: str, course_id: str, source_filename: str, **_: Any) -> str:
         return f"channels/{channel_id}/courses/{course_id}/course_preview{_ext(source_filename)}"
+    
+@register_strategy(ObjectKind.LESSON_MARKDOWN)
+class LessonMorkdowmKeyStrategy(KeyBuildingStrategy):
+
+    def build_key(
+            self,
+            *,
+            channel_id: str,
+            course_id: UUID,
+            module_name: Optional[str] = None,
+            submodule_name: Optional[str] = None,
+            lesson_name: str,
+            **_: Any
+            ) -> str:
+        
+        def normalize_path(path: str) -> str:
+            return path.replace(" ", "_").lower()
+        
+        lesson = normalize_path(lesson_name)
+
+        parts: list[str] = [
+            "channels", str(channel_id),
+            "courses", str(course_id)
+        ]
+
+        if module_name:
+            parts.append(normalize_path(module_name))
+        if submodule_name:
+            parts.append(normalize_path(submodule_name))
+
+        parts.append(f"{lesson}.md")
+        return "/".join(parts)

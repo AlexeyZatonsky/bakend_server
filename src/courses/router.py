@@ -35,7 +35,6 @@ async def get_course_by_id(
     return await course_service.get_course_by_id(course_id)
 
 
-# 🔹 Курсы всех каналов пользователя
 @router.get("/users/{user_id}/channels/courses", response_model=List[CourseReadSchema])
 async def get_user_courses(
     user_id: UUID,

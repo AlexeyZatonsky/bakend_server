@@ -1,15 +1,10 @@
-# Dockerfile
-
-# 1. Базовый образ с Python
 FROM python:3.11-slim
 
-# 2. Рабочая директория в контейнере
 WORKDIR /app
 
-# 3. Копируем только зависимости для их установки
 COPY requirements.txt .
 
-# 4. Устанавливаем system-зависимости (если нужны) и Python-библиотеки
+
 RUN apt-get update \
  && apt-get install -y --no-install-recommends gcc libpq-dev \
  && pip install --no-cache-dir -r requirements.txt \

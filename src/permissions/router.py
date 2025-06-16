@@ -2,7 +2,7 @@ import logging
 from ..core.log import configure_logging
 
 from typing import List
-from fastapi import APIRouter, Depends, HTTPException, Path, status
+from fastapi import APIRouter, Depends, Path, status
 from uuid import UUID
 
 from ..auth.schemas import UserReadSchema
@@ -12,7 +12,7 @@ from ..courses.dependencies import get_current_course_with_owner_validate
 from ..courses.schemas import CourseReadSchema
 
 
-from .dependencies import get_permissions_service, require_permission
+from .dependencies import get_permissions_service
 from .schemas import PermissionCreateSchema, PermissionReadSchema
 from .service import PermissionsService
 
@@ -35,7 +35,6 @@ async def grant_course_permission(
     service: PermissionsService = Depends(get_permissions_service),
     current_course: CourseReadSchema = Depends(get_current_course_with_owner_validate)
 ):
-    logger.debug("Провалились внутрь роута")
     return await service.set_user_permission(current_course.id, data)
 
 
@@ -49,10 +48,6 @@ async def get_course_permission(
     service: PermissionsService = Depends(get_permissions_service),
     current_user: UserReadSchema = Depends(get_current_user),
 ):
-    """
-    Получить права доступа к курсу для текущего пользователя.
-    """
-    logger.debug("Провалились внутрь роута")
     return await service.get_course_permission_for_user(current_user.id, course_id)
 
 
@@ -65,8 +60,4 @@ async def get_permissions_for_user(
     current_user: UserReadSchema = Depends(get_current_user),
     service: PermissionsService = Depends(get_permissions_service),
 ):
-    """
-    Получить права доступа к курсам для текущего пользователя.
-    """
-    logger.debug("Провалились внутрь роута")
     return await service.get_all_user_permissions(current_user.id)

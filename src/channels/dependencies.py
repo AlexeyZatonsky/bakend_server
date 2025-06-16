@@ -22,7 +22,6 @@ async def get_channel_exceptions() -> ChannelsHTTPExceptions:
     channels_http_exceptions = ChannelsHTTPExceptions()
     return channels_http_exceptions
 
-
 async def get_current_channel(
     channel_id: str,
     user: UserReadSchema = Depends(get_current_user),

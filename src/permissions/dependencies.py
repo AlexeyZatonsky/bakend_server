@@ -48,7 +48,7 @@ def require_permission(
         required_levels: set[str] | None = None
     elif isinstance(access_level, PermissionsEnum):
         required_levels = {access_level.value}
-    else:  # iterable of enums
+    else: 
         required_levels = {lv.value for lv in access_level}
 
     def _expired(expiration: datetime | None) -> bool:
@@ -58,18 +58,15 @@ def require_permission(
 
         return required_levels is None or level in required_levels
 
-    # ─── dependency‑функция ──────────────────────────────────────
     async def dependency(
         course_id: UUID = Path(..., alias=course_id_param),
         user: UserReadSchema = Depends(get_current_user),
         permissions_service: PermissionsService = Depends(get_permissions_service),
     ) -> PermissionReadSchema | None:
-        logger.debug("require_permission: start check (course_id=%s)", course_id)
-
-        # 1. Публичный курс — права не требуются
+        
         if skip_if_public and await course_is_open(course_id):
             logger.debug("Course is public → permission check skipped")
-            return None
+            return
 
         logger.debug("Проеверка прав get_course_permissions_for_user")
         perm = await permissions_service.get_course_permission_for_user(
@@ -78,15 +75,12 @@ def require_permission(
         if not perm:
             raise permissions_service.http_exceptions.forbidden_403()
 
-        # 3. Срок
         if _expired(perm.expiration_date):
             raise permissions_service.http_exceptions.forbidden_403("Permission expired")
 
-        # 4. Уровень
         if not _is_allowed(perm.access_level):
             raise permissions_service.http_exceptions.forbidden_403("You don't have permission for this action")
 
-        logger.debug("require_permission: success for user %s", user.id)
         return perm
 
     return dependency

@@ -30,7 +30,6 @@ configure_logging()
 async def get_course_service(session: AsyncSession = Depends(get_async_session)) -> CourseService:
     repository = CourseRepository(session)
     http_exceptions = CoursesHTTPExceptions()
-    logger.debug("get_course_service")
     return CourseService(repository, http_exceptions)
 
 
@@ -40,29 +39,20 @@ async def get_current_course_with_owner_validate(
     course_service: CourseService      = Depends(get_course_service),
     channel_service: ChannelService    = Depends(get_channel_service),
 ) -> CourseReadSchema:
-    """
-    Возвращает курс **только** если текущий пользователь – владелец канала,
-    к которому привязан этот курс. Работает и там, где нет параметра `channel_id`
-    (например, /courses/{course_id}/permissions).
-    """
-    logger.debug("get_current_course_with_owner_validate")
-
-    # 1. Находим курс
+    
     course_orm = await course_service.repository.get_by_id(course_id)
     if not course_orm:
-        raise course_service.http_exceptions.not_found_404(detail="Ошибка в поиске курса")
-
-    # 2. Проверяем, что пользователь владелец канала курса
+        raise course_service.http_exceptions.not_found_404()
+    
     channel_orm = await channel_service.repository.get_by_id(course_orm.channel_id)
     if not channel_orm:
-        raise channel_service.http_exceptions.not_found_404(detail="Пользователь не владелец канала курса")
+        raise channel_service.http_exceptions.not_found_404()
 
     if channel_orm.owner_id != user.id:
         raise course_service.http_exceptions.forbidden_403()
 
     logger.debug("get_current_course_with_owner_validate - SUCCESSFULL")
 
-    # 3. Отдаём валидированное DTO
     return CourseReadSchema.model_validate(course_orm)
 
 

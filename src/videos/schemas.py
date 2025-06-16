@@ -45,17 +45,12 @@ class VideoDataReadSchema(BaseVideoDataSchema):
     
     @field_serializer("video_url", when_used="json")
     def get_video_url(self, video_url: str) -> str | None:
-        logger.debug(f"video_url: {video_url}")
-        
         ext_value = self.video_ext.value # mp4
         base_url = S3_ENV.BASE_SERVER_URL
         return f"{base_url}/minio/{self.user_id}/channels/{self.channel_id}/videos/{self.id}/video.{ext_value}"
     
     @field_serializer("preview_url", when_used="json")
-    def _get_full_preview_url(self, preview_url) -> str | None:
-        logger.debug(f"preview_url: {preview_url}, preview_ext: {self.preview_ext}")
-        
-        # Если avatar_ext есть, используем его для формирования URL
+    def _get_full_preview_url(self, preview_url) -> str | None:    
         if self.preview_ext:
             if isinstance(self.preview_ext, ImageExtensionsEnum):
                 ext_value = self.preview_ext.value

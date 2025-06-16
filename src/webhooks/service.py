@@ -93,7 +93,7 @@ class WebhooksService:
     ) -> dict[str, str]:
         """Webhook for user avatar."""
 
-        async def _handler(upload_key: UploadKey, mime_type: str) -> None:  # noqa: D401
+        async def _handler(upload_key: UploadKey, mime_type: str) -> None:
             await auth_service.set_avatar_extension(upload_key.user_id, mime_type)
 
         return await self._process(

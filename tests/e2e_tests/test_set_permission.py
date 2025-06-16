@@ -3,7 +3,7 @@ from httpx import AsyncClient, HTTPStatusError
 import pytest
 from uuid import UUID
 
-from src.permissions.permissionsEnum import PermissionsEnum
+from core.Enums.permissionsEnum import PermissionsEnum
 
 @pytest.mark.asyncio
 async def test_owner_grants_moderator_ok(

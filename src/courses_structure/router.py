@@ -54,7 +54,7 @@ async def get_course_structure(
     "/", 
     response_model=FullStructureReadSchema, 
     status_code=status.HTTP_201_CREATED,
-    summary="Используется только для первичного создания структуры"
+    summary="Используется для создания структуры"
 )
 async def create_structure(
     course_id: UUID = Path(..., alias="course_id"),
@@ -73,7 +73,7 @@ async def create_structure(
     "/", 
     response_model=FullStructureReadSchema, 
     status_code=status.HTTP_201_CREATED,
-    summary="Исапользуется для обновления структуры"
+    summary="Используется для обновления структуры"
 )
 async def update_structure(
     course_id: UUID = Path(..., alias="course_id"),

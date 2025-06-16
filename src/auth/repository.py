@@ -23,26 +23,21 @@ class UserRepository(AbstractRepository[UsersORM]):
         super().__init__(session, UsersORM)
 
     async def get_by_id(self, entity_id: UUID) -> Optional[UsersORM]:
-        """Получение пользователя по UUID"""
         return await super().get_by_id(entity_id)
 
     async def get_all(self, limit: int = 20) -> List[UsersORM]:
-        """Получение списка пользователей с лимитом"""
         query = select(UsersORM).limit(limit)
         result = await self.session.execute(query)
         users = result.scalars().all()          
         return users
 
     async def create(self, entity: UsersORM) -> UsersORM:
-        """Создание пользователя"""
         return await super().create(entity)
 
     async def delete(self, entity: UsersORM) -> None:
-        """Удаление пользователя"""
         await super().delete(entity)
 
     async def get_user_by_username(self, username: str) -> Optional[UsersORM]:
-        """Получение пользователя по username"""
         query = select(UsersORM).where(UsersORM.username == username)
         result = await self.session.execute(query)
         return result.scalar_one_or_none()
@@ -73,23 +68,18 @@ class SecretInfoRepository(AbstractRepository[SecretInfoORM]):
         super().__init__(session, SecretInfoORM)
 
     async def get_by_id(self, entity_id: UUID) -> Optional[SecretInfoORM]:
-        """Получение секретной информации по UUID пользователя"""
         return await super().get_by_id(entity_id)
 
     async def get_all(self, limit: int = 20) -> List[SecretInfoORM]:
-        """Получение списка секретных данных пользователей с лимитом"""
         return await super().get_all(limit)
 
     async def create(self, entity: SecretInfoORM) -> SecretInfoORM:
-        """Создание секретной информации"""
         return await super().create(entity)
 
     async def delete(self, entity: SecretInfoORM) -> None:
-        """Удаление секретной информации"""
         await super().delete(entity)
 
     async def get_by_email(self, email: str) -> Optional[SecretInfoORM]:
-        """Получение секретной информации по email"""
         query = select(self.model).where(self.model.email == email)
         result = await self.session.execute(query)
         return result.scalar_one_or_none()
@@ -129,13 +119,9 @@ class AuthRepository:
     async def create_user(
         self, user_data: UserCreateSchema, hashed_password: str, username: str
     ) -> UsersORM:
-        """
-        Создание нового пользователя с его секретной информацией.
-        В рамках одной транзакции создаются обе записи.
-        """
         user = UsersORM(username=username, is_verified=False, is_active=True)
         self.session.add(user)
-        await self.session.flush()  # flush чтобы получить user.id до commit'а
+        await self.session.flush()  
 
         secret_info = SecretInfoORM(
             id=user.id,
@@ -149,10 +135,6 @@ class AuthRepository:
         return user
 
     async def get_user_by_email(self, email: str) -> Optional[Tuple[UsersORM, SecretInfoORM]]:
-        """
-        Получение пользователя и его секретной информации по email.
-        Возвращает None, если не найден пользователь или секретные данные.
-        """
         secret_info = await self.secret_repo.get_by_email(email)
         if not secret_info:
             return None
@@ -164,7 +146,6 @@ class AuthRepository:
         return user, secret_info
 
     async def get_user_with_secret_info(self, user_id: UUID) -> Optional[UsersORM]:
-        """Получение пользователя с его секретной информацией по ID"""
         query = (
             select(UsersORM)
             .options(selectinload(UsersORM.secret_info))
@@ -174,10 +155,6 @@ class AuthRepository:
         return result.scalar_one_or_none()
 
     async def update_user(self, user_id: UUID, update_data: dict) -> Optional[UsersORM]:
-        """
-        Обновление данных пользователя по ID.
-        Возвращает обновлённого пользователя или None, если пользователь не найден.
-        """
         user = await self.user_repo.get_by_id(user_id)
         if not user:
             return None
@@ -193,10 +170,6 @@ class AuthRepository:
     async def update_secret_info(
         self, user_id: UUID, update_data: dict
     ) -> Optional[SecretInfoORM]:
-        """
-        Обновление секретной информации пользователя по ID.
-        Возвращает обновлённую секретную информацию или None, если данные не найдены.
-        """
         secret_info = await self.secret_repo.get_by_id(user_id)
         if not secret_info:
             return None
@@ -210,10 +183,6 @@ class AuthRepository:
         return secret_info
 
     async def delete_user(self, user_id: UUID) -> bool:
-        """
-        Удаление пользователя и его секретной информации по ID.
-        Возвращает True при успешном удалении, False, если пользователь не найден.
-        """
         user = await self.user_repo.get_by_id(user_id)
         if not user:
             return False

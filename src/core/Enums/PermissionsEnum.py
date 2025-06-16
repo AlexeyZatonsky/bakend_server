@@ -9,3 +9,4 @@ class PermissionsEnum(Enum):
     MODERATOR       = "MODERATOR"
     STUDENT         = "STUDENT"
 
+

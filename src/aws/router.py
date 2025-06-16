@@ -136,3 +136,7 @@ async def upload_video_preview(
         video_id=video_data.id,
     )
     return VideoPreviewUploadResponseSchema(**presign)
+
+
+@router.post("/mardown")
+async def upload_markdown(): pass

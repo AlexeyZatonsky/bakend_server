@@ -27,6 +27,7 @@ async def validate_video_access(
     user: UserReadSchema = Depends(get_current_user),
     service: VideoService = Depends(get_video_service),
 ) -> VideoDataReadSchema:
+    
     video = await service.repository.video_data_repo.get_by_id(video_id)
     if not video:
         raise service.http_exceptions.not_found_404()
