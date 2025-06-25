@@ -3,12 +3,9 @@
 
 Структура директории проекта на __*[FastAPI](https://fastapi.tiangolo.com/)*__ реализована в соответствии с  
 рекомендациями **[FastAPI Best Practices](https://github.com/zhanymkanov/fastapi-best-practices)**
-## Задача
-Данный проект не имеет конкретной задачи и сделан в качестве учебного,  
-в нём реализован такой функционал:
-+ Регистрация, аутентификация, авторизация пользователя через *cookie* с помощью библиотеки **[FastAPI Users](https://fastapi-users.github.io/fastapi-users/11.0/)** с JWTstrategy.  
+
 + Асинхронное подключение к базе данных PostgreSQL с помощью **[SQLAlchemy ORM](https://docs.sqlalchemy.org/en/20/orm/extensions/asyncio.html)**.
-+ _Методы реализованные на данный момент:_ register, login, logout, create channel, upload video  
+
 
 <br/>
 <br/>
